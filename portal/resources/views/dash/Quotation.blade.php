@@ -205,20 +205,19 @@
                                             </div>
 
                                             <!-- QR and Button Column -->
-                                            <div class="col-md-4 d-flex flex-column align-items-center"
-                                                style="margin-top: -10;">
-                                                <img src="{{ asset('assets/dash/board_files/qr.png') }}" alt="Profile"
-                                                    class="img-fluid mb-3" style="max-width: 200px; height: auto;">
+                                            <!-- QR and Button Column -->
+<div class="col-md-4 d-flex flex-column align-items-center" style="margin-top: -10;">
+    <!-- Use the generated QR code -->
+    <img src="{{ $quotation->qrCode }}" alt="QR Code" class="img-fluid mb-3" style="max-width: 200px; height: auto;">
 
-                                                <div class="d-flex gap-3">
-                                                    <img src="{{ asset('assets/dash/board_files/TIRAlogo.png') }}"
-                                                        alt="TIRA Logo" style="width: 40px; height: auto;">
-                                                    <button class="btn btn-primary btn-sm px-2" style="color: white;"
-                                                        data-bs-toggle="modal" data-bs-target="#actions1Modal">
-                                                        Actions
-                                                    </button>
-                                                </div>
-                                            </div>
+    <div class="d-flex gap-3">
+        <img src="{{ asset('assets/dash/board_files/TIRAlogo.png') }}" alt="TIRA Logo" style="width: 40px; height: auto;">
+        <button class="btn btn-primary btn-sm px-2" style="color: white;" data-bs-toggle="modal" data-bs-target="#actions1Modal">
+            Actions
+        </button>
+    </div>
+</div>
+
                                         </div>
                                     </div>
                                 </div> <!-- end card -->
@@ -704,11 +703,11 @@
     });
 </script>
 <script>
-    $(document).ready(function () {
-        $('.table').DataTable({
-            "pageLength": 3 // Show only 5 rows per page
-        });
-    });
+
+    $('#datatable1').DataTable({
+    ordering: false
+});
+
 
     function openNewTransactionModal() {
         const modal = new bootstrap.Modal(document.getElementById('newTransactionModal'));

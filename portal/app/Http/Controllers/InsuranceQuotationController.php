@@ -6,6 +6,7 @@ use App\Models\InsuranceQuotation;
 use App\Models\QuotationDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class InsuranceQuotationController extends Controller
 {
@@ -255,5 +256,32 @@ class InsuranceQuotationController extends Controller
     // Pass to the view
     return view('dash.Quotation', compact('quotations'));
 }
+
+public function qr()
+{
+    $quotations = InsuranceQuotation::all();
+
+    // Generate QR for each quotation
+    foreach ($quotations as $quotation) {
+        $data = [
+            'client_name' => $quotation->client_name,
+            'id_type'     => $quotation->id_type,
+            'id_number'   => $quotation->id_number,
+            'mobile'      => $quotation->mobile1 ?? '',
+            'email'       => $quotation->email1 ?? '',
+            'id'          => $quotation->id
+        ];
+
+        $jsonData = json_encode($data);
+
+        // Add QR as base64 string to the model instance
+        $quotation->qrCode = 'data:image/png;base64,' . base64_encode(
+            QrCode::format('png')->size(200)->generate($jsonData)
+        );
+    }
+
+    return view('dash.Quotation', compact('quotations'));
+}
+
 
 }

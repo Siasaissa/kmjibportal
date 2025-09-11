@@ -52288,10 +52288,10 @@ body {
   background-size: 100% 500px;
 }
 [data-bs-theme="light"] body:not(.app-blank) {
-  background-image: url(back.jpg);
+  background-image: url(back08.jpg);
 }
 [data-bs-theme="dark"] body:not(.app-blank) {
-  background-image: url(back.jpg);
+  background-image: url(back08.jpg);
 }
 @media (max-width: 991.98px) {
   body {

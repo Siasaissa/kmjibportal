@@ -116,14 +116,15 @@
                                             <option>Please Select1</option>
                                             <option>Please Select1</option>
                                         </select></div>
-                                    <div class="col-6 form-group autocomplete-wrapper">
-                                        <label for="client_name" class="form-label required-field">Client Full
-                                            Name</label>
+                                    <div class="col-6 form-group position-relative">
+                                        <label for="client_name" class="form-label required-field">Client Full Name</label>
                                         <input type="text" class="form-control client-autocomplete" id="client_name"
                                             name="client_name" placeholder="Start typing client name..."
                                             autocomplete="off">
-                                        <div class="autocomplete-suggestions"></div>
+                                        <!-- Dropdown container -->
+                                        <div class="dropdown-menu w-100" id="clientSuggestions"></div>
                                     </div>
+
                                     <div class="col-md-6"><label class="form-label required-field">Client
                                             Status</label><select class="form-select" name="client_status" required>
                                             <option>Please Select1</option>
@@ -711,68 +712,60 @@
 </body>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $(document).ready(function () {
-        // Client autocomplete functionality
-        $(document).on('keyup', '.client-autocomplete', function () {
-            var input = $(this);
-            var query = input.val().trim();
-            var suggestions = input.next('.autocomplete-suggestions');
+$(document).ready(function () {
+    var suggestions = $("#clientSuggestions");
 
-            if (query.length < 2) {
-                suggestions.empty().hide();
-                return;
-            }
+    // Client autocomplete functionality
+    $(document).on('keyup', '.client-autocomplete', function () {
+        var input = $(this);
+        var query = input.val().trim();
 
-            // Show loading indicator
-            suggestions.html('<div class="loading">Searching...</div>').show();
+        if (query.length < 2) {
+            suggestions.removeClass("show").empty();
+            return;
+        }
 
-            $.ajax({
-                url: '{{ route("clients.autocomplete") }}',
-                type: 'GET',
-                data: { query: query },
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function (data) {
-                    suggestions.empty();
-                    if (data && data.length > 0) {
-                        $.each(data, function (index, value) {
-                            suggestions.append(
-                                '<div class="autocomplete-item" data-value="' +
-                                value.replace(/"/g, '&quot;') + '">' + value + '</div>'
-                            );
-                        });
-                        suggestions.show();
-                    } else {
+        // Show loading indicator
+        suggestions.html('<div class="dropdown-item disabled">Searching...</div>').addClass("show");
+
+        $.ajax({
+            url: '{{ route("clients.autocomplete") }}',
+            type: 'GET',
+            data: { query: query },
+            success: function (data) {
+                suggestions.empty();
+                if (data && data.length > 0) {
+                    $.each(data, function (index, value) {
                         suggestions.append(
-                            '<div class="no-results">No matches found</div>'
-                        ).show();
-                    }
-                },
-                error: function (xhr) {
-                    console.error('Autocomplete error:', xhr.responseText);
-                    suggestions.empty().append(
-                        '<div class="error">Error loading suggestions</div>'
-                    ).show();
+                            '<button class="dropdown-item autocomplete-item" type="button" data-value="' +
+                            value.replace(/"/g, '&quot;') + '">' + value + '</button>'
+                        );
+                    });
+                    suggestions.addClass("show");
+                } else {
+                    suggestions.append('<div class="dropdown-item disabled">No matches found</div>').addClass("show");
                 }
-            });
-        });
-
-        // Handle suggestion selection
-        $(document).on('click', '.autocomplete-item', function () {
-            var value = $(this).data('value');
-            $(this).parent().prev('.client-autocomplete').val(value);
-            $(this).parent().empty().hide();
-        });
-
-        // Hide suggestions when clicking elsewhere
-        $(document).on('click', function (e) {
-            if (!$(e.target).closest('.client-autocomplete, .autocomplete-suggestions').length) {
-                $('.autocomplete-suggestions').empty().hide();
+            },
+            error: function () {
+                suggestions.html('<div class="dropdown-item disabled text-danger">Error loading suggestions</div>').addClass("show");
             }
         });
     });
+
+    // Handle suggestion selection
+    $(document).on('click', '.autocomplete-item', function () {
+        var value = $(this).data('value');
+        $('#client_name').val(value);
+        suggestions.removeClass("show").empty();
+    });
+
+    // Hide suggestions when clicking elsewhere
+    $(document).on('click', function (e) {
+        if (!$(e.target).closest('.client-autocomplete, #clientSuggestions').length) {
+            suggestions.removeClass("show").empty();
+        }
+    });
+});
 </script>
 
 </html>

@@ -6,6 +6,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\InsuranceQuotationController;
 use App\Http\Controllers\Shared\AutocompleteController;
 use App\Http\Controllers\ReceiptController;
+use App\Http\Controllers\TiraController;
 
 /*
 |--------------------------------------------------------------------------
@@ -108,6 +109,51 @@ Route::post('/receipts/store', [ReceiptController::class, 'store'])->name('recei
     | Autocomplete
     |--------------------------------------------------------------------------
     */
-    Route::get('/clients/autocomplete', [AutocompleteController::class, 'clients'])->name('clients.autocomplete');
+Route::get('/clients/autocomplete', [CustomerController::class, 'autocomplete'])
+    ->name('clients.autocomplete');
+
+
 
 });
+
+
+
+
+
+// my route for testing all of this to TIRA to make sure they work as expected
+
+// Cover Note Verification
+Route::get('/tiramis/verify', [TiraController::class, 'verifyCoverNote']);
+
+// Non-Life Other Cover Note Submission
+Route::get('/tiramis/submit/cover-note-ref', [TiraController::class, 'submitCoverNoteRefReq']);
+
+// Non-Life Motor Cover Note Submission
+Route::get('/tiramis/submit/motor-cover-note-ref', [TiraController::class, 'submitMotorCoverNoteRefReq']);
+
+// Motor Fleet Submission
+Route::get('/tiramis/submit/motor-fleet', [TiraController::class, 'submitMotorCoverNoteRefReqWithFleet']);
+
+// Reinsurance Submission
+Route::get('/tiramis/submit/reinsurance', [TiraController::class, 'submitReinsuranceReq']);
+
+// Policy Submission
+Route::get('/tiramis/submit/policy', [TiraController::class, 'submitPolicyReq']);
+
+// Claim Notification
+Route::get('/tiramis/submit/claim-notification', [TiraController::class, 'submitClaimNotificationRefReq']);
+
+// Claim Intimation
+Route::get('/tiramis/submit/claim-intimation', [TiraController::class, 'submitClaimIntimationReq']);
+
+// Claim Assessment
+Route::get('/tiramis/submit/claim-assessment', [TiraController::class, 'submitClaimAssessmentReq']);
+
+// Claim Discharge Voucher
+Route::get('/tiramis/submit/discharge-voucher', [TiraController::class, 'submitDischargeVoucherReq']);
+
+// Claim Payment
+Route::get('/tiramis/submit/claim-payment', [TiraController::class, 'submitClaimPaymentReq']);
+
+// Claim Rejection
+Route::get('/tiramis/submit/claim-rejection', [TiraController::class, 'submitClaimRejectionReq']);

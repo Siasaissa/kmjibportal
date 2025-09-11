@@ -83,14 +83,20 @@ class CustomerController extends Controller
         return view('customers.show', compact('customer'));
     }
 
-/*public function autocomplete(Request $request)
+public function autocomplete(Request $request)
 {
     $query = $request->input('query');
 
     $matches = Customer::where('client_name', 'LIKE', "%{$query}%")
-                ->pluck('client_name') // Just client_name from actual DB
-                ->take(10);
+        ->pluck('client_name') // only client_name
+        ->take(10)
+        ->toArray(); // convert to plain array
 
     return response()->json($matches);
-}*/
+}
+
+
+
+
+
 }

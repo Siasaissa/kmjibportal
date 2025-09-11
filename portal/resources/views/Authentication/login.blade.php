@@ -24,7 +24,7 @@
     </style>
 </head>
 <body>
-    <img class="wave" src="{{ asset('assets/dash/board_files/back.jpg')}}">
+    <!--<img class="wave" src="{{ asset('assets/dash/board_files/back.jpg')}}">-->
 
     <!-- Overlay Notifications -->
     <div class="alert-overlay">
@@ -92,7 +92,7 @@
 
                 <a href="#">Forgot Password?</a>
 
-                <input type="submit" class="btn btn-primary btn-sm" value="Login" style="background-color: red;">
+                <input type="submit" class="btn btn-primary btn-sm" value="Login" style="background-color: #d4141c;">
             </form>
         </div>
     </div>
