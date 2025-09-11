@@ -88,9 +88,9 @@ public function autocomplete(Request $request)
     $query = $request->input('query');
 
     $matches = Customer::where('client_name', 'LIKE', "%{$query}%")
-        ->pluck('client_name') // only client_name
+        ->pluck('client_name')
         ->take(10)
-        ->toArray(); // convert to plain array
+        ->toArray(); 
 
     return response()->json($matches);
 }

@@ -20,9 +20,9 @@ class AutocompleteController extends Controller
 
     try {
         $matches = Customer::where('client_name', 'LIKE', "%{$query}%")
-                    ->take(10)                 // take 10 first
-                    ->pluck('client_name')      // then get only client_name
-                    ->toArray();                // convert to array
+                    ->take(10)                
+                    ->pluck('client_name')     
+                    ->toArray();                
 
         \Log::debug('Autocomplete results', ['matches' => $matches]);
         
