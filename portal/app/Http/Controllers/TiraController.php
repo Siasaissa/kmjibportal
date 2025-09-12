@@ -165,7 +165,7 @@ class TiraController extends Controller
             <RequestId>'.$request_id.'</RequestId>
             <CompanyCode>IB10152</CompanyCode>
             <SystemCode>TP_KMJ_001</SystemCode>
-            <CallbackUrl>http://example.com/api/callback</CallbackUrl>
+            <CallbackUrl>https://nio.co.tz/api/CoverNoteref/response</CallbackUrl>
             <InsurerCompanyCode>ICC100</InsurerCompanyCode>
             <TranCompanyCode>TRC200</TranCompanyCode>
             <CoverNoteType>1</CoverNoteType>
@@ -474,7 +474,7 @@ $certPath = storage_path('tiramis_certs/tiramisclient.crt');
                 'SystemName'   => 'KMJ System',
             ])
             ->withBody($xmlRequest, 'application/xml')
-            ->post('https://41.59.86.178:8091/ecovernote/api/covernote/non-life/motor/v2/request');
+            ->post('http://41.59.86.178:8091/ecovernote/api/covernote/non-life/motor/v2/request');
 
         // Log the response for debugging
         //\Log::info('TIRA Response: ' . $response->body());
