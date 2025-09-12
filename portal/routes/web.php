@@ -17,7 +17,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/test/tiramis', [TiraController::class, 'verifyCoverNote']);
+Route::get('/test/tiramis', [TiraController::class, 'submitCoverNoteRefReq']);
 
 // Registration (guest only)
 Route::prefix('Authentication')->group(function () {
@@ -125,7 +125,7 @@ Route::get('/clients/autocomplete', [CustomerController::class, 'autocomplete'])
 // my route for testing all of this to TIRA to make sure they work as expected
 
 // Cover Note Verification
-Route::get('/tiramis/test', [TiraController::class, 'testTiramisClient']);
+Route::get('/tiramis/test', [TiraController::class, 'motorVerificationRequest']);
 
 Route::get('/tiramis/verify', [TiraController::class, 'verifyCoverNote']);
 

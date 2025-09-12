@@ -142,14 +142,27 @@ class TiraController extends Controller
     }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
       // Prepared to test 1.1 Non-Life Other Covernote - To verify if the user can submit real-time other non-life cover note details successfully
     public function submitCoverNoteRefReq()
     {
+        $request_id = generateRequestID();
         $xmlData = '<?xml version="1.0" encoding="UTF-8"?>
 <TiraMsg>
     <CoverNoteRefReq>
         <CoverNoteHdr>
-            <RequestId>KMJTEST002</RequestId>
+            <RequestId>'.$request_id.'</RequestId>
             <CompanyCode>IB10152</CompanyCode>
             <SystemCode>TP_KMJ_001</SystemCode>
             <CallbackUrl>http://example.com/api/callback</CallbackUrl>
@@ -253,20 +266,39 @@ class TiraController extends Controller
                 </PolicyHolder>
             </PolicyHolders>
         </CoverNoteDtl>
-    </CoverNoteRefReq>
-    <MsgSignature>M+72ByujGraprJHL8JJIHuOZeg0pqXQf2FVqB/K6nLqKp2BPhY/WNsEq8OuzNeXVMlyGLIU87otrkqZtNNAt7WWwIdY9qz3rm+cpwRsycrP1rxUlrA1ypS82XqNkJtmNfL8aiXjkuh6QSKzNfuaRVNPFIYzsnTvpYQlTk4/gW0Wv8568Qri1l8rKISmuSIvGcBhCMspUPwj2E9JaOujARljojVaCtXC0YnmtDIsfb2x8tOnqvuIX8yGL4fydrP1aull+A4agyzjN93XWcjL2nZ16Pl8MySYWNJ3qc74fT6o6y6cbfqyFg/T4tUIXDykY4tWplNxYGo9O2fTSv0c/rg==</MsgSignature>
+    </CoverNoteRefReq>';
+
+
+        //generate signature
+        $signature = EncryptionServiceController::createTiramisSignature($xmlData);
+
+        $xmlRequest = '<?xml version="1.0" encoding="UTF-8"?>
+<TiraMsg>
+   '.$xmlData.'
+   <MsgSignature>'.$signature.'</MsgSignature>
 </TiraMsg>';
 
-        $response = Http::withOptions([
-            'cert' => $this->certPath,
-            'ssl_key' => $this->keyPath,
-            'verify' => false,
-        ])
-        ->withHeaders($this->headers)
-        ->withBody($xmlData, 'application/xml')
-        ->post('https://41.59.86.178:8091/ecovernote/api/covernote/non-life/other/v2/request');
 
-        Log::info('TIRA CoverNoteRefReq Response: ' . $response->body());
+ $certPath = storage_path('tiramis_certs/tiramisclient.crt');
+        $keyPath  = storage_path('tiramis_certs/tiramisclient.key');
+
+        $response = Http::withOptions([
+            'cert'    => $certPath,
+            'ssl_key' => $keyPath,
+            'verify'  => false,
+        ])
+            ->withHeaders([
+                'Content-Type' => 'application/xml',
+                'ClientCode'   => 'IB10152',
+                'ClientKey'    => '1Xr@Jnq74&cYaSl2',
+                'SystemCode'   => 'TP_KMJ_001',
+                'SystemName'   => 'KMJ System',
+            ])
+            ->withBody($xmlRequest, 'application/xml')
+            ->post('https://41.59.86.178:8091/ecovernote/api/covernote/non-life/other/v1/request');
+
+        // Log the response for debugging
+        //\Log::info('TIRA Response: ' . $response->body());
 
         return response($response->body(), 200)
             ->header('Content-Type', 'application/xml');
@@ -280,11 +312,12 @@ class TiraController extends Controller
     // Prepared to test 1.2 Non-Life Motor Covernote - To verify if the user can submit real-time non-life motor cover note details for a registered vehicle successfully
     public function submitMotorCoverNoteRefReq()
     {
+        $request_id = generateRequestID();
         $xmlData = '<?xml version="1.0" encoding="UTF-8"?>
 <TiraMsg>
     <MotorCoverNoteRefReq>
         <CoverNoteHdr>
-            <RequestId>KMJTEST003</RequestId>
+            <RequestId>'.$request_id.'</RequestId>
             <CompanyCode>IB10152</CompanyCode>
             <SystemCode>TP_KMJ_001</SystemCode>
             <CallBackUrl>http://nio.co.tz/api/CoverNoteref/response</CallBackUrl>
@@ -412,25 +445,43 @@ class TiraController extends Controller
                 <OwnerAddress>2242-34/23 Dar es Salaam</OwnerAddress>
             </MotorDtl>
         </CoverNoteDtl>
-    </MotorCoverNoteRefReq>
-    <MsgSignature>M+72ByujGraprJHL8JJIHuOZeg0pqXQf2FVqB/K6nLqKp2BPhY/WNsEq8OuzNeXVMlyGLIU87otrkqZtNNAt7WWwIdY9qz3rm+cpwRsycrP1rxUlrA1ypS82XqNkJtmNfL8aiXjkuh6QSKzNfuaRVNPFIYzsnTvpYQlTk4/gW0Wv8568Qri1l8rKISmuSIvGcBhCMspUPwj2E9JaOujARljojVaCtXC0YnmtDIsfb2x8tOnqvuIX8yGL4fydrP1aull+A4agyzjN93XWcjL2nZ16Pl8MySYWNJ3qc74fT6o6y6cbfqyFg/T4tUIXDykY4tWplNxYGo9O2fTSv0c/rg==</MsgSignature>
+    </MotorCoverNoteRefReq>';
+
+
+        //generate signature
+        $signature = EncryptionServiceController::createTiramisSignature($xmlData);
+
+        $xmlRequest = '<?xml version="1.0" encoding="UTF-8"?>
+<TiraMsg>
+   '.$xmlData.'
+   <MsgSignature>'.$signature.'</MsgSignature>
 </TiraMsg>';
 
-        $response = Http::withOptions([
-            'cert' => $this->certPath,
-            'ssl_key' => $this->keyPath,
-            'verify' => false,
-        ])
-        ->withHeaders($this->headers)
-        ->withBody($xmlData, 'application/xml')
-        ->post('https://41.59.86.178:8091/ecovernote/api/covernote/non-life/motor/v2/request');
 
-        Log::info('TIRA MotorCoverNoteRefReq Response: ' . $response->body());
+$certPath = storage_path('tiramis_certs/tiramisclient.crt');
+        $keyPath  = storage_path('tiramis_certs/tiramisclient.key');
+
+        $response = Http::withOptions([
+            'cert'    => $certPath,
+            'ssl_key' => $keyPath,
+            'verify'  => false,
+        ])
+            ->withHeaders([
+                'Content-Type' => 'application/xml',
+                'ClientCode'   => 'IB10152',
+                'ClientKey'    => '1Xr@Jnq74&cYaSl2',
+                'SystemCode'   => 'TP_KMJ_001',
+                'SystemName'   => 'KMJ System',
+            ])
+            ->withBody($xmlRequest, 'application/xml')
+            ->post('https://41.59.86.178:8091/ecovernote/api/covernote/non-life/motor/v2/request');
+
+        // Log the response for debugging
+        //\Log::info('TIRA Response: ' . $response->body());
 
         return response($response->body(), 200)
             ->header('Content-Type', 'application/xml');
     }
-
 
 
 
