@@ -45,32 +45,22 @@ class TiraController extends Controller
          <MotorChassisNumber>CH00000000</MotorChassisNumber>
       </VerificationDtl>
    </CoverNoteVerificationReq>
-   <MsgSignature>figuiiojwjfuufewbfwiufwnihfergiengi</MsgSignature>
+   <MsgSignature>M+72ByujGraprJHL8JJIHuOZeg0pqXQf2FVqB/K6nLqKp2BPhY/WNsEq8OuzNeXVMlyGLIU87otrkqZtNNAt7WWwIdY9qz3rm+cpwRsycrP1rxUlrA1ypS82XqNkJtmNfL8aiXjkuh6QSKzNfuaRVNPFIYzsnTvpYQlTk4/gW0Wv8568Qri1l8rKISmuSIvGcBhCMspUPwj2E9JaOujARljojVaCtXC0YnmtDIsfb2x8tOnqvuIX8yGL4fydrP1aull+A4agyzjN93XWcjL2nZ16Pl8MySYWNJ3qc74fT6o6y6cbfqyFg/T4tUIXDykY4tWplNxYGo9O2fTSv0c/rg==</MsgSignature>
 </TiraMsg>';
 
-        $certPath = storage_path('tiramis_certs/tiramisclient.crt');
-        $keyPath  = storage_path('tiramis_certs/tiramisclient.key');
-
         $response = Http::withOptions([
-            'cert'    => $certPath,
-            'ssl_key' => $keyPath,
-            'verify'  => false,
+            'cert' => $this->certPath,
+            'ssl_key' => $this->keyPath,
+            'verify' => false,
         ])
-        ->withHeaders([
-            'Content-Type' => 'application/xml',
-            'ClientCode'   => 'IB10152',
-            'ClientKey'    => '1Xr@Jnq74&cYaSl2',
-            'SystemCode'   => 'TP_KMJ_001',
-            'SystemName'   => 'KMJ System',
-        ])
+        ->withHeaders($this->headers)
         ->withBody($xmlData, 'application/xml')
         ->post('https://41.59.86.178:8091/ecovernote/api/covernote/verification/min/v2/request');
 
-        // Log the response for debugging
-        //\Log::info('TIRA Response: ' . $response->body());
-
+        Log::info('TIRA CoverNoteRefReq Response: ' . $response->body());
+        
         return response($response->body(), 200)
-                ->header('Content-Type', 'application/xml');
+            ->header('Content-Type', 'application/xml');
     }
 
 
@@ -85,110 +75,109 @@ class TiraController extends Controller
             <RequestId>KMJTEST002</RequestId>
             <CompanyCode>IB10152</CompanyCode>
             <SystemCode>TP_KMJ_001</SystemCode>
-            <CallbackUrl>http://nic.co.tz/api/CoverNoteref/response</CallbackUrl>
-            <InsurerCompanyCode>ICC001</InsurerCompanyCode>
-            <TranCompanyCode>ICC001</TranCompanyCode>
+            <CallbackUrl>http://example.com/api/callback</CallbackUrl>
+            <InsurerCompanyCode>ICC100</InsurerCompanyCode>
+            <TranCompanyCode>TRC200</TranCompanyCode>
             <CoverNoteType>1</CoverNoteType>
         </CoverNoteHdr>
         <CoverNoteDtl>
-            <CoverNoteNumber>NIC00004</CoverNoteNumber>
-            <PrevCoverNoteReferenceNumber></PrevCoverNoteReferenceNumber>
-            <SalePointCode>SP001</SalePointCode>
-            <CoverNoteStartDate>2021-07-04T01:15:22</CoverNoteStartDate>
-            <CoverNoteEndDate>2022-07-04T23:59:59</CoverNoteEndDate>
-            <CoverNoteDesc>CoverNote for Residential House Insurance at Dar es Salaam Magomens</CoverNoteDesc>
-            <OperativeClause>Fire and Allied Perils</OperativeClause>
-            <PaymentMode>1</PaymentMode>
+            <CoverNoteNumber>CN000123</CoverNoteNumber>
+            <PrevCoverNoteReferenceNumber>CN000122</PrevCoverNoteReferenceNumber>
+            <SalePointCode>SPT01</SalePointCode>
+            <CoverNoteStartDate>2025-01-01T09:00:00</CoverNoteStartDate>
+            <CoverNoteEndDate>2025-12-31T23:59:59</CoverNoteEndDate>
+            <CoverNoteDesc>Cover note for Motor Vehicle Comprehensive Insurance</CoverNoteDesc>
+            <OperativeClause>Accidental Damage and Theft</OperativeClause>
+            <PaymentMode>2</PaymentMode>
             <CurrencyCode>TZS</CurrencyCode>
             <ExchangeRate>1.00</ExchangeRate>
-            <TotalPremiumExcludingTax>29060.00</TotalPremiumExcludingTax>
-            <TotalPremiumIncludingTax>33570.80</TotalPremiumIncludingTax>
-            <CommissionPaid>0.00</CommissionPaid>
-            <CommissionRate>0.00</CommissionRate>
-            <OfficerName>John Doe</OfficerName>
-            <OfficerTitle>Underwriter</OfficerTitle>
-            <ProductCode>SP005001000000</ProductCode>
-            <EndorsementType></EndorsementType>
-            <EndorsementReason></EndorsementReason>
-            <EndorsementPremiumEarned></EndorsementPremiumEarned>
+            <TotalPremiumExcludingTax>150000.00</TotalPremiumExcludingTax>
+            <TotalPremiumIncludingTax>177000.00</TotalPremiumIncludingTax>
+            <CommissionPaid>5000.00</CommissionPaid>
+            <CommissionRate>0.05</CommissionRate>
+            <OfficerName>Mary Johnson</OfficerName>
+            <OfficerTitle>Insurance Officer</OfficerTitle>
+            <ProductCode>PRD001200</ProductCode>
+            <EndorsementType>Amendment</EndorsementType>
+            <EndorsementReason>Change of Vehicle</EndorsementReason>
+            <EndorsementPremiumEarned>25000.00</EndorsementPremiumEarned>
             <RisksCovered>
                 <RiskCovered>
-                    <RiskCode>SP005001000001</RiskCode>
-                    <SumInsured>1000000.00</SumInsured>
-                    <SumInsuredEquivalent>1000000.00</SumInsuredEquivalent>
-                    <PremiumRate>0.005</PremiumRate>
-                    <PremiumBeforeDiscount>5000.00</PremiumBeforeDiscount>
-                    <PremiumAfterDiscount>4000.00</PremiumAfterDiscount>
-                    <PremiumExcludingTaxEquivalent>4000.00</PremiumExcludingTaxEquivalent>
-                    <PremiumIncludingTax>4000.00</PremiumIncludingTax>
+                    <RiskCode>RISK001</RiskCode>
+                    <SumInsured>20000000.00</SumInsured>
+                    <SumInsuredEquivalent>20000000.00</SumInsuredEquivalent>
+                    <PremiumRate>0.0075</PremiumRate>
+                    <PremiumBeforeDiscount>150000.00</PremiumBeforeDiscount>
+                    <PremiumAfterDiscount>140000.00</PremiumAfterDiscount>
+                    <PremiumExcludingTaxEquivalent>140000.00</PremiumExcludingTaxEquivalent>
+                    <PremiumIncludingTax>165200.00</PremiumIncludingTax>
                     <DiscountsOffered>
                         <DiscountOffered>
-                            <DiscountType>2</DiscountType>
-                            <DiscountRate>0.00</DiscountRate>
-                            <DiscountAmount>1000.00</DiscountAmount>
+                            <DiscountType>1</DiscountType>
+                            <DiscountRate>0.05</DiscountRate>
+                            <DiscountAmount>10000.00</DiscountAmount>
                         </DiscountOffered>
                     </DiscountsOffered>
                     <TaxesCharged>
                         <TaxCharged>
                             <TaxCode>VAT-MAINLAND</TaxCode>
-                            <IsTaxExempted>Y</IsTaxExempted>
-                            <TaxExemptionType>1</TaxExemptionType>
-                            <TaxExemptionReference>2334ER232TYU</TaxExemptionReference>
+                            <IsTaxExempted>N</IsTaxExempted>
+                            <TaxExemptionType>0</TaxExemptionType>
+                            <TaxExemptionReference>NONE</TaxExemptionReference>
                             <TaxRate>0.18</TaxRate>
-                            <TaxAmount>720.0</TaxAmount>
+                            <TaxAmount>25200.00</TaxAmount>
                         </TaxCharged>
                     </TaxesCharged>
                 </RiskCovered>
             </RisksCovered>
             <SubjectMattersCovered>
                 <SubjectMatter>
-                    <SubjectMatterReference>HSB001</SubjectMatterReference>
-                    <SubjectMatterDesc>House water systems</SubjectMatterDesc>
+                    <SubjectMatterReference>VEH12345</SubjectMatterReference>
+                    <SubjectMatterDesc>Toyota Land Cruiser Prado, Registration T123 ABC</SubjectMatterDesc>
                 </SubjectMatter>
             </SubjectMattersCovered>
             <CoverNoteAddons>
                 <CoverNoteAddon>
-                    <AddonReference>1</AddonReference>
-                    <AddonDesc>Underground Water and Sewer Service Lines</AddonDesc>
-                    <AddonAmount>2000.00</AddonAmount>
+                    <AddonReference>ADD01</AddonReference>
+                    <AddonDesc>Passenger Liability Cover</AddonDesc>
+                    <AddonAmount>50000.00</AddonAmount>
                     <AddonPremiumRate>0.02</AddonPremiumRate>
-                    <PremiumExcludingTax>40.00</PremiumExcludingTax>
-                    <PremiumExcludingTaxEquivalent>40.00</PremiumExcludingTaxEquivalent>
-                    <PremiumIncludingTax>47.20</PremiumIncludingTax>
+                    <PremiumExcludingTax>1000.00</PremiumExcludingTax>
+                    <PremiumExcludingTaxEquivalent>1000.00</PremiumExcludingTaxEquivalent>
+                    <PremiumIncludingTax>1180.00</PremiumIncludingTax>
                     <TaxesCharged>
                         <TaxCharged>
                             <TaxCode>VAT-MAINLAND</TaxCode>
-                            <IsTaxExempted>Y</IsTaxExempted>
-                            <TaxExemptionType>1</TaxExemptionType>
-                            <TaxExemptionReference>2334ER232TYU</TaxExemptionReference>
+                            <IsTaxExempted>N</IsTaxExempted>
+                            <TaxExemptionType>0</TaxExemptionType>
+                            <TaxExemptionReference>NONE</TaxExemptionReference>
                             <TaxRate>0.18</TaxRate>
-                            <TaxAmount>7.20</TaxAmount>
+                            <TaxAmount>180.00</TaxAmount>
                         </TaxCharged>
                     </TaxesCharged>
                 </CoverNoteAddon>
             </CoverNoteAddons>
             <PolicyHolders>
                 <PolicyHolder>
-                    <PolicyHolderName>Augustino Aidan Mwageni</PolicyHolderName>
-                    <PolicyHolderBirthDate>1920-02-05</PolicyHolderBirthDate>
+                    <PolicyHolderName>Ahmed Issa</PolicyHolderName>
+                    <PolicyHolderBirthDate>1990-06-15</PolicyHolderBirthDate>
                     <PolicyHolderType>1</PolicyHolderType>
-                    <PolicyHolderIdNumber>24241241</PolicyHolderIdNumber>
+                    <PolicyHolderIdNumber>987654321</PolicyHolderIdNumber>
                     <PolicyHolderIdType>1</PolicyHolderIdType>
                     <Gender>M</Gender>
                     <CountryCode>TZA</CountryCode>
-                    <Region>Regions</Region>
-                    <District>Ilala</District>
-                    <Street></Street>
-                    <PolicyHolderPhoneNumber>255713525539</PolicyHolderPhoneNumber>
-                    <PolicyHolderFax></PolicyHolderFax>
-                    <PostalAddress>P.O.BOX 1231,Dar es Salaam</PostalAddress>
-                    <EmailAddress>mini@email.com</EmailAddress>
+                    <Region>Dar es Salaam</Region>
+                    <District>Kinondoni</District>
+                    <Street>Sinza Mori</Street>
+                    <PolicyHolderPhoneNumber>255715000123</PolicyHolderPhoneNumber>
+                    <PolicyHolderFax>+25522250000</PolicyHolderFax>
+                    <PostalAddress>P.O. BOX 400, Dar es Salaam</PostalAddress>
+                    <EmailAddress>ahmed.issa@example.com</EmailAddress>
                 </PolicyHolder>
             </PolicyHolders>
         </CoverNoteDtl>
     </CoverNoteRefReq>
-    <MsgSignature>V2vTYbg4G7F4NYb4R/U6VNGdOa+5HRBPPdh+y/jzKwkJrFf3B0J+MOGer39XGHWSiXAZX1qEx13U/0xBgCY8rqK3HcWoMLkhxyspENNizd99WprHW/xR1B3HSUWDEdSkO+yQBstx1LFU0lqkSjzzkqjbDEwI69i2Iw0GoQQcv6r9UyW6tlICqvC+av0U0+oRNIF+tRPvizn3K0e2E6V23s5k5Hn3FOhk1d6P7VhJk1sRdkglh6Yxd11+eerI+xPkeWSeZbdDiAKwCbtFsIxaLDVXegE0ZJEAs/DwTZJhaM2dbrBIFWZB468mUnUoRmf1HFgQR2cSg8/jU2Ng4A4rXQ==</MsgSignature>
-
+    <MsgSignature>M+72ByujGraprJHL8JJIHuOZeg0pqXQf2FVqB/K6nLqKp2BPhY/WNsEq8OuzNeXVMlyGLIU87otrkqZtNNAt7WWwIdY9qz3rm+cpwRsycrP1rxUlrA1ypS82XqNkJtmNfL8aiXjkuh6QSKzNfuaRVNPFIYzsnTvpYQlTk4/gW0Wv8568Qri1l8rKISmuSIvGcBhCMspUPwj2E9JaOujARljojVaCtXC0YnmtDIsfb2x8tOnqvuIX8yGL4fydrP1aull+A4agyzjN93XWcjL2nZ16Pl8MySYWNJ3qc74fT6o6y6cbfqyFg/T4tUIXDykY4tWplNxYGo9O2fTSv0c/rg==</MsgSignature>
 </TiraMsg>';
 
         $response = Http::withOptions([
@@ -347,7 +336,7 @@ class TiraController extends Controller
             </MotorDtl>
         </CoverNoteDtl>
     </MotorCoverNoteRefReq>
-    <MsgSignature>qrrvrewrwer456354gfwe344/UbyG9YedrOAarU0EJ0frrBpSyBKQpGajIZLh6rz943NSuv8+wzRcRFk2xvJDOm73oYcjeYF4d7Se11HODOsrNS8xBkTJhhvOlaYK/gYHs1SaW6KBI41vzo/9FTJYdGj9vBt9tGMUrDXvDho4dOmNIFFyDDfn80j1K+x07CaxDdLC6R1wJcN51hF9zhC9gfQz3MpN521SDGWzcvgE3tgD22ofy6eh5L2uy56as2TmeHRLOPFbgHo1E0NYh094LR01nyk25w40BKFCXbNMRgAs3L+hsOJu3F7emMWuDSi.zuTgbf10aqipUEF4J2ETOBt1HZ5AczA==</MsgSignature>
+    <MsgSignature>M+72ByujGraprJHL8JJIHuOZeg0pqXQf2FVqB/K6nLqKp2BPhY/WNsEq8OuzNeXVMlyGLIU87otrkqZtNNAt7WWwIdY9qz3rm+cpwRsycrP1rxUlrA1ypS82XqNkJtmNfL8aiXjkuh6QSKzNfuaRVNPFIYzsnTvpYQlTk4/gW0Wv8568Qri1l8rKISmuSIvGcBhCMspUPwj2E9JaOujARljojVaCtXC0YnmtDIsfb2x8tOnqvuIX8yGL4fydrP1aull+A4agyzjN93XWcjL2nZ16Pl8MySYWNJ3qc74fT6o6y6cbfqyFg/T4tUIXDykY4tWplNxYGo9O2fTSv0c/rg==</MsgSignature>
 </TiraMsg>';
 
         $response = Http::withOptions([
@@ -523,7 +512,7 @@ class TiraController extends Controller
             </FleetDtl>
         </CoverNoteDtl>
     </MotorCoverNoteRefReq>
-    <MsgSignature>figni10jwjfuuehgrhghecheihfegheheiofwheflowiofhiwhfiowhfi</MsgSignature>
+    <MsgSignature>M+72ByujGraprJHL8JJIHuOZeg0pqXQf2FVqB/K6nLqKp2BPhY/WNsEq8OuzNeXVMlyGLIU87otrkqZtNNAt7WWwIdY9qz3rm+cpwRsycrP1rxUlrA1ypS82XqNkJtmNfL8aiXjkuh6QSKzNfuaRVNPFIYzsnTvpYQlTk4/gW0Wv8568Qri1l8rKISmuSIvGcBhCMspUPwj2E9JaOujARljojVaCtXC0YnmtDIsfb2x8tOnqvuIX8yGL4fydrP1aull+A4agyzjN93XWcjL2nZ16Pl8MySYWNJ3qc74fT6o6y6cbfqyFg/T4tUIXDykY4tWplNxYGo9O2fTSv0c/rg==</MsgSignature>
 </TiraMsg>';
 
         $response = Http::withOptions([
