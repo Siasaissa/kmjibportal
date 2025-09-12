@@ -17,7 +17,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/test/tiramis', [TiraController::class, 'testTiramisClient']);
+Route::get('/test/tiramis', [TiraController::class, 'verifyCoverNote']);
 
 // Registration (guest only)
 Route::prefix('Authentication')->group(function () {

@@ -64,7 +64,6 @@ class TiraController extends Controller
                        </MotorVerificationReq>
                        <MsgSignature>'.$signature.'</MsgSignature>
                     </TiraMsg>';
-
         $certPath = storage_path('tiramis_certs/tiramisclient.crt');
         $keyPath  = storage_path('tiramis_certs/tiramisclient.key');
 
