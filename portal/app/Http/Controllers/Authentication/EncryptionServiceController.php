@@ -13,11 +13,12 @@ class EncryptionServiceController extends Controller
         try {
 
             $encry_method = 'sha1WithRSAEncryption';
-            $private_key = env('TIRAMIS_PRIVATE_KEY');
+            //$private_key = env('TIRAMIS_PRIVATE_KEY');
 
-            $cert_path = Storage::disk('local')->get('tiramis_certs/tiramisclientprivate.pfx');
-            openssl_pkcs12_read($cert_path, $cert_info, $private_key);
-            openssl_sign($data, $signature, $cert_info['pkey'], $encry_method);
+            $privateKeyPath = storage_path('app/tiramis_certs/private_key.pem');
+            $privateKey = openssl_pkey_get_private(file_get_contents($privateKeyPath));
+            openssl_sign($data, $signature, $privateKey, $encry_method);
+
             return base64_encode($signature);
 
         } catch(\Exception $e) {

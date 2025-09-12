@@ -94,11 +94,7 @@ class TiraController extends Controller
     public function verifyCoverNote()
     {
         $request_id = generateRequestID();
-        $signature = "";
-
-        $xmlData = '<?xml version="1.0" encoding="UTF-8"?>
-<TiraMsg>
-   <CoverNoteVerificationReq>
+        $xmlData = '<CoverNoteVerificationReq>
       <VerificationHdr>
          <RequestId>'.$request_id.'</RequestId>
          <CompanyCode>IB10152</CompanyCode>
@@ -110,7 +106,14 @@ class TiraController extends Controller
          <MotorRegistrationNumber>T000AAA</MotorRegistrationNumber>
          <MotorChassisNumber>CH00000000</MotorChassisNumber>
       </VerificationDtl>
-   </CoverNoteVerificationReq>
+   </CoverNoteVerificationReq>';
+
+        //generate signature
+        $signature = EncryptionServiceController::createTiramisSignature($xmlData);
+
+        $xmlRequest = '<?xml version="1.0" encoding="UTF-8"?>
+<TiraMsg>
+   '.$xmlData.'
    <MsgSignature>'.$signature.'</MsgSignature>
 </TiraMsg>';
 
@@ -129,7 +132,7 @@ class TiraController extends Controller
                 'SystemCode'   => 'TP_KMJ_001',
                 'SystemName'   => 'KMJ System',
             ])
-            ->withBody($xmlData, 'application/xml')
+            ->withBody($xmlRequest, 'application/xml')
             ->post('https://41.59.86.178:8091/ecovernote/api/covernote/verification/min/v2/request');
 
         // Log the response for debugging

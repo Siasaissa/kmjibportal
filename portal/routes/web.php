@@ -17,6 +17,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/test/tiramis', [TiraController::class, 'testTiramisClient']);
+
 // Registration (guest only)
 Route::prefix('Authentication')->group(function () {
     Route::get('/register', [UserController::class, 'showRegisterForm'])->name('register.form');
@@ -97,13 +99,13 @@ Route::post('/receipts/store', [ReceiptController::class, 'store'])->name('recei
     Route::prefix('Quotation1')->name('Quotation1.')->group(function () {
         Route::get('/create', [InsuranceQuotationController::class, 'create'])->name('create');
         Route::get('/{quotation}', [InsuranceQuotationController::class, 'show'])->name('show');
-        Route::get('/{quotation}/documents/{document}/download', 
+        Route::get('/{quotation}/documents/{document}/download',
             [InsuranceQuotationController::class, 'downloadDocument'])->name('documents.download');
     });
 
 
      Route::post('quotations/store', [InsuranceQuotationController::class, 'store'])->name('quotations.store');
-    
+
     /*
     |--------------------------------------------------------------------------
     | Autocomplete
