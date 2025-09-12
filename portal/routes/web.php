@@ -123,6 +123,8 @@ Route::get('/clients/autocomplete', [CustomerController::class, 'autocomplete'])
 // my route for testing all of this to TIRA to make sure they work as expected
 
 // Cover Note Verification
+Route::get('/tiramis/test', [TiraController::class, 'motorVerificationRequest']);
+
 Route::get('/tiramis/verify', [TiraController::class, 'verifyCoverNote']);
 
 // Non-Life Other Cover Note Submission
