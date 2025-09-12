@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Authentication\EncryptionServiceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -27,14 +28,79 @@ class TiraController extends Controller
     }
 
 
+    public function testTiramisClient()
+    {
+        try {
+
+            $data = "<TIRAMIS>Test</TIRAMIS>";
+            return ["requestId" => generateRequestID(), "signature" => EncryptionServiceController::createTiramisSignature($data)];
+
+        }
+        catch (\Exception $e) {
+            return $e;
+        }
+    }
+
+    //motor verifications
+    public function motorVerificationRequest(Request $request)
+    {
+
+        $request_id = generateRequestID();
+        $signature = "";
+
+        $xmlData = '<?xml version="1.0" encoding="UTF-8"?>
+                    <TiraMsg>
+                       <MotorVerificationReq>
+                          <VerificationHdr>
+                             <RequestId>'.$request_id.'</RequestId>
+                             <CompanyCode>IB10152</CompanyCode>
+                             <SystemCode>TP_KMJ_001</SystemCode>
+                          </VerificationHdr>
+                          <VerificationDtl>
+                             <MotorCategory>1</MotorCategory>
+                             <MotorRegistrationNumber>T234EED</MotorRegistrationNumber>
+                             <MotorChassisNumber>WBAPG56040NM17166</MotorChassisNumber>
+                          </VerificationDtl>
+                       </MotorVerificationReq>
+                       <MsgSignature>'.$signature.'</MsgSignature>
+                    </TiraMsg>';
+
+        $certPath = storage_path('tiramis_certs/tiramisclient.crt');
+        $keyPath  = storage_path('tiramis_certs/tiramisclient.key');
+
+        $response = Http::withOptions([
+            'cert'    => $certPath,
+            'ssl_key' => $keyPath,
+            'verify'  => false,
+        ])
+            ->withHeaders([
+                'Content-Type' => 'application/xml',
+                'ClientCode'   => 'IB10152',
+                'ClientKey'    => '1Xr@Jnq74&cYaSl2',
+                'SystemCode'   => 'TP_KMJ_001',
+                'SystemName'   => 'KMJ System',
+            ])
+            ->withBody($xmlData, 'application/xml')
+            ->post('https://41.59.86.178:8091/ecovernote/api/covernote/verification/min/v2/request');
+
+        // Log the response for debugging
+        //\Log::info('TIRA Response: ' . $response->body());
+
+        return response($response->body(), 200)
+            ->header('Content-Type', 'application/xml');
+    }
+
     //for covernote verification
     public function verifyCoverNote()
     {
+        $request_id = generateRequestID();
+        $signature = "";
+
         $xmlData = '<?xml version="1.0" encoding="UTF-8"?>
 <TiraMsg>
    <CoverNoteVerificationReq>
       <VerificationHdr>
-         <RequestId>KMJTEST001</RequestId>
+         <RequestId>'.$request_id.'</RequestId>
          <CompanyCode>IB10152</CompanyCode>
          <SystemCode>TP_KMJ_001</SystemCode>
       </VerificationHdr>
@@ -45,24 +111,33 @@ class TiraController extends Controller
          <MotorChassisNumber>CH00000000</MotorChassisNumber>
       </VerificationDtl>
    </CoverNoteVerificationReq>
-   <MsgSignature>M+72ByujGraprJHL8JJIHuOZeg0pqXQf2FVqB/K6nLqKp2BPhY/WNsEq8OuzNeXVMlyGLIU87otrkqZtNNAt7WWwIdY9qz3rm+cpwRsycrP1rxUlrA1ypS82XqNkJtmNfL8aiXjkuh6QSKzNfuaRVNPFIYzsnTvpYQlTk4/gW0Wv8568Qri1l8rKISmuSIvGcBhCMspUPwj2E9JaOujARljojVaCtXC0YnmtDIsfb2x8tOnqvuIX8yGL4fydrP1aull+A4agyzjN93XWcjL2nZ16Pl8MySYWNJ3qc74fT6o6y6cbfqyFg/T4tUIXDykY4tWplNxYGo9O2fTSv0c/rg==</MsgSignature>
+   <MsgSignature>'.$signature.'</MsgSignature>
 </TiraMsg>';
 
-        $response = Http::withOptions([
-            'cert' => $this->certPath,
-            'ssl_key' => $this->keyPath,
-            'verify' => false,
-        ])
-        ->withHeaders($this->headers)
-        ->withBody($xmlData, 'application/xml')
-        ->post('https://41.59.86.178:8091/ecovernote/api/covernote/verification/min/v2/request');
+        $certPath = storage_path('tiramis_certs/tiramisclient.crt');
+        $keyPath  = storage_path('tiramis_certs/tiramisclient.key');
 
-        Log::info('TIRA CoverNoteRefReq Response: ' . $response->body());
-        
+        $response = Http::withOptions([
+            'cert'    => $certPath,
+            'ssl_key' => $keyPath,
+            'verify'  => false,
+        ])
+            ->withHeaders([
+                'Content-Type' => 'application/xml',
+                'ClientCode'   => 'IB10152',
+                'ClientKey'    => '1Xr@Jnq74&cYaSl2',
+                'SystemCode'   => 'TP_KMJ_001',
+                'SystemName'   => 'KMJ System',
+            ])
+            ->withBody($xmlData, 'application/xml')
+            ->post('https://41.59.86.178:8091/ecovernote/api/covernote/verification/min/v2/request');
+
+        // Log the response for debugging
+        //\Log::info('TIRA Response: ' . $response->body());
+
         return response($response->body(), 200)
             ->header('Content-Type', 'application/xml');
     }
-
 
 
       // Prepared to test 1.1 Non-Life Other Covernote - To verify if the user can submit real-time other non-life cover note details successfully
@@ -190,7 +265,7 @@ class TiraController extends Controller
         ->post('https://41.59.86.178:8091/ecovernote/api/covernote/non-life/other/v2/request');
 
         Log::info('TIRA CoverNoteRefReq Response: ' . $response->body());
-        
+
         return response($response->body(), 200)
             ->header('Content-Type', 'application/xml');
     }
@@ -349,7 +424,7 @@ class TiraController extends Controller
         ->post('https://41.59.86.178:8091/ecovernote/api/covernote/non-life/motor/v2/request');
 
         Log::info('TIRA MotorCoverNoteRefReq Response: ' . $response->body());
-        
+
         return response($response->body(), 200)
             ->header('Content-Type', 'application/xml');
     }
@@ -525,7 +600,7 @@ class TiraController extends Controller
         ->post('https://41.59.86.178:8091/ecovernote/api/covernote/non-life/motor-fleet/v2/request');
 
         Log::info('TIRA MotorCoverNoteRefReq With Fleet Response: ' . $response->body());
-        
+
         return response($response->body(), 200)
             ->header('Content-Type', 'application/xml');
     }
@@ -579,7 +654,7 @@ class TiraController extends Controller
         ->post('https://41.59.86.178:8091/ecovernote/api/reinsurance/v1/request');
 
         Log::info('TIRA ReinsuranceReq Response: ' . $response->body());
-        
+
         return response($response->body(), 200)
             ->header('Content-Type', 'application/xml');
     }
@@ -626,7 +701,7 @@ class TiraController extends Controller
         ->post('https://41.59.86.178:8091/ecovernote/api/policy/v1/request');
 
         Log::info('TIRA PolicyReq Response: ' . $response->body());
-        
+
         return response($response->body(), 200)
             ->header('Content-Type', 'application/xml');
     }
@@ -676,7 +751,7 @@ class TiraController extends Controller
         ->post('https://41.59.86.178:8091/eclaim/api/claim/claim-notification/v1/request');
 
         Log::info('TIRA ClaimNotificationRefReq Response: ' . $response->body());
-        
+
         return response($response->body(), 200)
             ->header('Content-Type', 'application/xml');
     }
@@ -746,7 +821,7 @@ class TiraController extends Controller
         ->post('https://41.59.86.178:8091/eclaim/api/claim/claim-intimation/v1/request');
 
         Log::info('TIRA ClaimIntimationReq Response: ' . $response->body());
-        
+
         return response($response->body(), 200)
             ->header('Content-Type', 'application/xml');
     }
@@ -806,7 +881,7 @@ class TiraController extends Controller
         ->post('https://41.59.86.178:8091/eclaim/api/claim/claim-assessment/v1/request');
 
         Log::info('TIRA ClaimAssessmentReq Response: ' . $response->body());
-        
+
         return response($response->body(), 200)
             ->header('Content-Type', 'application/xml');
     }
@@ -869,7 +944,7 @@ class TiraController extends Controller
         ->post('https://41.59.86.178:8091/eclaim/api/claim/claim-dischargevoucher/v1/request');
 
         Log::info('TIRA DischargeVoucherReq Response: ' . $response->body());
-        
+
         return response($response->body(), 200)
             ->header('Content-Type', 'application/xml');
     }
@@ -928,7 +1003,7 @@ class TiraController extends Controller
         ->post('https://41.59.86.178:8091/eclaim/api/claim/claim-payment/v1/request');
 
         Log::info('TIRA ClaimPaymentReq Response: ' . $response->body());
-        
+
         return response($response->body(), 200)
             ->header('Content-Type', 'application/xml');
     }
@@ -984,11 +1059,11 @@ class TiraController extends Controller
         ->post('https://41.59.86.178:8091/eclaim/api/claim/claim-rejection/v1/request');
 
         Log::info('TIRA ClaimRejectionReq Response: ' . $response->body());
-        
+
         return response($response->body(), 200)
             ->header('Content-Type', 'application/xml');
     }
 
 
-    
+
 }

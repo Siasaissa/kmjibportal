@@ -2,6 +2,10 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TiraController;
 
+
+// Test unique id and signature
+Route::get('/test/tiramis', [TiraController::class, 'testTiramisClient']);
+
 // Cover Note Verification (GET)
 Route::get('/tiramis/verify', [TiraController::class, 'verifyCoverNote']);
 
