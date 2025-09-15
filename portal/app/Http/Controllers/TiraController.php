@@ -151,6 +151,8 @@ class TiraController extends Controller
     public function submitCoverNoteRefReq()
     {
         $request_id = generateRequestID();
+        $other_id = otherUniqueID();
+
         $xmlData = '<CoverNoteRefReq>
         <CoverNoteHdr>
             <RequestId>'.$request_id.'</RequestId>
@@ -162,8 +164,8 @@ class TiraController extends Controller
             <CoverNoteType>1</CoverNoteType>
         </CoverNoteHdr>
         <CoverNoteDtl>
-            <CoverNoteNumber>CN000123</CoverNoteNumber>
-            <PrevCoverNoteReferenceNumber>CN000122</PrevCoverNoteReferenceNumber>
+            <CoverNoteNumber>'.$other_id.'</CoverNoteNumber>
+            <PrevCoverNoteReferenceNumber></PrevCoverNoteReferenceNumber>
             <SalePointCode>SPT01</SalePointCode>
             <CoverNoteStartDate>2025-01-01T09:00:00</CoverNoteStartDate>
             <CoverNoteEndDate>2025-12-31T23:59:59</CoverNoteEndDate>
