@@ -299,9 +299,7 @@ class TiraController extends Controller
     public function submitMotorCoverNoteRefReq()
     {
         $request_id = generateRequestID();
-        $xmlData = '<?xml version="1.0" encoding="UTF-8"?>
-<TiraMsg>
-    <MotorCoverNoteRefReq>
+        $xmlData = '<MotorCoverNoteRefReq>
         <CoverNoteHdr>
             <RequestId>'.$request_id.'</RequestId>
             <CompanyCode>IB10152</CompanyCode>
