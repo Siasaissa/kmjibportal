@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Authentication\EncryptionServiceController;
+use App\Models\InsuranceQuotation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
@@ -47,7 +48,7 @@ class TiraController extends Controller
     public function requestNonMotorCover($id)
     {
 
-        $cover = [];
+        $cover = InsuranceQuotation::where('id', $id)->first();
         $data = [
             'CoverNoteHdr' => [
                 'RequestId' => generateRequestID(),
@@ -56,10 +57,10 @@ class TiraController extends Controller
                 'CallBackUrl' => "https://nio.co.tz/api/CoverNoteref/response",
                 'InsurerCompanyCode' => 'ICC100',
                 'TranCompanyCode' => 'TRC200',
-                'CoverNoteType' => 1,
+                'CoverNoteType' => $cover->cover_note_type,
             ],
             'CoverNoteDtl' => [
-                'CoverNoteNumber' => otherUniqueID(),
+                'CoverNoteNumber' => $cover->cover_note_type == 3 ? $cover->cover_note_refere : otherUniqueID(),
                 'PrevCoverNoteReferenceNumber' => null,
                 'SalePointCode' => 'SPT01',
                 'CoverNoteStartDate' => returnTiraDate('2025-09-15 18:00:00'),

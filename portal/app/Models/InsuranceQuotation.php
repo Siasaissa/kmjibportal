@@ -128,6 +128,7 @@ class InsuranceQuotation extends Model
         'created_date',
     ];
 
+
     public function documents()
     {
         return $this->hasMany(QuotationDocument::class, 'quotation_id');
