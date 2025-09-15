@@ -127,6 +127,12 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        'tiramisxml' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/tiramis_xml.log'),
+            'level' => 'info',
+        ],
+
     ],
 
 ];

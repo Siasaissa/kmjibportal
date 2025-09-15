@@ -42,7 +42,7 @@ class TiraController extends Controller
     }
 
     //motor verifications
-    public function motorVerificationRequest(Request $request)
+    public function covernote(Request $request)
     {
 
         $request_id = generateRequestID();
@@ -50,19 +50,20 @@ class TiraController extends Controller
 
         $xmlData = '<?xml version="1.0" encoding="UTF-8"?>
                     <TiraMsg>
-                       <MotorVerificationReq>
-                          <VerificationHdr>
-                             <RequestId>'.$request_id.'</RequestId>
-                             <CompanyCode>IB10152</CompanyCode>
-                             <SystemCode>TP_KMJ_001</SystemCode>
-                          </VerificationHdr>
-                          <VerificationDtl>
-                             <MotorCategory>1</MotorCategory>
-                             <MotorRegistrationNumber>T234EED</MotorRegistrationNumber>
-                             <MotorChassisNumber>WBAPG56040NM17166</MotorChassisNumber>
-                          </VerificationDtl>
-                       </MotorVerificationReq>
-                       <MsgSignature>'.$signature.'</MsgSignature>
+                    <CoverNoteVerificationReq>
+                        <VerificationHdr>
+                            <RequestId>'.$request_id.'</RequestId>
+                            <CompanyCode>IB10152</CompanyCode>
+                            <SystemCode>TP_KMJ_001</SystemCode>
+                        </VerificationHdr>
+                        <VerificationDtl>
+                            <CoverNoteReferenceNumber>42424-246767-65768</CoverNoteReferenceNumber>
+                            <StickerNumber>13143-14145-12412</StickerNumber>
+                            <MotorRegistrationNumber>T233SQA</MotorRegistrationNumber>
+                            <MotorChassisNumber>4353646</MotorChassisNumber>
+                        </VerificationDtl>
+                    </CoverNoteVerificationReq>
+                    <MsgSignature>'.$signature.'</MsgSignature>
                     </TiraMsg>';
         $certPath = storage_path('tiramis_certs/tiramisclient.crt');
         $keyPath  = storage_path('tiramis_certs/tiramisclient.key');
@@ -100,10 +101,10 @@ class TiraController extends Controller
          <SystemCode>TP_KMJ_001</SystemCode>
       </VerificationHdr>
       <VerificationDtl>
-         <CoverNoteReferenceNumber>0000-0000-0000</CoverNoteReferenceNumber>
-         <StickerNumber>0000-0000-0000</StickerNumber>
-         <MotorRegistrationNumber>T000AAA</MotorRegistrationNumber>
-         <MotorChassisNumber>CH00000000</MotorChassisNumber>
+            <CoverNoteReferenceNumber>4242424</CoverNoteReferenceNumber>
+            <StickerNumber>1313-1414-124124</StickerNumber>
+            <MotorRegistrationNumber>T233SQA</MotorRegistrationNumber>
+            <MotorChassisNumber>4353646</MotorChassisNumber>
       </VerificationDtl>
    </CoverNoteVerificationReq>';
 
@@ -115,6 +116,8 @@ class TiraController extends Controller
    '.$xmlData.'
    <MsgSignature>'.$signature.'</MsgSignature>
 </TiraMsg>';
+
+        Log::channel('tiramisxml')->info($xmlRequest);
 
         $certPath = storage_path('tiramis_certs/tiramisclient.crt');
         $keyPath  = storage_path('tiramis_certs/tiramisclient.key');
@@ -140,6 +143,8 @@ class TiraController extends Controller
         return response($response->body(), 200)
             ->header('Content-Type', 'application/xml');
     }
+
+
 
 
       // Prepared to test 1.1 Non-Life Other Covernote - To verify if the user can submit real-time other non-life cover note details successfully
@@ -264,6 +269,7 @@ class TiraController extends Controller
    <MsgSignature>'.$signature.'</MsgSignature>
 </TiraMsg>';
 
+        Log::channel('tiramisxml')->info($xmlRequest);
 
  $certPath = storage_path('tiramis_certs/tiramisclient.crt');
         $keyPath  = storage_path('tiramis_certs/tiramisclient.key');
@@ -299,6 +305,7 @@ class TiraController extends Controller
     public function submitMotorCoverNoteRefReq()
     {
         $request_id = generateRequestID();
+        $other_id = otherUniqueID();
         $xmlData = '<MotorCoverNoteRefReq>
         <CoverNoteHdr>
             <RequestId>'.$request_id.'</RequestId>
@@ -310,8 +317,8 @@ class TiraController extends Controller
             <CoverNoteType>1</CoverNoteType>
         </CoverNoteHdr>
         <CoverNoteDtl>
-            <CoverNoteNumber>NIC00004</CoverNoteNumber>
-            <PrevCoverNoteReferenceNumber>32525252</PrevCoverNoteReferenceNumber>
+            <CoverNoteNumber>'.$other_id.'</CoverNoteNumber>
+            <PrevCoverNoteReferenceNumber></PrevCoverNoteReferenceNumber>
             <SalePointCode>SP001</SalePointCode>
             <CoverNoteStartDate>2020-09-15T13:55:22</CoverNoteStartDate>
             <CoverNoteEndDate>2021-07-30T23:59:59</CoverNoteEndDate>
@@ -440,6 +447,8 @@ class TiraController extends Controller
    '.$xmlData.'
    <MsgSignature>'.$signature.'</MsgSignature>
 </TiraMsg>';
+
+        Log::channel('tiramisxml')->info($xmlRequest);
 
 
 $certPath = storage_path('tiramis_certs/tiramisclient.crt');
