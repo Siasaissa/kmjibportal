@@ -206,14 +206,15 @@ class TiraController extends Controller
          <SystemCode>TP_KMJ_001</SystemCode>
       </VerificationHdr>
       <VerificationDtl>
-        <CoverNoteReferenceNumber>4242424</CoverNoteReferenceNumber>
-        <StickerNumber>1313-1414-124124</StickerNumber>
+        <CoverNoteReferenceNumber>42424-246767-65768</CoverNoteReferenceNumber>
+        <StickerNumber>13143-14145-12412</StickerNumber>
         <MotorRegistrationNumber>T233SQA</MotorRegistrationNumber>
         <MotorChassisNumber>4353646</MotorChassisNumber>
       </VerificationDtl>
    </CoverNoteVerificationReq>';
 
-        //generate signature
+
+    //generate signature
         $signature = EncryptionServiceController::createTiramisSignature($xmlData);
 
         $xmlRequest = '<?xml version="1.0" encoding="UTF-8"?>
