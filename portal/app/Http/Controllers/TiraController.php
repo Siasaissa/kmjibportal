@@ -101,10 +101,10 @@ class TiraController extends Controller
          <SystemCode>TP_KMJ_001</SystemCode>
       </VerificationHdr>
       <VerificationDtl>
-            <CoverNoteReferenceNumber>4242424</CoverNoteReferenceNumber>
-            <StickerNumber>1313-1414-124124</StickerNumber>
-            <MotorRegistrationNumber>T233SQA</MotorRegistrationNumber>
-            <MotorChassisNumber>4353646</MotorChassisNumber>
+        <CoverNoteReferenceNumber>4242424</CoverNoteReferenceNumber>
+        <StickerNumber>1313-1414-124124</StickerNumber>
+        <MotorRegistrationNumber>T233SQA</MotorRegistrationNumber>
+        <MotorChassisNumber>4353646</MotorChassisNumber>
       </VerificationDtl>
    </CoverNoteVerificationReq>';
 
