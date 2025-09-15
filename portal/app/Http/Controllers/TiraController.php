@@ -142,25 +142,11 @@ class TiraController extends Controller
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
       // Prepared to test 1.1 Non-Life Other Covernote - To verify if the user can submit real-time other non-life cover note details successfully
     public function submitCoverNoteRefReq()
     {
         $request_id = generateRequestID();
-        $xmlData = '<?xml version="1.0" encoding="UTF-8"?>
-<TiraMsg>
-    <CoverNoteRefReq>
+        $xmlData = '<CoverNoteRefReq>
         <CoverNoteHdr>
             <RequestId>'.$request_id.'</RequestId>
             <CompanyCode>IB10152</CompanyCode>
