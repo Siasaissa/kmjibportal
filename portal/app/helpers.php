@@ -47,15 +47,11 @@ function TiraRequest($endPoint, $data): array
     $signature = EncryptionServiceController::createTiramisSignature($data);
     $xml = generateTiraXml($data, $signature);
 
-    $res = Http::withOptions(['verify' => false])->withHeaders(
-        [
-            'Content-Type' => 'application/xml',
+    $res = Http::withOptions(['verify' => false])->withHeaders([
             'ClientCode'   => 'IB10152',
             'ClientKey'    => '1Xr@Jnq74&cYaSl2',
             'SystemCode'   => 'TP_KMJ_001',
-            'SystemName'   => 'KMJ System',
-        ]
-        )
+            'SystemName'   => 'KMJ System',])
         ->withBody($xml, 'application/xml')
         ->post($endPoint)
         ->body();
