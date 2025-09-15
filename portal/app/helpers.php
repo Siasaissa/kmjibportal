@@ -7,6 +7,7 @@
 use App\Http\Controllers\Authentication\EncryptionServiceController;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Spatie\ArrayToXml\ArrayToXml;
 
 function generateRequestID()
@@ -33,7 +34,12 @@ function generateXML($tiraTag, $data): string
 
 function generateTiraXml($data, $signature): string
 {
-    return "<TiraMsg>$data<MsgSignature>$signature</MsgSignature></TiraMsg>";
+    try {
+        return "<TiraMsg>$data<MsgSignature>$signature</MsgSignature></TiraMsg>";
+    }
+    catch (\Exception $e) {
+        report($e);
+    }
 }
 
 function TiraRequest($endPoint, $data): array
@@ -54,7 +60,9 @@ function TiraRequest($endPoint, $data): array
         ->post($endPoint)
         ->body();
 
-    return $res;
+    Log::channel('tiramisxml')->info($res);
+
+    return ["response" => $res] ;
 
 }
 

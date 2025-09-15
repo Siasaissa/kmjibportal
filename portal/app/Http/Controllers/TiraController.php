@@ -136,7 +136,6 @@ class TiraController extends Controller
 
         Log::channel('tiramisxml')->info($gen_data);
         $res = TiraRequest('https://41.59.86.178:8091/ecovernote/api/covernote/non-life/other/v1/request', $gen_data);
-        Log::channel('tiramisxml')->info($res);
 
         return $res;
 
