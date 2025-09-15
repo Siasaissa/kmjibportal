@@ -6,6 +6,9 @@ use App\Http\Controllers\TiraController;
 // Test unique id and signature
 Route::get('/test/tiramis', [TiraController::class, 'testTiramisClient']);
 
+Route::get('/tiramis/test/non-motor/{id}', [TiraController::class, 'requestNonMotorCover']);
+
+
 // Cover Note Verification (GET)
 Route::get('/tiramis/verify', [TiraController::class, 'verifyCoverNote']);
 

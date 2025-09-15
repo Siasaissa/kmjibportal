@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Authentication\EncryptionServiceController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class TiraController extends Controller
 {
@@ -39,6 +41,110 @@ class TiraController extends Controller
         catch (\Exception $e) {
             return $e;
         }
+    }
+
+
+    public function requestNonMotorCover($id)
+    {
+
+        $cover = [];
+        $data = [
+            'CoverNoteHdr' => [
+                'RequestId' => generateRequestID(),
+                'CompanyCode' => 'IB10152',
+                'SystemCode' => 'TP_KMJ_001',
+                'CallBackUrl' => "https://nio.co.tz/api/CoverNoteref/response",
+                'InsurerCompanyCode' => 'ICC100',
+                'TranCompanyCode' => 'TRC200',
+                'CoverNoteType' => 1,
+            ],
+            'CoverNoteDtl' => [
+                'CoverNoteNumber' => otherUniqueID(),
+                'PrevCoverNoteReferenceNumber' => null,
+                'SalePointCode' => 'SPT01',
+                'CoverNoteStartDate' => returnTiraDate('2025-09-15 18:00:00'),
+                'CoverNoteEndDate' => returnTiraDate('2026-09-14 23:59:59'),
+                'CoverNoteDesc' => "To cover the liability that will arise as a result of professional activities of the insured",
+                'OperativeClause' => "To cover the liability that will arise as a result of professional activities of the insured",
+                'PaymentMode' => 2,
+                'CurrencyCode' => 'TZS',
+                'ExchangeRate' => '1',
+                'TotalPremiumExcludingTax' => 60000,
+                'TotalPremiumIncludingTax' => 70800,
+                'CommisionPaid' => 0,
+                'CommisionRate' => 0,
+                'OfficerName' => "John Doe",
+                'OfficerTitle' => 'Agent',
+                'ProductCode' => 'SP013010000000',
+                'EndorsementType' => null,
+                'EndorsementReason' => null,
+                'EndorsementPremiumEarned' => null,
+                'RisksCovered' => [
+                    'RiskCovered' => [
+                        [
+                            'RiskCode' => 'SP013010000001',
+                            'SumInsured' => 6000000,
+                            'SumInsuredEquivalent' => 6000000,
+                            'PremiumRate' => 0.01,
+                            'PremiumBeforeDiscount' => 60000,
+                            'PremiumAfterDiscount' => 60000,
+                            'PremiumExcludingTaxEquivalent' => 60000,
+                            'PremiumIncludingTax' => 70800,
+                            'DiscountsOffered' => [],
+                            'TaxesCharged' => [
+                                'TaxCharged' => [
+                                    'TaxCode' => 'VAT-MAINLAND',
+                                    'IsTaxExempted' => 'N',
+                                    'TaxExemptionType' => null,
+                                    'TaxExemptionReference' => null,
+                                    'TaxRate' => 0.18,
+                                    'TaxAmount' => 10800,
+                                ],
+                            ],
+                        ],
+                    ]
+                ],
+                'SubjectMattersCovered' => [
+                    'SubjectMatter' => [
+                        'SubjectMatterReference' => 'HSB001',
+                        'SubjectMatterDesc' => 'On contents including Domestic items',
+                    ],
+                ],
+                'CoverNoteAddons' => [],
+                'PolicyHolders' => [
+                    'PolicyHolder' => [
+                        'PolicyHolderName' => 'MASHAURI HUSSEIN',
+                        'PolicyHolderBirthDate' => '2010-06-08',
+                        'PolicyHolderType' => 2,
+                        'PolicyHolderIdNumber' => '143041786',
+                        'PolicyHolderIdType' => 6,
+                        'Gender' => null,
+                        'CountryCode' => 'TZA',
+                        'Region' => 'Dar es Salaam',
+                        'District' => 'Ilala',
+                        'Street' => 'Ilala',
+                        'PolicyHolderPhoneNumber' => '255742662230',
+                        'PolicyHolderFax' => null,
+                        'PostalAddress' => "P O BOX DA RES SALAAM",
+                        'EmailAddress' => null,
+                    ],
+                ],
+            ],
+        ];
+
+        $gen_data = generateXML('CoverNoteRefReq', $data);
+
+        Log::channel('tiramisxml')->info($gen_data);
+        $res = TiraRequest('https://41.59.86.178:8091/ecovernote/api/covernote/non-life/other/v1/request', $gen_data);
+        Log::channel('tiramisxml')->info($res);
+
+        return $res;
+
+    }
+
+    function returnTiraDate($date): string
+    {
+        return (new Carbon($date))->format('Y-m-d\\TH:i:s');
     }
 
     //motor verifications
