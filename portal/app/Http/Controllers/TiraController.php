@@ -111,8 +111,7 @@ class TiraController extends Controller
         //generate signature
         $signature = EncryptionServiceController::createTiramisSignature($xmlData);
 
-        $xmlRequest = '<?xml version="1.0" encoding="UTF-8"?>
-<TiraMsg>
+        $xmlRequest = '<TiraMsg>
    '.$xmlData.'
    <MsgSignature>'.$signature.'</MsgSignature>
 </TiraMsg>';
@@ -296,10 +295,6 @@ class TiraController extends Controller
         return response($response->body(), 200)
             ->header('Content-Type', 'application/xml');
     }
-
-
-
-
 
 
     // Prepared to test 1.2 Non-Life Motor Covernote - To verify if the user can submit real-time non-life motor cover note details for a registered vehicle successfully
