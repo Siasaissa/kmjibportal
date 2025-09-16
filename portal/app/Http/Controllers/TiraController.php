@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Authentication\EncryptionServiceController;
+use App\Models\Addons;
 use App\Models\InsuranceQuotation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -13,6 +14,8 @@ use App\Models\Customer;
 use App\Models\Addon;
 use App\Models\Coverage;
 use App\Models\Quotation;
+use App\Models\Receipt;
+use App\Models\Motor;
 use Illuminate\Support\Facades\DB; 
 class TiraController extends Controller
 {
@@ -149,156 +152,136 @@ class TiraController extends Controller
     }
 
 
-public function saveNonMotorCoverDataUnique($id)
+   public function requestNonMotorCovertest($id)
 {
-    return DB::transaction(function () use ($id) {
+    DB::beginTransaction();
+    try {
         $cover = InsuranceQuotation::findOrFail($id);
 
-        // 🔹 Example payload (replace with real request later)
-        $data = [
-            'CoverNoteDtl' => [
-                'CoverNoteNumber' => 'CN-' . now()->timestamp,
-                'CoverNoteStartDate' => now(),
-                'CoverNoteEndDate' => now()->addYear(),
-                'TotalPremiumIncludingTax' => 70800,
-                'OfficerName' => "John Doe",
-                'OfficerTitle' => "Agent",
-                'ProductCode' => "SP013010000000",
-                'RisksCovered' => [
-                    'RiskCovered' => [
-                        [
-                            'RiskCode' => "SP013010000001",
-                            'RiskName' => "Professional Liability",
-                            'SumInsured' => 6000000,
-                            'SumInsuredEquivalent' => 6000000,
-                            'PremiumRate' => 0.01,
-                            'PremiumBeforeDiscount' => 60000,
-                            'PremiumAfterDiscount' => 60000,
-                            'PremiumExcludingTaxEquivalent' => 60000,
-                            'PremiumIncludingTax' => 70800,
-                            'TaxesCharged' => [
-                                'TaxCharged' => [
-                                    'TaxCode' => 'VAT-MAINLAND',
-                                    'IsTaxExempted' => 'N',
-                                    'TaxRate' => 0.18,
-                                    'TaxAmount' => 10800,
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-                'CoverNoteAddons' => [],
-                'PolicyHolders' => [
-                    'PolicyHolder' => [
-                        'PolicyHolderName' => 'MASHAURI HUSSEIN',
-                        'PolicyHolderBirthDate' => '2010-06-08',
-                        'PolicyHolderType' => 2,
-                        'PolicyHolderIdNumber' => '143041786',
-                        'PolicyHolderIdType' => 6,
-                        'Gender' => null,
-                        'CountryCode' => 'TZA',
-                        'Region' => 'Dar es Salaam',
-                        'District' => 'Ilala',
-                        'Street' => 'Ilala',
-                        'PolicyHolderPhoneNumber' => '255742662230',
-                        'PostalAddress' => "P O BOX DA RES SALAAM",
-                        'EmailAddress' => null,
-                    ],
-                ],
-            ],
+        //  Policy holder data
+        $policyData = [
+            'PolicyHolderName' => 'MASHAURI HUSSEIN',
+            'PolicyHolderBirthDate' => '2010-06-08',
+            'PolicyHolderType' => 2,
+            'PolicyHolderIdNumber' => '143041786',
+            'PolicyHolderIdType' => 6,
+            'Gender' => null,
+            'CountryCode' => 'TZA',
+            'Region' => 'Dar es Salaam',
+            'District' => 'Ilala',
+            'Street' => 'Ilala',
+            'PolicyHolderPhoneNumber' => '255742662230',
+            'PostalAddress' => "P O BOX DA RES SALAAM",
+            'EmailAddress' => null,
         ];
 
-        // 1️⃣ Save Customer
-        $policy = $data['CoverNoteDtl']['PolicyHolders']['PolicyHolder'];
+        //  Save customer
         $customer = Customer::updateOrCreate(
-            ['id_number' => $policy['PolicyHolderIdNumber']],
+            ['id_number' => $policyData['PolicyHolderIdNumber']],
             [
-                'client_name' => $policy['PolicyHolderName'] ?? 'Unknown',
-                'birth_date' => $policy['PolicyHolderBirthDate'] ?? now(),
-                'type' => $policy['PolicyHolderType'] ?? 0,
-                'id_type' => $policy['PolicyHolderIdType'] ?? 0,
-                'gender' => $policy['Gender'] ?? 'U',
-                'country_code' => $policy['CountryCode'] ?? 'TZA',
-                'region' => $policy['Region'] ?? '',
-                'district' => $policy['District'] ?? '',
-                'street' => $policy['Street'] ?? '',
-                'phone' => $policy['PolicyHolderPhoneNumber'] ?? '',
-                'postal_address' => $policy['PostalAddress'] ?? '',
-                'email' => $policy['EmailAddress'] ?? '',
+                'client_name' => $policyData['PolicyHolderName'],
+                'birth_date' => $policyData['PolicyHolderBirthDate'],
+                'type' => $policyData['PolicyHolderType'],
+                'id_type' => $policyData['PolicyHolderIdType'],
+                'gender' => $policyData['Gender'],
+                'country_code' => $policyData['CountryCode'],
+                'region' => $policyData['Region'],
+                'district' => $policyData['District'],
+                'street' => $policyData['Street'],
+                'phone' => $policyData['PolicyHolderPhoneNumber'],
+                'postal_address' => $policyData['PostalAddress'],
+                'email' => $policyData['EmailAddress'],
             ]
         );
 
-        // 2️⃣ Create Quotation first (will update later with FKs)
-        $quotation = Quotation::create([
+        //  Save insurance quotation
+        $insuranceQuotation = InsuranceQuotation::create([
             'customer_id' => $customer->id,
             'product_id' => 1,
-            'quotation_number' => $data['CoverNoteDtl']['CoverNoteNumber'],
-            'total_premium' => $data['CoverNoteDtl']['TotalPremiumIncludingTax'],
-            'valid_from' => $data['CoverNoteDtl']['CoverNoteStartDate'],
-            'valid_to' => $data['CoverNoteDtl']['CoverNoteEndDate'],
+            'quotation_number' => 'CN-' . now()->timestamp,
+            'total_premium' => 70800,
             'status' => 'pending',
-            'officer_name' => $data['CoverNoteDtl']['OfficerName'],
-            'officer_title' => $data['CoverNoteDtl']['OfficerTitle'],
         ]);
 
-        // 3️⃣ Save Coverage(s)
-        $coverageId = null;
-        foreach ($data['CoverNoteDtl']['RisksCovered']['RiskCovered'] as $risk) {
-            if (!Coverage::where('risk_code', $risk['RiskCode'])->exists()) {
-                $coverage = Coverage::create([
-                    'quotation_id' => $quotation->id,
-                    'risk_code' => $risk['RiskCode'],
-                    'risk_name' => $risk['RiskName'] ?? 'Unknown',
-                    'sum_insured' => $risk['SumInsured'] ?? 0,
-                    'sum_insured_equivalent' => $risk['SumInsuredEquivalent'] ?? 0,
-                    'premium_rate' => $risk['PremiumRate'] ?? 0,
-                    'premium_before_discount' => $risk['PremiumBeforeDiscount'] ?? 0,
-                    'premium_after_discount' => $risk['PremiumAfterDiscount'] ?? 0,
-                    'premium_excluding_tax_equivalent' => $risk['PremiumExcludingTaxEquivalent'] ?? 0,
-                    'premium_including_tax' => $risk['PremiumIncludingTax'] ?? 0,
-                    'taxes' => json_encode($risk['TaxesCharged']),
-                ]);
-                $coverageId = $coverage->id;
-            }
+        //  Save coverage **only if risk_code + quotation_id does not exist**
+        $coverage = Coverage::where('risk_code', 'RSK874209488')
+                            ->where('quotation_id', $insuranceQuotation->id)
+                            ->first();
+
+        if (!$coverage) {
+            $coverage = Coverage::create([
+                'risk_code' => 'RSK240994869',
+                'quotation_id' => $insuranceQuotation->id,
+                'risk_name' => 'Professional Liability',
+                'sum_insured' => 6000000,
+                'sum_insured_equivalent' => 6000000,
+                'premium_rate' => 0.01,
+                'premium_before_discount' => 60000,
+                'premium_after_discount' => 60000,
+                'premium_excluding_tax_equivalent' => 60000,
+                'premium_including_tax' => 70800,
+                'taxes' => json_encode([
+                    'TaxCharged' => [
+                        'TaxCode' => 'VAT-MAINLAND',
+                        'IsTaxExempted' => 'N',
+                        'TaxRate' => 0.18,
+                        'TaxAmount' => 10800,
+                    ]
+                ]),
+            ]);
         }
 
-        // 4️⃣ Save Addons
-        $addonId = null;
-        foreach ($data['CoverNoteDtl']['CoverNoteAddons'] as $addonData) {
-            $addon = Addon::updateOrCreate(
-                ['addon_code' => $addonData['AddonCode'] ?? uniqid(), 'quotation_id' => $quotation->id],
-                [
-                    'addon_name' => $addonData['AddonName'] ?? 'Addon',
-                    'rate' => $addonData['Rate'] ?? 0,
-                    'minimum_amount' => $addonData['MinimumAmount'] ?? 0,
-                ]
-            );
-            $addonId = $addon->id;
+        //  Save receipt only if not exist
+        $receipt = Receipt::where('quotation_id', $insuranceQuotation->id)->first();
+        if (!$receipt) {
+            $receipt = Receipt::create([
+                'quotation_id' => $insuranceQuotation->id,
+                'customer_id' => $customer->id,
+                'premium_amount' => $insuranceQuotation->total_premium,
+                'amount' => $insuranceQuotation->total_premium,
+                'exchange_rate' => 1,
+                'equivalent_amount' => $insuranceQuotation->total_premium,
+                'status' => 'unpaid',
+            ]);
         }
 
-        // 5️⃣ Update quotation with foreign keys
-        $quotation->update([
-            'coverage_id' => $coverageId,
-            'addon_id' => $addonId,
-            'insurance_id' => $cover->insurance_id ?? null,
-            'user_id' => auth()->id() ?? 1,
-            'receipt_id' => $cover->receipt_id ?? null,
-            'motor_id' => $cover->motor_id ?? null,
-            'tax_code' => "VAT-MAINLAND",
-            'is_tax_exempted' => 'N',
-            'tax_rate' => 0.18,
-            'tax_amount' => 10800,
-        ]);
+        //  Save motor only if not exist for this quotation
+        $motor = Motor::where('insurance_id', $insuranceQuotation->id)->first();
+        if (!$motor) {
+            $motor = Motor::create([
+                'registration_number' => 'T123 ABC',
+                'chassis_number' => 'CH123456',
+                'make' => 'Toyota',
+                'model' => 'Corolla',
+                'year_of_manufacture' => 2018,
+                'value' => 20000000,
+                'insurance_id' => $insuranceQuotation->id,
+            ]);
+        }
+
+        DB::commit();
 
         return response()->json([
-            'message' => 'Data saved successfully with all foreign keys updated',
-            'quotation_id' => $quotation->id,
-            'customer_id' => $customer->id,
-            'coverage_id' => $coverageId,
-            'addon_id' => $addonId,
+            'message' => 'Insurance quotation, receipt, coverage, and motor saved successfully if not existed.',
+            'insurance_quotation_id' => $insuranceQuotation->id,
+            'coverage_id' => $coverage->id,
+            'receipt_id' => $receipt->id,
+            'motor_id' => $motor->id,
         ]);
-    });
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'error' => $e->getMessage()
+        ], 500);
+    }
 }
+
+
+
+
+
+
 
 
 
