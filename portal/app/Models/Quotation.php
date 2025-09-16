@@ -52,40 +52,38 @@ class Quotation extends Model
     ];
 
     // Relationships
-    public function customer()
-    {
-        return $this->belongsTo(Customer::class);
-    }
-
-    // A quotation normally has many coverage items (risks)
     public function coverages()
     {
-        return $this->hasMany(Coverage::class);
+        return $this->hasMany(Coverage::class, 'quotation_id', 'id');
     }
 
-    // A quotation can have multiple addons
-    public function addons()
-    {
-        return $this->hasMany(Addons::class);
-    }
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    public function insurance()
-    {
-        return $this->belongsTo(Insurance::class);
-    }
-
+    // 2️⃣ One quotation has one receipt
     public function receipt()
     {
-        return $this->belongsTo(Receipt::class);
+        return $this->hasOne(Receipt::class, 'quotation_id', 'id');
     }
 
+    // 3️⃣ One quotation has one motor
     public function motor()
     {
-        return $this->belongsTo(Motor::class);
+        return $this->hasOne(Motor::class, 'quotation_id', 'id');
+    }
+
+    // 4️⃣ One quotation has one addon (if needed)
+    public function addon()
+    {
+        return $this->hasOne(Addons::class, 'quotation_id', 'id');
+    }
+
+    // 5️⃣ One quotation belongs to one customer
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class, 'customer_id', 'id');
+    }
+
+    // 6️⃣ One quotation belongs to one insurance
+    public function insurance()
+    {
+        return $this->belongsTo(Insurance::class, 'insurance_id', 'id');
     }
 }

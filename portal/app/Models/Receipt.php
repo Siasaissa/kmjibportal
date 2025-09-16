@@ -39,7 +39,7 @@ class Receipt extends Model
     // Relationship to InsuranceQuotation
 public function quotation()
 {
-    return $this->belongsTo(InsuranceQuotation::class);
+    return $this->belongsTo(Quotation::class);
 }
 
 

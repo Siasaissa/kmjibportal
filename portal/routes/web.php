@@ -17,9 +17,14 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+//getQuotationWithRelations
+
 Route::get('/test/tiramis', [TiraController::class, 'submitCoverNoteRefReq']);
 Route::get('/tiramis/test/non-motor/{id}', [TiraController::class, 'requestNonMotorCover']);
 Route::get('/tiramis/test/save/{id}', [TiraController::class, 'requestNonMotorCovertest']);
+// web.php 
+Route::get('/quotation/{id}', [TiraController::class, 'getQuotationWithRelations']);
+
 
 // Registration (guest only)
 Route::prefix('Authentication')->group(function () {

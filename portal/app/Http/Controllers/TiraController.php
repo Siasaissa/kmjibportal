@@ -140,8 +140,6 @@ class TiraController extends Controller
             ],
         ];
 
-
-
         $gen_data = generateXML('CoverNoteRefReq', $data);
 
         Log::channel('tiramisxml')->info($gen_data);
@@ -152,66 +150,50 @@ class TiraController extends Controller
     }
 
 
-   public function requestNonMotorCovertest($id)
+   public function requestNonMotorCovertest($customerId)
 {
     DB::beginTransaction();
     try {
-        $cover = InsuranceQuotation::findOrFail($id);
-
-        //  Policy holder data
-        $policyData = [
-            'PolicyHolderName' => 'MASHAURI HUSSEIN',
-            'PolicyHolderBirthDate' => '2010-06-08',
-            'PolicyHolderType' => 2,
-            'PolicyHolderIdNumber' => '143041786',
-            'PolicyHolderIdType' => 6,
-            'Gender' => null,
-            'CountryCode' => 'TZA',
-            'Region' => 'Dar es Salaam',
-            'District' => 'Ilala',
-            'Street' => 'Ilala',
-            'PolicyHolderPhoneNumber' => '255742662230',
-            'PostalAddress' => "P O BOX DA RES SALAAM",
-            'EmailAddress' => null,
+        // Find the customer or create a new one
+        $customerData = [
+            'client_name' => 'MASHAURI HUSSEIN',
+            'birth_date' => '2010-06-08',
+            'type' => 2,
+            'id_type' => 6,
+            'id_number' => '143041786', // ensure unique
+            'gender' => null,
+            'country_code' => 'TZA',
+            'region' => 'Dar es Salaam',
+            'district' => 'Ilala',
+            'street' => 'Ilala',
+            'phone' => '255742662230',
+            'postal_address' => "P O BOX DA RES SALAAM",
+            'email' => null,
         ];
 
-        //  Save customer
         $customer = Customer::updateOrCreate(
-            ['id_number' => $policyData['PolicyHolderIdNumber']],
-            [
-                'client_name' => $policyData['PolicyHolderName'],
-                'birth_date' => $policyData['PolicyHolderBirthDate'],
-                'type' => $policyData['PolicyHolderType'],
-                'id_type' => $policyData['PolicyHolderIdType'],
-                'gender' => $policyData['Gender'],
-                'country_code' => $policyData['CountryCode'],
-                'region' => $policyData['Region'],
-                'district' => $policyData['District'],
-                'street' => $policyData['Street'],
-                'phone' => $policyData['PolicyHolderPhoneNumber'],
-                'postal_address' => $policyData['PostalAddress'],
-                'email' => $policyData['EmailAddress'],
-            ]
+            ['id_number' => $customerData['id_number']],
+            $customerData
         );
 
-        //  Save insurance quotation
-        $insuranceQuotation = InsuranceQuotation::create([
+        // Create quotation (parent for all related tables)
+        $quotation = Quotation::create([
             'customer_id' => $customer->id,
             'product_id' => 1,
             'quotation_number' => 'CN-' . now()->timestamp,
             'total_premium' => 70800,
             'status' => 'pending',
+            'officer_name' => 'John Doe',
+            'officer_title' => 'Agent',
         ]);
 
-        //  Save coverage **only if risk_code + quotation_id does not exist**
-        $coverage = Coverage::where('risk_code', 'RSK874209488')
-                            ->where('quotation_id', $insuranceQuotation->id)
-                            ->first();
-
-        if (!$coverage) {
-            $coverage = Coverage::create([
-                'risk_code' => 'RSK240994869',
-                'quotation_id' => $insuranceQuotation->id,
+        //  Create coverage (avoid duplicate for same quotation)
+        $coverage = Coverage::firstOrCreate(
+            [
+                'quotation_id' => $quotation->id,
+                'risk_code' => 'RSK1000000'
+            ],
+            [
                 'risk_name' => 'Professional Liability',
                 'sum_insured' => 6000000,
                 'sum_insured_equivalent' => 6000000,
@@ -228,50 +210,64 @@ class TiraController extends Controller
                         'TaxAmount' => 10800,
                     ]
                 ]),
-            ]);
-        }
+            ]
+        );
 
-        //  Save receipt only if not exist
-        $receipt = Receipt::where('quotation_id', $insuranceQuotation->id)->first();
-        if (!$receipt) {
-            $receipt = Receipt::create([
-                'quotation_id' => $insuranceQuotation->id,
+        //  Create receipt (only if not exist)
+        $receipt = Receipt::firstOrCreate(
+            ['quotation_id' => $quotation->id],
+            [
                 'customer_id' => $customer->id,
-                'premium_amount' => $insuranceQuotation->total_premium,
-                'amount' => $insuranceQuotation->total_premium,
+                'premium_amount' => $quotation->total_premium,
+                'amount' => $quotation->total_premium,
                 'exchange_rate' => 1,
-                'equivalent_amount' => $insuranceQuotation->total_premium,
+                'equivalent_amount' => $quotation->total_premium,
                 'status' => 'unpaid',
-            ]);
-        }
+            ]
+        );
 
-        //  Save motor only if not exist for this quotation
-        $motor = Motor::where('insurance_id', $insuranceQuotation->id)->first();
-        if (!$motor) {
-            $motor = Motor::create([
-                'registration_number' => 'T123 ABC',
+        // Create insurance (avoid duplicates)
+        $insurance = \App\Models\Insurance::firstOrCreate(
+            ['name' => 'Default Insurance Company']
+        );
+        $quotation->insurance_id = $insurance->id;
+
+        // Create motor (only if not exist for this quotation)
+        $motor = Motor::firstOrCreate(
+            ['insurance_id' => $quotation->id],
+            [
+                'registration_number' => 'T746 EAQ',
                 'chassis_number' => 'CH123456',
                 'make' => 'Toyota',
                 'model' => 'Corolla',
                 'year_of_manufacture' => 2018,
                 'value' => 20000000,
-                'insurance_id' => $insuranceQuotation->id,
-            ]);
-        }
+            ]
+        );
+
+        $quotation->coverage_id = $coverage->id;
+        $quotation->receipt_id = $receipt->id;
+        $quotation->motor_id = $motor->id;
+
+        $quotation->save();
 
         DB::commit();
 
         return response()->json([
-            'message' => 'Insurance quotation, receipt, coverage, and motor saved successfully if not existed.',
-            'insurance_quotation_id' => $insuranceQuotation->id,
+            'success' => true,
+            'message' => 'Quotation and related data created successfully.',
+            'quotation_id' => $quotation->id,
+            'customer_id' => $customer->id,
             'coverage_id' => $coverage->id,
             'receipt_id' => $receipt->id,
             'motor_id' => $motor->id,
+            'insurance_id' => $insurance->id,
         ]);
 
     } catch (\Exception $e) {
         DB::rollBack();
         return response()->json([
+            'success' => false,
             'error' => $e->getMessage()
         ], 500);
     }
@@ -279,6 +275,29 @@ class TiraController extends Controller
 
 
 
+public function getQuotationWithRelations($id)
+{
+    try {
+        $quotation = Quotation::with([
+            'customer',
+            'coverages',
+            'receipt',
+            'motor',
+            'addon',
+            'insurance'
+        ])->findOrFail($id);
+
+        return response()->json([
+            'success' => true,
+            'data' => $quotation
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
 
 
 
