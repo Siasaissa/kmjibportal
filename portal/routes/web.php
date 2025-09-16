@@ -19,6 +19,7 @@ Route::get('/', function () {
 
 Route::get('/test/tiramis', [TiraController::class, 'submitCoverNoteRefReq']);
 Route::get('/tiramis/test/non-motor/{id}', [TiraController::class, 'requestNonMotorCover']);
+Route::get('/tiramis/test/save/{id}', [TiraController::class, 'saveNonMotorCoverDataUnique']);
 
 // Registration (guest only)
 Route::prefix('Authentication')->group(function () {

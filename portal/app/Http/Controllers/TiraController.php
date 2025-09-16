@@ -9,7 +9,11 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-
+use App\Models\Customer;
+use App\Models\Addon;
+use App\Models\Coverage;
+use App\Models\Quotation;
+use Illuminate\Support\Facades\DB; 
 class TiraController extends Controller
 {
 
@@ -57,7 +61,7 @@ class TiraController extends Controller
                 'CallBackUrl' => "https://nio.co.tz/api/CoverNoteref/response",
                 'InsurerCompanyCode' => 'ICC100',
                 'TranCompanyCode' => 'TRC200',
-                'CoverNoteType' => $cover->cover_note_type,
+               'CoverNoteType' => $cover->cover_note_type,
             ],
             'CoverNoteDtl' => [
                 'CoverNoteNumber' => $cover->cover_note_type == 3 ? $cover->cover_note_refere : otherUniqueID(),
@@ -133,6 +137,8 @@ class TiraController extends Controller
             ],
         ];
 
+
+
         $gen_data = generateXML('CoverNoteRefReq', $data);
 
         Log::channel('tiramisxml')->info($gen_data);
@@ -141,6 +147,160 @@ class TiraController extends Controller
         return $res;
 
     }
+
+
+public function saveNonMotorCoverDataUnique($id)
+{
+    return DB::transaction(function () use ($id) {
+        $cover = InsuranceQuotation::findOrFail($id);
+
+        // 🔹 Example payload (replace with real request later)
+        $data = [
+            'CoverNoteDtl' => [
+                'CoverNoteNumber' => 'CN-' . now()->timestamp,
+                'CoverNoteStartDate' => now(),
+                'CoverNoteEndDate' => now()->addYear(),
+                'TotalPremiumIncludingTax' => 70800,
+                'OfficerName' => "John Doe",
+                'OfficerTitle' => "Agent",
+                'ProductCode' => "SP013010000000",
+                'RisksCovered' => [
+                    'RiskCovered' => [
+                        [
+                            'RiskCode' => "SP013010000001",
+                            'RiskName' => "Professional Liability",
+                            'SumInsured' => 6000000,
+                            'SumInsuredEquivalent' => 6000000,
+                            'PremiumRate' => 0.01,
+                            'PremiumBeforeDiscount' => 60000,
+                            'PremiumAfterDiscount' => 60000,
+                            'PremiumExcludingTaxEquivalent' => 60000,
+                            'PremiumIncludingTax' => 70800,
+                            'TaxesCharged' => [
+                                'TaxCharged' => [
+                                    'TaxCode' => 'VAT-MAINLAND',
+                                    'IsTaxExempted' => 'N',
+                                    'TaxRate' => 0.18,
+                                    'TaxAmount' => 10800,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                'CoverNoteAddons' => [],
+                'PolicyHolders' => [
+                    'PolicyHolder' => [
+                        'PolicyHolderName' => 'MASHAURI HUSSEIN',
+                        'PolicyHolderBirthDate' => '2010-06-08',
+                        'PolicyHolderType' => 2,
+                        'PolicyHolderIdNumber' => '143041786',
+                        'PolicyHolderIdType' => 6,
+                        'Gender' => null,
+                        'CountryCode' => 'TZA',
+                        'Region' => 'Dar es Salaam',
+                        'District' => 'Ilala',
+                        'Street' => 'Ilala',
+                        'PolicyHolderPhoneNumber' => '255742662230',
+                        'PostalAddress' => "P O BOX DA RES SALAAM",
+                        'EmailAddress' => null,
+                    ],
+                ],
+            ],
+        ];
+
+        // 1️⃣ Save Customer
+        $policy = $data['CoverNoteDtl']['PolicyHolders']['PolicyHolder'];
+        $customer = Customer::updateOrCreate(
+            ['id_number' => $policy['PolicyHolderIdNumber']],
+            [
+                'client_name' => $policy['PolicyHolderName'] ?? 'Unknown',
+                'birth_date' => $policy['PolicyHolderBirthDate'] ?? now(),
+                'type' => $policy['PolicyHolderType'] ?? 0,
+                'id_type' => $policy['PolicyHolderIdType'] ?? 0,
+                'gender' => $policy['Gender'] ?? 'U',
+                'country_code' => $policy['CountryCode'] ?? 'TZA',
+                'region' => $policy['Region'] ?? '',
+                'district' => $policy['District'] ?? '',
+                'street' => $policy['Street'] ?? '',
+                'phone' => $policy['PolicyHolderPhoneNumber'] ?? '',
+                'postal_address' => $policy['PostalAddress'] ?? '',
+                'email' => $policy['EmailAddress'] ?? '',
+            ]
+        );
+
+        // 2️⃣ Create Quotation first (will update later with FKs)
+        $quotation = Quotation::create([
+            'customer_id' => $customer->id,
+            'product_id' => 1,
+            'quotation_number' => $data['CoverNoteDtl']['CoverNoteNumber'],
+            'total_premium' => $data['CoverNoteDtl']['TotalPremiumIncludingTax'],
+            'valid_from' => $data['CoverNoteDtl']['CoverNoteStartDate'],
+            'valid_to' => $data['CoverNoteDtl']['CoverNoteEndDate'],
+            'status' => 'pending',
+            'officer_name' => $data['CoverNoteDtl']['OfficerName'],
+            'officer_title' => $data['CoverNoteDtl']['OfficerTitle'],
+        ]);
+
+        // 3️⃣ Save Coverage(s)
+        $coverageId = null;
+        foreach ($data['CoverNoteDtl']['RisksCovered']['RiskCovered'] as $risk) {
+            if (!Coverage::where('risk_code', $risk['RiskCode'])->exists()) {
+                $coverage = Coverage::create([
+                    'quotation_id' => $quotation->id,
+                    'risk_code' => $risk['RiskCode'],
+                    'risk_name' => $risk['RiskName'] ?? 'Unknown',
+                    'sum_insured' => $risk['SumInsured'] ?? 0,
+                    'sum_insured_equivalent' => $risk['SumInsuredEquivalent'] ?? 0,
+                    'premium_rate' => $risk['PremiumRate'] ?? 0,
+                    'premium_before_discount' => $risk['PremiumBeforeDiscount'] ?? 0,
+                    'premium_after_discount' => $risk['PremiumAfterDiscount'] ?? 0,
+                    'premium_excluding_tax_equivalent' => $risk['PremiumExcludingTaxEquivalent'] ?? 0,
+                    'premium_including_tax' => $risk['PremiumIncludingTax'] ?? 0,
+                    'taxes' => json_encode($risk['TaxesCharged']),
+                ]);
+                $coverageId = $coverage->id;
+            }
+        }
+
+        // 4️⃣ Save Addons
+        $addonId = null;
+        foreach ($data['CoverNoteDtl']['CoverNoteAddons'] as $addonData) {
+            $addon = Addon::updateOrCreate(
+                ['addon_code' => $addonData['AddonCode'] ?? uniqid(), 'quotation_id' => $quotation->id],
+                [
+                    'addon_name' => $addonData['AddonName'] ?? 'Addon',
+                    'rate' => $addonData['Rate'] ?? 0,
+                    'minimum_amount' => $addonData['MinimumAmount'] ?? 0,
+                ]
+            );
+            $addonId = $addon->id;
+        }
+
+        // 5️⃣ Update quotation with foreign keys
+        $quotation->update([
+            'coverage_id' => $coverageId,
+            'addon_id' => $addonId,
+            'insurance_id' => $cover->insurance_id ?? null,
+            'user_id' => auth()->id() ?? 1,
+            'receipt_id' => $cover->receipt_id ?? null,
+            'motor_id' => $cover->motor_id ?? null,
+            'tax_code' => "VAT-MAINLAND",
+            'is_tax_exempted' => 'N',
+            'tax_rate' => 0.18,
+            'tax_amount' => 10800,
+        ]);
+
+        return response()->json([
+            'message' => 'Data saved successfully with all foreign keys updated',
+            'quotation_id' => $quotation->id,
+            'customer_id' => $customer->id,
+            'coverage_id' => $coverageId,
+            'addon_id' => $addonId,
+        ]);
+    });
+}
+
+
 
     function returnTiraDate($date): string
     {

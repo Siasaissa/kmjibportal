@@ -4,9 +4,9 @@ Tables
 
 Quotation
   -> customer/placeholder
-  -> product [Motor Private ]
-  -> cover rage private tpo
-  -> insurance -motor, fire
+  -> product(product_code,id, product_name,)
+  -> coverrage(id,risk code, risk name,rate,minimum amount)
+  -> insurance -motor,( name,id)
   -> users
   -> receipt/payment
   -> motor

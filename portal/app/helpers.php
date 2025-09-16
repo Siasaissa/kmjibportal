@@ -67,3 +67,16 @@ function returnTiraDate($date): string
 {
     return (new Carbon($date))->format('Y-m-d\\TH:i:s');
 }
+
+ function getProductId($productCode)
+{
+    $product = Product::where('product_code', $productCode)->first();
+    if (!$product) {
+        // Optional: create the product if not found
+        $product = Product::create([
+            'product_code' => $productCode,
+            'name' => 'Unknown Product', // or provide a name dynamically
+        ]);
+    }
+    return $product->id;
+}
