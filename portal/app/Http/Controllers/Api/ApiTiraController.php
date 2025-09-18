@@ -189,13 +189,13 @@ class ApiTiraController extends Controller
                             'PremiumExcludingTax' => $PremiumExcludingTax,
                             'PremiumExcludingTaxEquivalent' => $PremiumExcludingTaxEquivalent,
                             'PremiumIncludingTax' => $PremiumIncludingTax,
-                            // 'TaxesCharged' => [
-                            //     'TaxCharged' => [
-                            //         'TaxCode' => $TaxCode,
-                            //         'TaxRate' => $TaxRate,
-                            //         'TaxAmount' => $TaxAmount,
-                            //     ],
-                            // ],
+                            'TaxesCharged' => [
+                                'TaxCharged' => [
+                                    'TaxCode' => $TaxCode,
+                                    'TaxRate' => $TaxRate,
+                                    'TaxAmount' => $TaxAmount,
+                                ],
+                            ],
                         ],
                     ],
                 ],
