@@ -160,7 +160,7 @@ class ApiTiraController extends Controller
                             'PremiumDiscount' => $PremiumDiscount,
                             'DiscountType' => $DiscountType,
                             'PremiumAfterDiscount' => $PremiumAfterDiscount,
-                            // 'PremiumExcludingTax' => $PremiumExcludingTax, 
+                            // 'PremiumExcludingTax' => $PremiumExcludingTax,
                             'PremiumExcludingTaxEquivalent' => $PremiumExcludingTaxEquivalent,
                             'PremiumIncludingTax' => $PremiumIncludingTax,
                             'TaxesCharged' => [
@@ -189,13 +189,13 @@ class ApiTiraController extends Controller
                             'PremiumExcludingTax' => $PremiumExcludingTax,
                             'PremiumExcludingTaxEquivalent' => $PremiumExcludingTaxEquivalent,
                             'PremiumIncludingTax' => $PremiumIncludingTax,
-                            'TaxesCharged' => [
-                                'TaxCharged' => [
-                                    'TaxCode' => $TaxCode,
-                                    'TaxRate' => $TaxRate,
-                                    'TaxAmount' => $TaxAmount,
-                                ],
-                            ],
+                            // 'TaxesCharged' => [
+                            //     'TaxCharged' => [
+                            //         'TaxCode' => $TaxCode,
+                            //         'TaxRate' => $TaxRate,
+                            //         'TaxAmount' => $TaxAmount,
+                            //     ],
+                            // ],
                         ],
                     ],
                 ],
@@ -221,27 +221,27 @@ class ApiTiraController extends Controller
                 ],
 
                 'MotorDtl' => [
-                    'MotorCategory' => $MotorCategory,         
-                    'RegistrationNumber' => $RegistrationNumber, 
-                    'ChassisNumber' => $ChassisNumber,         
-                    'Make' => $Make,                           
-                    'Model' => $Model,                         
-                    'ModelNumber' => $ModelNumber,            
-                    'BodyType' => $BodyType,                 
-                    'Color' => $Color,                       
-                    'EngineNumber' => $EngineNumber,           
-                    'EngineCapacity' => $EngineCapacity,       
-                    'FuelUsed' => $FuelUsed,                   
-                    'NumberOfAxles' => $NumberOfAxles,        
-                    'AxleDistance' => $AxleDistance,     
-                    'SittingCapacity' => $SittingCapacity, 
-                    'YearOfManufacture' => $YearOfManufacture, 
-                    'TareWeight' => $TareWeight,              
-                    'GrossWeight' => $GrossWeight,             
-                    'MotorUsage' => $MotorUsage,               
-                    'OwnerName' => $OwnerName,                 
-                    'OwnerCategory' => $OwnerCategory,         
-                    'OwnerAddress' => $OwnerAddress,    
+                    'MotorCategory' => $MotorCategory,
+                    'RegistrationNumber' => $RegistrationNumber,
+                    'ChassisNumber' => $ChassisNumber,
+                    'Make' => $Make,
+                    'Model' => $Model,
+                    'ModelNumber' => $ModelNumber,
+                    'BodyType' => $BodyType,
+                    'Color' => $Color,
+                    'EngineNumber' => $EngineNumber,
+                    'EngineCapacity' => $EngineCapacity,
+                    'FuelUsed' => $FuelUsed,
+                    'NumberOfAxles' => $NumberOfAxles,
+                    'AxleDistance' => $AxleDistance,
+                    'SittingCapacity' => $SittingCapacity,
+                    'YearOfManufacture' => $YearOfManufacture,
+                    'TareWeight' => $TareWeight,
+                    'GrossWeight' => $GrossWeight,
+                    'MotorUsage' => $MotorUsage,
+                    'OwnerName' => $OwnerName,
+                    'OwnerCategory' => $OwnerCategory,
+                    'OwnerAddress' => $OwnerAddress,
                 ],
 
             ],
@@ -298,7 +298,7 @@ class ApiTiraController extends Controller
 
         try {
 
-         
+
 
             $gen_data = generateXML('MotorCoverNoteRefReq', $data);
 
