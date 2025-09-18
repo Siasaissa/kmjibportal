@@ -60,6 +60,7 @@ class ApiTiraController extends Controller
         //PolicyHolders
         $PolicyHolderName = $request->policy_holder_name;
         $PolicyHolderBirthDate = $request->policy_holder_birth_date;
+        $PolicyHolderBirtAge = $request->policy_holder_birt_age;
         $PolicyHolderType = $request->policy_holder_type;
         $PolicyHolderIdNumber = $request->policy_holder_id_number;
         $PolicyHolderIdType = $request->policy_holder_id_type;
@@ -138,17 +139,16 @@ class ApiTiraController extends Controller
                 'ExchangeRate' => $exchangeRate,
                 'TotalPremiumExcludingTax' => $TotalPremiumExcludingTax,
                 'TotalPremiumIncludingTax' => $TotalPremiumIncludingTax,
-                'CommissionPaid' => $CommisionPaid,
-                'CommissionRate' => $CommisionRate,
+                'CommisionPaid' => $CommisionPaid,
+                'CommisionRate' => $CommisionRate,
+                'IsFleet' => "Y",
+                'FleetId' => "FL122340",
+                'FleetSize' => 23,
+                'ComprehensiveInsured' => 20,
+                'FleetEntry' => 1,
                 'OfficerName' => $OfficerName,
                 'OfficerTitle' => $OfficerTitle,
                 'ProductCode' => $ProductCode,
-                'IsFleet' => ($IsFleet === 'Y' || $IsFleet === 'N') ? $IsFleet : ((bool)$IsFleet ? 'Y' : 'N'),
-                // Fleet fields will only be considered by TIRA when IsFleet = 'Y'
-                'FleetId' => $IsFleet ? $FleetId : null,
-                'FleetSize' => $IsFleet ? $FleetSize : null,
-                'ComprehensiveInsured' => $IsFleet ? $ComprehensiveInsured : null,
-                'FleetEntry' => $IsFleet ? $FleetEntry : null,
                 'RisksCovered' => [
                     'RiskCovered' => [
                         [
@@ -157,9 +157,9 @@ class ApiTiraController extends Controller
                             'SumInsuredEquivalent' => $SumInsuredEquivalent,
                             'PremiumRate' => $PremiumRate,
                             'PremiumBeforeDiscount' => $PremiumBeforeDiscount,
-                            'PremiumAfterDiscount' => $PremiumAfterDiscount,
                             'PremiumDiscount' => $PremiumDiscount,
                             'DiscountType' => $DiscountType,
+                            'PremiumAfterDiscount' => $PremiumAfterDiscount,
                             'PremiumExcludingTaxEquivalent' => $PremiumExcludingTaxEquivalent,
                             'PremiumIncludingTax' => $PremiumIncludingTax,
                             'TaxesCharged' => [
@@ -203,6 +203,7 @@ class ApiTiraController extends Controller
                     'PolicyHolder' => [
                         'PolicyHolderName' => $PolicyHolderName,
                         'PolicyHolderBirthDate' => $PolicyHolderBirthDate,
+                        'PolicyHolderBirtAge' => $PolicyHolderBirtAge,
                         'PolicyHolderType' => $PolicyHolderType,
                         'PolicyHolderIdNumber' => $PolicyHolderIdNumber,
                         'PolicyHolderIdType' => $PolicyHolderIdType,
@@ -219,27 +220,27 @@ class ApiTiraController extends Controller
                 ],
 
                 'MotorDtl' => [
-                    'MotorCategory' => $MotorCategory,         // mfano: 1
-                    'RegistrationNumber' => $RegistrationNumber, // mfano: 'T241QWA'
-                    'ChassisNumber' => $ChassisNumber,         // mfano: 'NCP314345436334'
-                    'Make' => $Make,                           // mfano: 'Toyota'
-                    'Model' => $Model,                         // mfano: 'IST'
-                    'ModelNumber' => $ModelNumber,             // mfano: 'TA232353455'
-                    'BodyType' => $BodyType,                   // mfano: 'Station Wagon'
-                    'Color' => $Color,                         // mfano: 'Blue'
-                    'EngineNumber' => $EngineNumber,           // mfano: '2423253535'
-                    'EngineCapacity' => $EngineCapacity,       // mfano: 2300
-                    'FuelUsed' => $FuelUsed,                   // mfano: 'Petrol'
-                    'NumberOfAxles' => $NumberOfAxles,         // mfano: 3
-                    'AxleDistance' => $AxleDistance,     // inaweza kuwa empty string
-                    'SittingCapacity' => $SittingCapacity, // inaweza kuwa empty string
-                    'YearOfManufacture' => $YearOfManufacture, // mfano: 2001
-                    'TareWeight' => $TareWeight,               // mfano: 2000
-                    'GrossWeight' => $GrossWeight,             // mfano: 2000
-                    'MotorUsage' => $MotorUsage,               // mfano: 1
-                    'OwnerName' => $OwnerName,                 // mfano: 'Juma Wamugamba'
-                    'OwnerCategory' => $OwnerCategory,         // mfano: 1
-                    'OwnerAddress' => $OwnerAddress,     // inaweza kuwa empty string
+                    'MotorCategory' => $MotorCategory,         
+                    'RegistrationNumber' => $RegistrationNumber, 
+                    'ChassisNumber' => $ChassisNumber,         
+                    'Make' => $Make,                           
+                    'Model' => $Model,                         
+                    'ModelNumber' => $ModelNumber,            
+                    'BodyType' => $BodyType,                 
+                    'Color' => $Color,                       
+                    'EngineNumber' => $EngineNumber,           
+                    'EngineCapacity' => $EngineCapacity,       
+                    'FuelUsed' => $FuelUsed,                   
+                    'NumberOfAxles' => $NumberOfAxles,        
+                    'AxleDistance' => $AxleDistance,     
+                    'SittingCapacity' => $SittingCapacity, 
+                    'YearOfManufacture' => $YearOfManufacture, 
+                    'TareWeight' => $TareWeight,              
+                    'GrossWeight' => $GrossWeight,             
+                    'MotorUsage' => $MotorUsage,               
+                    'OwnerName' => $OwnerName,                 
+                    'OwnerCategory' => $OwnerCategory,         
+                    'OwnerAddress' => $OwnerAddress,    
                 ],
 
             ],
