@@ -105,15 +105,15 @@ class ApiTiraController extends Controller
         $EngineCapacity = $request->engine_capacity;      // mfano: 2300
         $FuelUsed = $request->fuel_used;                  // mfano: 'Petrol'
         $NumberOfAxles = $request->number_of_axles;       // mfano: 3
-        $AxleDistance = $request->axle_distance ?? '';    // inaweza kuwa empty string
-        $SittingCapacity = $request->sitting_capacity ?? ''; // inaweza kuwa empty string
+        $AxleDistance = $request->axle_distance;    // inaweza kuwa empty string
+        $SittingCapacity = $request->sitting_capacity; // inaweza kuwa empty string
         $YearOfManufacture = $request->year_of_manufacture; // mfano: 2001
         $TareWeight = $request->tare_weight;              // mfano: 2000
         $GrossWeight = $request->gross_weight;            // mfano: 2000
         $MotorUsage = $request->motor_usage;              // mfano: 1
         $OwnerName = $request->owner_name;                // mfano: 'Juma Wamugamba'
         $OwnerCategory = $request->owner_category;        // mfano: 1
-        $OwnerAddress = $request->owner_address ?? '';    // inaweza kuwa empty string
+        $OwnerAddress = $request->owner_address;    // inaweza kuwa empty string
 
         $data = [
             'CoverNoteHdr' => [
@@ -157,8 +157,8 @@ class ApiTiraController extends Controller
                             'PremiumRate' => $PremiumRate,
                             'PremiumBeforeDiscount' => $PremiumBeforeDiscount,
                             'PremiumAfterDiscount' => $PremiumAfterDiscount,
-                            'PremiumDiscount' => $PremiumDiscount ?? 0.00,
-                            'DiscountType' => $DiscountType ?? '',
+                            'PremiumDiscount' => $PremiumDiscount,
+                            'DiscountType' => $DiscountType,
                             'PremiumExcludingTaxEquivalent' => $PremiumExcludingTaxEquivalent,
                             'PremiumIncludingTax' => $PremiumIncludingTax,
                             'TaxesCharged' => [
@@ -205,15 +205,15 @@ class ApiTiraController extends Controller
                         'PolicyHolderType' => $PolicyHolderType,
                         'PolicyHolderIdNumber' => $PolicyHolderIdNumber,
                         'PolicyHolderIdType' => $PolicyHolderIdType,
-                        'Gender' => $Gender ?? '',
+                        'Gender' => $Gender,
                         'CountryCode' => $CountryCode,
                         'Region' => $Region,
                         'District' => $District,
                         'Street' => $Street,
                         'PolicyHolderPhoneNumber' => $PolicyHolderPhoneNumber,
-                        'PolicyHolderFax' => $PolicyHolderFax ?? '',
+                        'PolicyHolderFax' => $PolicyHolderFax,
                         'PostalAddress' => $PostalAddress,
-                        'EmailAddress' => $EmailAddress ?? '',
+                        'EmailAddress' => $EmailAddress,
                     ],
                 ],
 
@@ -230,15 +230,15 @@ class ApiTiraController extends Controller
                     'EngineCapacity' => $EngineCapacity,       // mfano: 2300
                     'FuelUsed' => $FuelUsed,                   // mfano: 'Petrol'
                     'NumberOfAxles' => $NumberOfAxles,         // mfano: 3
-                    'AxleDistance' => $AxleDistance ?? '',     // inaweza kuwa empty string
-                    'SittingCapacity' => $SittingCapacity ?? '', // inaweza kuwa empty string
+                    'AxleDistance' => $AxleDistance,     // inaweza kuwa empty string
+                    'SittingCapacity' => $SittingCapacity, // inaweza kuwa empty string
                     'YearOfManufacture' => $YearOfManufacture, // mfano: 2001
                     'TareWeight' => $TareWeight,               // mfano: 2000
                     'GrossWeight' => $GrossWeight,             // mfano: 2000
                     'MotorUsage' => $MotorUsage,               // mfano: 1
                     'OwnerName' => $OwnerName,                 // mfano: 'Juma Wamugamba'
                     'OwnerCategory' => $OwnerCategory,         // mfano: 1
-                    'OwnerAddress' => $OwnerAddress ?? '',     // inaweza kuwa empty string
+                    'OwnerAddress' => $OwnerAddress,     // inaweza kuwa empty string
                 ],
 
             ],
@@ -306,7 +306,7 @@ class ApiTiraController extends Controller
             // return $res;
 
             return response()->json([
-                'success' => 'TRA successfully',
+                'success' => 'TRA Response',
                 // 'quotation' => $quotation,
                 'response' => $res
             ]);
