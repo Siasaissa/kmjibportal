@@ -61,4 +61,8 @@ Route::prefix('tiramis')->controller(TiraController::class)->group(function () {
     Route::post('/motor-cover-notes', [ApiTiraController::class, 'motorCoverNotes']);
     // Motor Fleet Covernotes
     Route::post('/motor-fleet-cover-notes', [ApiTiraController::class, 'fleetCoverNotes']);
+
+    // 2.Reinsurance Submission
+    Route::post('/reinsurance', [ApiTiraController::class, 'reinsuranceSubmission']);
+
 });

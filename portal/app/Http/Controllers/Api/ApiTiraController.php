@@ -67,7 +67,7 @@ class ApiTiraController extends Controller
         $PostalAddress = $request->postal_address;
         $RiskCode = $request->risk_code;
 
-         // Motor details
+        // Motor details
         $MotorCategory = $request->motor_category;
         $MotorType = $request->motor_type; // 1 Registered, 2 In transit
         $RegistrationNumber = $request->registration_number;
@@ -183,7 +183,7 @@ class ApiTiraController extends Controller
                         'EmailAddress' => $request->email_address ?? '',
                     ],
                 ],
-                 'MotorDtl' => [
+                'MotorDtl' => [
                     'MotorCategory' => $MotorCategory,
                     'MotorType' => $MotorType,
                     'RegistrationNumber' => $RegistrationNumber,
@@ -461,8 +461,8 @@ class ApiTiraController extends Controller
                         ],
                     ],
                     'MotorDtl' => [
-                    'MotorCategory' => $MotorCategory,
-                    'MotorType' => $MotorType,
+                        'MotorCategory' => $MotorCategory,
+                        'MotorType' => $MotorType,
                         'RegistrationNumber' => $RegistrationNumber,
                         'ChassisNumber' => $ChassisNumber,
                         'Make' => $Make,
@@ -495,6 +495,71 @@ class ApiTiraController extends Controller
 
             Log::channel('tiramisxml')->info($gen_data);
             $res = TiraRequest('https://41.59.86.178:8091/ecovernote/api/covernote/non-life/motor-fleet/v2/request', $gen_data);
+
+            return response()->json([
+                'success' => 'TRA Response',
+                'response' => $res
+            ]);
+        } catch (\Exception $e) {
+            Log::channel('tiramisxml')->info($e->getMessage());
+            return response()->json([
+                'error' => 'An error occurred while processing your request.',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+
+    // 2.Reinsurance Submission
+    public function reinsuranceSubmission(Request $request)
+    {
+        // Build ReinsuranceReq per TIRA spec 7.1
+        $reinsuranceHdr = [
+            'RequestId' => generateRequestID(),
+            'CompanyCode' => 'IB10152',
+            'SystemCode' => 'TP_KMJ_001',
+            'CallBackUrl' => "https://suretech.co.tz/api/tiramis/callback",
+            'InsurerCompanyCode' => 'ICC100',
+            'CoverNoteReferenceNumber' => $request->cover_note_reference_number,
+            'PremiumIncludingTax' => $request->premium_including_tax,
+            'CurrencyCode' => $request->currency_code,
+            'ExchangeRate' => $request->exchange_rate,
+            'AuthorizingOfficerName' => $request->authorizing_officer_name,
+            'AuthorizingOfficerTitle' => $request->authorizing_officer_title,
+            'ReinsuranceCategory' => $request->reinsurance_category,
+        ];
+
+        // Expect an array of participants in reinsurance_details
+        $details = [];
+        $reinsuranceDetails = $request->reinsurance_details ?? [];
+        foreach ($reinsuranceDetails as $detail) {
+            $details[] = [
+                'ParticipantCode' => $detail['participant_code'] ?? '',
+                'ParticipantType' => $detail['participant_type'] ?? '',
+                'ReinsuranceForm' => $detail['reinsurance_form'] ?? '',
+                'ReinsuranceType' => $detail['reinsurance_type'] ?? '',
+                'ReBrokerCode' => $detail['rebroker_code'] ?? '',
+                'BrokerageCommission' => $detail['brokerage_commission'] ?? '',
+                'ReinsuranceCommission' => $detail['reinsurance_commission'] ?? '',
+                'PremiumShare' => $detail['premium_share'] ?? '',
+                'ParticipationDate' => isset($detail['participation_date']) ? returnTiraDate($detail['participation_date']) : '',
+            ];
+        }
+
+        $payload = [
+            'ReinsuranceHdr' => $reinsuranceHdr,
+        ];
+
+        // Repeat ReinsuranceDtl tags
+        if (!empty($details)) {
+            $payload['ReinsuranceDtl'] = $details;
+        }
+
+        try {
+            $gen_data = generateXML('ReinsuranceReq', $payload);
+
+            Log::channel('tiramisxml')->info($gen_data);
+            $res = TiraRequest('https://41.59.86.178:8091/ecovernote/api/reinsurance/v1/request', $gen_data);
 
             return response()->json([
                 'success' => 'TRA Response',
