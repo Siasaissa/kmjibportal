@@ -11,7 +11,6 @@ class ApiTiraController extends Controller
 {
     public function motorCoverNotes(Request $request)
     {
-        // Extract all variables as before...
         $coverage_id = $request->coverage_id;
         $customer_id = $request->customer_id;
         $cover_note_type_id = $request->cover_note_type_id;
@@ -22,38 +21,35 @@ class ApiTiraController extends Controller
         $CoverNoteEndDate = $CoverNoteStartDate->copy()->addMonths($request->cover_note_duration)->subDay();
         $paymentModeId = $request->payment_mode_id;
         $currencyCodeId = $request->currency_code;
-        $exchangeRate = (float)$request->exchange_rate;
-        $TotalPremiumExcludingTax = (float)$request->total_premium_excluding_tax;
-        $TotalPremiumIncludingTax = (float)$request->total_premium_including_tax;
-        $CommisionPaid = (float)$request->commission_paid;
-        $CommisionRate = (float)$request->commission_rate;
+        $exchangeRate = $request->exchange_rate;
+        $TotalPremiumExcludingTax = $request->total_premium_excluding_tax;
+        $TotalPremiumIncludingTax = $request->total_premium_including_tax;
+        $CommisionPaid = $request->commission_paid;
+        $CommisionRate = $request->commission_rate;
         $OfficerName = $request->officer_name;
         $OfficerTitle = $request->officer_title;
         $ProductCode = $request->product_code;
 
-        // Risk details
-        $SumInsured = (float)$request->sum_insured;
-        $SumInsuredEquivalent = (float)$request->sum_insured_equivalent;
-        $PremiumRate = (float)$request->premium_rate;
-        $PremiumBeforeDiscount = (float)$request->premium_before_discount;
-        $PremiumAfterDiscount = (float)$request->premium_after_discount;
-        $PremiumExcludingTaxEquivalent = (float)$request->premium_excluding_tax_equivalent;
-        $PremiumIncludingTax = (float)$request->premium_including_tax;
+        // RiskCovered
+        $SumInsured = $request->sum_insured;
+        $SumInsuredEquivalent = $request->sum_insured_equivalent;
+        $PremiumRate = $request->premium_rate;
+        $PremiumBeforeDiscount = $request->premium_before_discount;
+        $PremiumAfterDiscount = $request->premium_after_discount;
+        $PremiumExcludingTaxEquivalent = $request->premium_excluding_tax_equivalent;
+        $PremiumIncludingTax = $request->premium_including_tax;
         $TaxCode = $request->tax_code;
-        $IsTaxExempted = $request->is_tax_exempted; // 'Y' or 'N'
-        $TaxExemptionType = $request->tax_exemption_type; // optional
-        $TaxExemptionReference = $request->tax_exemption_reference; // optional
-        $TaxRate = (float)$request->tax_rate;
-        $TaxAmount = (float)$request->tax_amount;
+        $IsTaxExempted = $request->is_tax_exempted;
+        $TaxRate = $request->tax_rate;
+        $TaxAmount = $request->tax_amount;
 
-        // Subject matter
+        // SubjectMattersCovered
         $SubjectMatterReference = $request->subject_matter_reference;
         $SubjectMatterDescription = $request->subject_matter_description;
 
-        // Policy holder details
+        //PolicyHolders
         $PolicyHolderName = $request->policy_holder_name;
         $PolicyHolderBirthDate = $request->policy_holder_birth_date;
-        $PolicyHolderBirtAge = $request->policy_holder_birt_age; // Fix: use this field
         $PolicyHolderType = $request->policy_holder_type;
         $PolicyHolderIdNumber = $request->policy_holder_id_number;
         $PolicyHolderIdType = $request->policy_holder_id_type;
@@ -64,30 +60,8 @@ class ApiTiraController extends Controller
         $PolicyHolderPhoneNumber = $request->policy_holder_phone_number;
         $PostalAddress = $request->postal_address;
         $RiskCode = $request->risk_code;
-        $PrevCoverNoteReferenceNumber = $request->prev_cover_note_reference_number;
 
-        // Fleet details - FIX: Use actual input values
-        $IsFleet = $request->is_fleet; // Should be "N" from your data
-        $FleetId = $request->fleet_id;
-        $FleetSize = $request->fleet_size;
-        $ComprehensiveInsured = $request->comprehensive_insured;
-        $FleetEntry = $request->fleet_entry;
-
-        $PremiumDiscount = (float)$request->premium_discount;
-        $DiscountType = $request->discount_type;
-
-        // Addon details
-        $AddonReference = $request->addon_reference;
-        $AddonDesc = $request->addon_desc;
-        $AddonAmount = (float)$request->addon_amount;
-        $AddonPremiumRate = (float)$request->addon_premium_rate;
-        $PremiumExcludingTax = (float)$request->premium_excluding_tax;
-
-        $Gender = $request->gender;
-        $PolicyHolderFax = $request->policy_holder_fax;
-        $EmailAddress = $request->email_address;
-
-        // Motor details
+         // Motor details
         $MotorCategory = $request->motor_category;
         $MotorType = $request->motor_type; // 1 Registered, 2 In transit
         $RegistrationNumber = $request->registration_number;
@@ -111,7 +85,7 @@ class ApiTiraController extends Controller
         $OwnerCategory = $request->owner_category;
         $OwnerAddress = $request->owner_address;
 
-        // Build the corrected data structure
+
         $data = [
             'CoverNoteHdr' => [
                 'RequestId' => generateRequestID(),
@@ -124,12 +98,12 @@ class ApiTiraController extends Controller
             ],
             'CoverNoteDtl' => [
                 'CoverNoteNumber' => otherUniqueID(),
-                'PrevCoverNoteReferenceNumber' => $PrevCoverNoteReferenceNumber,
+                'PrevCoverNoteReferenceNumber' => null,
                 'SalePointCode' => $salePointCode,
                 'CoverNoteStartDate' => returnTiraDate($CoverNoteStartDate),
                 'CoverNoteEndDate' => returnTiraDate($CoverNoteEndDate),
-                'CoverNoteDesc' => $CoverNoteDesc ?? "Motor cover note - test",
-                'OperativeClause' => $OperativeClause ?? "Fire and Allied Perils",
+                'CoverNoteDesc' => $CoverNoteDesc ?? "To cover the liability that will arise as a result of professional activities of the insured",
+                'OperativeClause' => $OperativeClause ?? "To cover the liability that will arise as a result of professional activities of the insured",
                 'PaymentMode' => $paymentModeId,
                 'CurrencyCode' => $currencyCodeId,
                 'ExchangeRate' => $exchangeRate,
@@ -137,18 +111,12 @@ class ApiTiraController extends Controller
                 'TotalPremiumIncludingTax' => $TotalPremiumIncludingTax,
                 'CommisionPaid' => $CommisionPaid,
                 'CommisionRate' => $CommisionRate,
-
-                // FIX: Use actual fleet values from input
-                'IsFleet' => $IsFleet ?? "N",
-                'FleetId' => $FleetId,
-                'FleetSize' => $FleetSize,
-                'ComprehensiveInsured' => $ComprehensiveInsured,
-                'FleetEntry' => $FleetEntry,
-
                 'OfficerName' => $OfficerName,
                 'OfficerTitle' => $OfficerTitle,
                 'ProductCode' => $ProductCode,
-
+                'EndorsementType' => null,
+                'EndorsementReason' => null,
+                'EndorsementPremiumEarned' => null,
                 'RisksCovered' => [
                     'RiskCovered' => [
                         [
@@ -157,75 +125,49 @@ class ApiTiraController extends Controller
                             'SumInsuredEquivalent' => $SumInsuredEquivalent,
                             'PremiumRate' => $PremiumRate,
                             'PremiumBeforeDiscount' => $PremiumBeforeDiscount,
-                            'PremiumDiscount' => $PremiumDiscount,
-                            'DiscountType' => $DiscountType,
                             'PremiumAfterDiscount' => $PremiumAfterDiscount,
                             'PremiumExcludingTaxEquivalent' => $PremiumExcludingTaxEquivalent,
                             'PremiumIncludingTax' => $PremiumIncludingTax,
+                            'DiscountsOffered' => [],
                             'TaxesCharged' => [
                                 'TaxCharged' => [
-                                    [
-                                        'TaxCode' => $TaxCode,
-                                        'TaxRate' => $TaxRate,
-                                        'TaxAmount' => $TaxAmount,
-                                    ]
+                                    'TaxCode' => $TaxCode,
+                                    'IsTaxExempted' => $IsTaxExempted,
+                                    'TaxExemptionType' => null,
+                                    'TaxExemptionReference' => null,
+                                    'TaxRate' => $TaxRate,
+                                    'TaxAmount' => $TaxAmount,
                                 ],
                             ],
                         ],
                     ]
                 ],
-
                 'SubjectMattersCovered' => [
                     'SubjectMatter' => [
                         'SubjectMatterReference' => $SubjectMatterReference,
                         'SubjectMatterDesc' => $SubjectMatterDescription,
                     ],
                 ],
-
                 'CoverNoteAddons' => [],
-                //     'CoverNoteAddon' => [
-                //         [
-                //             'AddonReference' => $AddonReference,
-                //             'AddonDesc' => $AddonDesc,
-                //             'AddonAmount' => $AddonAmount,
-                //             'AddonPremiumRate' => $AddonPremiumRate,
-                //             'PremiumExcludingTax' => $PremiumExcludingTax,
-                //             'PremiumExcludingTaxEquivalent' => $PremiumExcludingTaxEquivalent,
-                //             'PremiumIncludingTax' => $PremiumIncludingTax,
-                //             'TaxesCharged' => [
-                //                 'TaxCharged' => [
-                //                     [
-                //                         'TaxCode' => $TaxCode,
-                //                         'TaxRate' => $TaxRate,
-                //                         'TaxAmount' => $TaxAmount,
-                //                     ]
-                //                 ],
-                //             ],
-                //         ],
-                //     ],
-                // ],
-
                 'PolicyHolders' => [
                     'PolicyHolder' => [
                         'PolicyHolderName' => $PolicyHolderName,
                         'PolicyHolderBirthDate' => $PolicyHolderBirthDate,
-                        // 'PolicyHolderBirtAge' => $PolicyHolderBirtAge,
                         'PolicyHolderType' => $PolicyHolderType,
                         'PolicyHolderIdNumber' => $PolicyHolderIdNumber,
                         'PolicyHolderIdType' => $PolicyHolderIdType,
-                        'Gender' => $Gender,
+                        'Gender' => null,
                         'CountryCode' => $CountryCode,
                         'Region' => $Region,
                         'District' => $District,
                         'Street' => $Street,
                         'PolicyHolderPhoneNumber' => $PolicyHolderPhoneNumber,
-                        'PolicyHolderFax' => $PolicyHolderFax,
+                        'PolicyHolderFax' => null,
                         'PostalAddress' => $PostalAddress,
-                        'EmailAddress' => $EmailAddress,
+                        'EmailAddress' => null,
                     ],
                 ],
-
-                'MotorDtl' => [
+                 'MotorDtl' => [
                     'MotorCategory' => $MotorCategory,
                     'RegistrationNumber' => $RegistrationNumber,
                     'ChassisNumber' => $ChassisNumber,
@@ -251,10 +193,11 @@ class ApiTiraController extends Controller
             ],
         ];
 
+
         try {
             $gen_data = generateXML('MotorCoverNoteRefReq', $data);
 
-            return $gen_data;
+            // return $gen_data;
 
             Log::channel('tiramisxml')->info($gen_data);
             $res = TiraRequest('https://41.59.86.178:8091/ecovernote/api/covernote/non-life/motor/v2/request', $gen_data);
