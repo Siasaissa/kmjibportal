@@ -389,11 +389,11 @@ class TiraController extends Controller
             Log::info("Callback saved successfully with ID: " . $callback->id);
 
             Log::info("Response sent: success");
+
             return response()->json(['status' => 'success']);
         } catch (\Exception $e) {
             Log::error("Error occurred: " . $e->getMessage());
             Log::error("Stack trace:\n" . $e->getTraceAsString());
-
             return response()->json(['status' => 'error', 'message' => 'Callback failed'], 500);
         }
     }
