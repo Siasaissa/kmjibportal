@@ -81,12 +81,12 @@
                     </div>
                     <div class="card-body pt-6">
                         <!--begin::Table container-->
-                        <div class="table-responsive">
-                            <!--begin::Table-->
+                        <!--<div class="table-responsive">
+                            <!--begin::Table
                             <table class="table table align-items-center border-danger"
                                 style=".border-light-danger {border-color: #f8d7da !important; } font-family: Geneva !important; "
                                 id="datatable1">
-                                <!--begin::Table head-->
+                                <!--begin::Table head
                                 <thead>
                                     <tr class="fs-5 fw-bold text-dark border-bottom-2  text-center">
                                         <th>S/No</th>
@@ -103,7 +103,7 @@
                                 </thead>
                                 <!--end::Table head-->
 
-                                <!--begin::Table body-->
+                                <!--begin::Table body
                                 <tbody>
                                     @if($quotations && $quotations->count())
                                         @foreach($quotations as $quotation)
@@ -112,9 +112,8 @@
                                                 <td>{{ $quotation->branch }}</td>
                                                 <td>{{ $quotation->start_date }}</td>
                                                 <td>{{ $quotation->client_name }}</td>
-                                                <td>{{ $quotation->start_date->format('Y-m-d') }} -
-                                                    {{ $quotation->end_date->format('Y-m-d') }}
-                                                </td>
+                                                <td>{{ $quotation->start_date}} </td>
+                                                
                                                 <td>{{ $quotation->insurer }}</td>
                                                 <td>{{ $quotation->sum_insured }}</td>
                                                 <td>{{ $quotation->actual_premium }}</td>
@@ -136,7 +135,7 @@
                                                     @endif
                                                 </td>
                                                 <td class="text-center gap-3 d-inline-block">
-                                                    <!-- Icon that triggers modal -->
+                                                    <!-- Icon that triggers modal 
                                                     <i class="bi bi-eye fs-6 me-2 cursor-pointer text-success"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#viewModal{{ $quotation->id }}"></i>
@@ -162,22 +161,22 @@
                                         </tr>
                                     @endif
                                 </tbody>
-                                <!--end::Table body-->
+                                <!--end::Table body
                             </table>
-                        </div>
+                        </div>-->
                     </div>
                 </div>
 
             </div>
             <!-- Modal Start -->
-            @if($quotations)
+            <!--@if($quotations)
                 @foreach($quotations as $quotation)
                     <div class="modal fade" id="viewModal{{ $quotation->id }}" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered modal-md-custom">
-                            <!-- Optional: modal-lg for larger width -->
+                            Optional: modal-lg for larger width 
                             <div class="modal-content">
                                 <div class="card card-flush">
-                                    <!--begin::Header-->
+                                    <!--begin::Header
                                     <div class="card-header pt-7">
                                         <div class="card-toolbar ms-4 d-flex align-items-center gap-1">
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"
@@ -190,7 +189,7 @@
 
                                     <div class="card-body pt-6">
                                         <div class="row align-items-start ms-4">
-                                            <!-- Details Column -->
+                                            <!-- Details Column 
                                             <div class="col-md-8 wrap">
                                                 <p><strong>Name:</strong> {{ $quotation->client_name }}</p>
                                                 <p><strong>Expired Date:</strong> {{ $quotation->end_date }}</p>
@@ -199,31 +198,35 @@
                                                 <p><strong>Address:</strong> {{ $quotation->address }}</p>
                                                 <p><strong>Payment:</strong> {{ $quotation->payment_method }}</p>
                                                 <p><strong>Premium:</strong> {{ $quotation->total_premium }}</p>
-                                                <p><strong>Start Date:</strong> {{ $quotation->start_date->format('Y-m-d') }}
+                                                <p><strong>Start Date:</strong> {{ $quotation->start_date }}
                                                 </p>
                                                 <p><strong>Created At:</strong> {{ $quotation->created_date }}</p>
                                             </div>
 
-                                            <!-- QR and Button Column -->
-                                            <!-- QR and Button Column -->
-<div class="col-md-4 d-flex flex-column align-items-center" style="margin-top: -10;">
-    <!-- Use the generated QR code -->
-    <img src="{{ $quotation->qrCode }}" alt="QR Code" class="img-fluid mb-3" style="max-width: 200px; height: auto;">
+                                            <!-- QR and Button Column 
+                                            <!-- QR and Button Column 
+                                            <div class="col-md-4 d-flex flex-column align-items-center"
+                                                style="margin-top: -10;">
+                                                <!-- Use the generated QR code 
+                                                <img src="{{ $quotation->qrCode }}" alt="QR Code" class="img-fluid mb-3"
+                                                    style="max-width: 200px; height: auto;">
 
-    <div class="d-flex gap-3">
-        <img src="{{ asset('assets/dash/board_files/TIRAlogo.png') }}" alt="TIRA Logo" style="width: 40px; height: auto;">
-        <button class="btn btn-primary btn-sm px-2" style="color: white;" data-bs-toggle="modal" data-bs-target="#actions1Modal">
-            Actions
-        </button>
-    </div>
-</div>
+                                                <div class="d-flex gap-3">
+                                                    <img src="{{ asset('assets/dash/board_files/TIRAlogo.png') }}"
+                                                        alt="TIRA Logo" style="width: 40px; height: auto;">
+                                                    <button class="btn btn-primary btn-sm px-2" style="color: white;"
+                                                        data-bs-toggle="modal" data-bs-target="#actions1Modal">
+                                                        Actions
+                                                    </button>
+                                                </div>
+                                            </div>
 
                                         </div>
                                     </div>
-                                </div> <!-- end card -->
-                            </div> <!-- end modal-content -->
-                        </div> <!-- end modal-dialog -->
-                    </div> <!-- end modal -->
+                                </div> end card
+                            </div> <!-- end modal-content 
+                        </div> <!-- end modal-dialog
+                    </div> <!-- end modal 
                 @endforeach
             @endif
 
@@ -282,20 +285,21 @@
                                 aria-label="Close"></button>
                         </div>
                         <form action="{{ route('Quotation1.create') }}" method="GET">
-                            <div class="modal-body row g-3">
-                                <div class="col-md-12">
-                                    <label class="form-label">Insurance Type:</label>
-                                    <select class="form-select" name="insurance_type" required>
-                                        <option value="Vehicle">Vehicle</option>
-                                        <option value="Marine">Marine</option>
-                                        <option value="Property">Property</option>
-                                    </select>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="submit" class="btn btn-primary text-white">Proceed</button>
-                                </div>
-                            </div>
-                        </form>
+    <div class="modal-body row g-3">
+        <div class="col-md-12">
+            <label class="form-label">Insurance Type:</label>
+            <select class="form-select" name="insurance_type" required>
+                @foreach($insurance as $insurances)
+                    <option value="{{ $insurances->id }}">{{ $insurances->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary text-white">Proceed</button>
+        </div>
+    </div>
+</form>
+
                     </div>
                 </div>
             </div>
@@ -434,12 +438,12 @@
                         if (type === 'warning') icon = 'bi-exclamation-triangle';
 
                         toast.innerHTML = `
-                            <div class="d-flex align-items-center px-3 py-2">
-                                <i class="bi ${icon} toast-icon text-${type}"></i>
-                                <div class="toast-body">${message}</div>
-                                <button type="button" class="btn-close ms-auto me-2" data-bs-dismiss="toast" aria-label="Close"></button>
-                            </div>
-                        `;
+                                <div class="d-flex align-items-center px-3 py-2">
+                                    <i class="bi ${icon} toast-icon text-${type}"></i>
+                                    <div class="toast-body">${message}</div>
+                                    <button type="button" class="btn-close ms-auto me-2" data-bs-dismiss="toast" aria-label="Close"></button>
+                                </div>
+                            `;
 
                         toastContainer.appendChild(toast);
 
@@ -705,8 +709,8 @@
 <script>
 
     $('#datatable1').DataTable({
-    ordering: false
-});
+        ordering: false
+    });
 
 
     function openNewTransactionModal() {

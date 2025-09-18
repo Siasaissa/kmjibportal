@@ -7,6 +7,7 @@ use App\Models\QuotationDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Models\Insurance;
 
 class InsuranceQuotationController extends Controller
 {
@@ -14,7 +15,7 @@ class InsuranceQuotationController extends Controller
     {
         // Validate insurance type
         $validated = $request->validate([
-            'insurance_type' => 'required|in:Vehicle,Marine,Property'
+            'insurance_type' => 'required'
         ]);
 
         return view('dash.Quotation1', [
@@ -252,9 +253,10 @@ class InsuranceQuotationController extends Controller
 {
     // Fetch all insurance quotations (you can paginate if needed)
     $quotations = InsuranceQuotation::all();
+    $insurance = Insurance::all();
 
     // Pass to the view
-    return view('dash.Quotation', compact('quotations'));
+    return view('dash.Quotation', compact('quotations','insurance'));
 }
 
 public function qr()

@@ -168,3 +168,6 @@ Route::get('/tiramis/submit/claim-payment', [TiraController::class, 'submitClaim
 
 // Claim Rejection
 Route::get('/tiramis/submit/claim-rejection', [TiraController::class, 'submitClaimRejectionReq']);
+
+Route::get('/tiramis/post', [TiraController::class, 'requestNonMotorCovertes']);
+Route::get('/save',[TiraController::class, 'save']);

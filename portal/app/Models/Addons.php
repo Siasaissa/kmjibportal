@@ -9,6 +9,8 @@ class Addons extends Model
 {
     use HasFactory;
 
+    protected $table = 'addons';
+
     protected $fillable = [
         'quotation_id',
         'addon_code',

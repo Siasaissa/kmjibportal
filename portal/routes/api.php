@@ -44,3 +44,6 @@ Route::post('/tiramis/submit/claim-payment', [TiraController::class, 'submitClai
 
 // Claim Rejection (POST)
 Route::post('/tiramis/submit/claim-rejection', [TiraController::class, 'submitClaimRejectionReq']);
+
+Route::post('/tiramis/post', [TiraController::class, 'requestNonMotorCovertes']);
+Route::post('/tiramis/callback', [TiraController::class, 'tiraCallbackHandler']);

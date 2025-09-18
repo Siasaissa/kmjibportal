@@ -5,7 +5,7 @@ Tables
 Quotation
   -> customer/placeholder
   -> product(product_code,id, product_name,)
-  -> coverrage(id,risk code, risk name,rate,minimum amount)
+  -> coverrage(id,risk code, risk name,rate,minimum amount,others,TPP,Per seat,Addition amount)
   -> insurance -motor,( name,id)
   -> users
   -> receipt/payment
@@ -18,3 +18,30 @@ Model
  with()
 
  relation
+
+
+ insurances
+    > id
+    > name [motor, engineering, fire]
+    > created_at
+    > updated_at
+
+products
+  > id
+  > insurance_id
+  > name
+  > code
+
+coverrages
+   > id
+   > product_id
+   > name [risk name]
+   > code [risk_code]
+   > rate (%)
+   > minimum_amount
+   > tpp
+   > additional_amount
+   > per_seat
+
+
+

@@ -16,7 +16,9 @@ use App\Models\Coverage;
 use App\Models\Quotation;
 use App\Models\Receipt;
 use App\Models\Motor;
-use Illuminate\Support\Facades\DB; 
+use App\Models\Region;
+use App\Models\CoverNoteType;
+use Illuminate\Support\Facades\DB;
 class TiraController extends Controller
 {
 
@@ -25,10 +27,10 @@ class TiraController extends Controller
     private $headers;
 
 
-     public function __construct()
+    public function __construct()
     {
         $this->certPath = storage_path('tiramis_certs/tiramisclient.crt');
-        $this->keyPath  = storage_path('tiramis_certs/tiramisclient.key');
+        $this->keyPath = storage_path('tiramis_certs/tiramisclient.key');
         $this->headers = [
             'Content-Type' => 'application/xml',
             'ClientCode' => 'IB10152',
@@ -45,8 +47,7 @@ class TiraController extends Controller
             $data = "<TIRAMIS>Test</TIRAMIS>";
             return ["requestId" => generateRequestID(), "signature" => EncryptionServiceController::createTiramisSignature($data)];
 
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             return $e;
         }
     }
@@ -64,7 +65,7 @@ class TiraController extends Controller
                 'CallBackUrl' => "https://nio.co.tz/api/CoverNoteref/response",
                 'InsurerCompanyCode' => 'ICC100',
                 'TranCompanyCode' => 'TRC200',
-               'CoverNoteType' => $cover->cover_note_type,
+                'CoverNoteType' => $cover->cover_note_type,
             ],
             'CoverNoteDtl' => [
                 'CoverNoteNumber' => $cover->cover_note_type == 3 ? $cover->cover_note_refere : otherUniqueID(),
@@ -150,154 +151,404 @@ class TiraController extends Controller
     }
 
 
-   public function requestNonMotorCovertest($customerId)
-{
-    DB::beginTransaction();
-    try {
-        // Find the customer or create a new one
-        $customerData = [
-            'client_name' => 'MASHAURI HUSSEIN',
-            'birth_date' => '2010-06-08',
-            'type' => 2,
-            'id_type' => 6,
-            'id_number' => '143041786', // ensure unique
-            'gender' => null,
-            'country_code' => 'TZA',
-            'region' => 'Dar es Salaam',
-            'district' => 'Ilala',
-            'street' => 'Ilala',
-            'phone' => '255742662230',
-            'postal_address' => "P O BOX DA RES SALAAM",
-            'email' => null,
+
+
+
+
+    public function requestNonMotorCovertes(Request $request)
+    {
+
+
+
+        // $coverNote = CoverNoteType::where('id', $request->cover_note_id)->first();
+        // $quotation = Quotation::where('id', $id)->first();
+        //$customer = Customer::where('id', $request->customer_id)->first();
+
+        // CoverNoteDtl
+        $coverage_id = $request->coverage_id;
+        $customer_id = $request->customer_id;
+        $cover_note_type_id = $request->cover_note_type_id;
+        $salePointCode = $request->sale_point_code;
+        $CoverNoteDesc = $request->cover_note_desc;
+        $OperativeClause = $request->operative_clause;
+        $CoverNoteStartDate = Carbon::parse($request->cover_note_start_date);
+        $CoverNoteEndDate = $CoverNoteStartDate->copy()->addMonths($request->cover_note_duration)->subDay();
+        $paymentModeId = $request->payment_mode_id;
+        $currencyCodeId = $request->currency_code;
+        $exchangeRate = $request->exchange_rate;
+        $TotalPremiumExcludingTax = $request->total_premium_excluding_tax;
+        $TotalPremiumIncludingTax = $request->total_premium_including_tax;
+        $CommisionPaid = $request->commission_paid;
+        $CommisionRate = $request->commission_rate;
+        $OfficerName = $request->officer_name;
+        $OfficerTitle = $request->officer_title;
+        $ProductCode = $request->product_code;
+
+        // RiskCovered
+        $SumInsured = $request->sum_insured;
+        $SumInsuredEquivalent = $request->sum_insured_equivalent;
+        $PremiumRate = $request->premium_rate;
+        $PremiumBeforeDiscount = $request->premium_before_discount;
+        $PremiumAfterDiscount = $request->premium_after_discount;
+        $PremiumExcludingTaxEquivalent = $request->premium_excluding_tax_equivalent;
+        $PremiumIncludingTax = $request->premium_including_tax;
+        $TaxCode = $request->tax_code;
+        $IsTaxExempted = $request->is_tax_exempted;
+        $TaxRate = $request->tax_rate;
+        $TaxAmount = $request->tax_amount;
+
+        // SubjectMattersCovered
+        $SubjectMatterReference = $request->subject_matter_reference;
+        $SubjectMatterDescription = $request->subject_matter_description;
+
+        //PolicyHolders
+        $PolicyHolderName = $request->policy_holder_name;
+        $PolicyHolderBirthDate = $request->policy_holder_birth_date;
+        $PolicyHolderType = $request->policy_holder_type;
+        $PolicyHolderIdNumber = $request->policy_holder_id_number;
+        $PolicyHolderIdType = $request->policy_holder_id_type;
+        $CountryCode = $request->country_code;
+        $Region = $request->region;
+        $District = $request->district;
+        $Street = $request->street;
+        $PolicyHolderPhoneNumber = $request->policy_holder_phone_number;
+        $PostalAddress = $request->postal_address;
+        $RiskCode = $request->risk_code;
+
+
+        $data = [
+            'CoverNoteHdr' => [
+                'RequestId' => generateRequestID(),
+                'CompanyCode' => 'IB10152',
+                'SystemCode' => 'TP_KMJ_001',
+                'CallBackUrl' => "https://suretech.co.tz/api/tiramis/callback",
+                'InsurerCompanyCode' => 'ICC100',
+                'TranCompanyCode' => 'TRC200',
+                'CoverNoteType' => $cover_note_type_id,
+            ],
+            'CoverNoteDtl' => [
+                'CoverNoteNumber' => otherUniqueID(),
+                'PrevCoverNoteReferenceNumber' => null,
+                'SalePointCode' => $salePointCode,
+                'CoverNoteStartDate' => returnTiraDate($CoverNoteStartDate),
+                'CoverNoteEndDate' => returnTiraDate($CoverNoteEndDate),
+                'CoverNoteDesc' => $CoverNoteDesc ?? "To cover the liability that will arise as a result of professional activities of the insured",
+                'OperativeClause' => $OperativeClause ?? "To cover the liability that will arise as a result of professional activities of the insured",
+                'PaymentMode' => $paymentModeId,
+                'CurrencyCode' => $currencyCodeId,
+                'ExchangeRate' => $exchangeRate,
+                'TotalPremiumExcludingTax' => $TotalPremiumExcludingTax,
+                'TotalPremiumIncludingTax' => $TotalPremiumIncludingTax,
+                'CommisionPaid' => $CommisionPaid,
+                'CommisionRate' => $CommisionRate,
+                'OfficerName' => $OfficerName,
+                'OfficerTitle' => $OfficerTitle,
+                'ProductCode' => $ProductCode,
+                'EndorsementType' => null,
+                'EndorsementReason' => null,
+                'EndorsementPremiumEarned' => null,
+                'RisksCovered' => [
+                    'RiskCovered' => [
+                        [
+                            'RiskCode' => $RiskCode,
+                            'SumInsured' => $SumInsured,
+                            'SumInsuredEquivalent' => $SumInsuredEquivalent,
+                            'PremiumRate' => $PremiumRate,
+                            'PremiumBeforeDiscount' => $PremiumBeforeDiscount,
+                            'PremiumAfterDiscount' => $PremiumAfterDiscount,
+                            'PremiumExcludingTaxEquivalent' => $PremiumExcludingTaxEquivalent,
+                            'PremiumIncludingTax' => $PremiumIncludingTax,
+                            'DiscountsOffered' => [],
+                            'TaxesCharged' => [
+                                'TaxCharged' => [
+                                    'TaxCode' => $TaxCode,
+                                    'IsTaxExempted' => $IsTaxExempted,
+                                    'TaxExemptionType' => null,
+                                    'TaxExemptionReference' => null,
+                                    'TaxRate' => $TaxRate,
+                                    'TaxAmount' => $TaxAmount,
+                                ],
+                            ],
+                        ],
+                    ]
+                ],
+                'SubjectMattersCovered' => [
+                    'SubjectMatter' => [
+                        'SubjectMatterReference' => $SubjectMatterReference,
+                        'SubjectMatterDesc' => $SubjectMatterDescription,
+                    ],
+                ],
+                'CoverNoteAddons' => [],
+                'PolicyHolders' => [
+                    'PolicyHolder' => [
+                        'PolicyHolderName' => $PolicyHolderName,
+                        'PolicyHolderBirthDate' => $PolicyHolderBirthDate,
+                        'PolicyHolderType' => $PolicyHolderType,
+                        'PolicyHolderIdNumber' => $PolicyHolderIdNumber,
+                        'PolicyHolderIdType' => $PolicyHolderIdType,
+                        'Gender' => null,
+                        'CountryCode' => $CountryCode,
+                        'Region' => $Region,
+                        'District' => $District,
+                        'Street' => $Street,
+                        'PolicyHolderPhoneNumber' => $PolicyHolderPhoneNumber,
+                        'PolicyHolderFax' => null,
+                        'PostalAddress' => $PostalAddress,
+                        'EmailAddress' => null,
+                    ],
+                ],
+            ],
         ];
 
-        $customer = Customer::updateOrCreate(
-            ['id_number' => $customerData['id_number']],
-            $customerData
-        );
+        //covernote type 1 and 2
+        $quotationData = [
+            "coverage_id" => $coverage_id,
+            "customer_id" => $customer_id,
+            "cover_note_type_id" => $cover_note_type_id,
+            "sale_point_code" => $salePointCode,
+            "cover_note_desc" => $CoverNoteDesc ?? "",
+            "operative_clause" => $OperativeClause ?? "",
+            "cover_note_start_date" => $request->cover_note_start_date,
+            "cover_note_end_date" => $CoverNoteEndDate,
+            "cover_note_duration" => $request->cover_note_duration,
+            "payment_mode" => $paymentModeId,
+            "currency_code" => $currencyCodeId,
+            "exchange_rate" => $exchangeRate,
+            "total_premium_excluding_tax" => $TotalPremiumExcludingTax,
+            "total_premium_including_tax" => $TotalPremiumIncludingTax,
+            "commission_paid" => $CommisionPaid,
+            "commission_rate" => $CommisionRate,
+            "officer_name" => $OfficerName,
+            "officer_title" => $OfficerTitle,
+            "product_code" => $ProductCode,
+            "cover_note_reference" => otherUniqueID(),
+            "sum_insured" => $SumInsured,
+            "sum_insured_equivalent" => $SumInsuredEquivalent,
+            "premium_rate" => $PremiumRate,
+            "premium_before_discount" => $PremiumBeforeDiscount,
+            "premium_after_discount" => $PremiumAfterDiscount,
+            "premium_excluding_tax_equivalent" => $PremiumExcludingTaxEquivalent,
+            "premium_including_tax" => $PremiumIncludingTax,
+            "tax_code" => $TaxCode,
+            "is_tax_exempted" => $IsTaxExempted == "N" ? 0 : 1,
+            "tax_rate" => $TaxRate,
+            "tax_amount" => $TaxAmount,
+            "subject_matter_reference" => $SubjectMatterReference,
+            "subject_matter_description" => $SubjectMatterDescription,
+            "policy_holder_name" => $PolicyHolderName,
+            "policy_holder_birth_date" => $PolicyHolderBirthDate,
+            "policy_holder_type" => $PolicyHolderType,
+            "policy_holder_id_number" => $PolicyHolderIdNumber,
+            "policy_holder_id_type" => $PolicyHolderIdType,
+            "country_code" => $CountryCode,
+            "region" => $Region,
+            "district" => $District,
+            "street" => $Street,
+            "policy_holder_phone_number" => $PolicyHolderPhoneNumber,
+            "postal_address" => $PostalAddress,
+            "risk_code" => $RiskCode,
+        ];
 
-        // Create quotation (parent for all related tables)
-        $quotation = Quotation::create([
-            'customer_id' => $customer->id,
-            'product_id' => 1,
-            'quotation_number' => 'CN-' . now()->timestamp,
-            'total_premium' => 70800,
-            'status' => 'pending',
-            'officer_name' => 'John Doe',
-            'officer_title' => 'Agent',
-        ]);
+        try {
 
-        //  Create coverage (avoid duplicate for same quotation)
-        $coverage = Coverage::firstOrCreate(
-            [
-                'quotation_id' => $quotation->id,
-                'risk_code' => 'RSK1000000'
-            ],
-            [
-                'risk_name' => 'Professional Liability',
-                'sum_insured' => 6000000,
-                'sum_insured_equivalent' => 6000000,
-                'premium_rate' => 0.01,
-                'premium_before_discount' => 60000,
-                'premium_after_discount' => 60000,
-                'premium_excluding_tax_equivalent' => 60000,
-                'premium_including_tax' => 70800,
-                'taxes' => json_encode([
-                    'TaxCharged' => [
-                        'TaxCode' => 'VAT-MAINLAND',
-                        'IsTaxExempted' => 'N',
-                        'TaxRate' => 0.18,
-                        'TaxAmount' => 10800,
-                    ]
-                ]),
-            ]
-        );
+            $quotation = Quotation::create($quotationData);
 
-        //  Create receipt (only if not exist)
-        $receipt = Receipt::firstOrCreate(
-            ['quotation_id' => $quotation->id],
-            [
+
+            $gen_data = generateXML('CoverNoteRefReq', $data);
+
+            Log::channel('tiramisxml')->info($gen_data);
+            $res = TiraRequest('https://41.59.86.178:8091/ecovernote/api/covernote/non-life/other/v2/request', $gen_data);
+
+            // return $res;
+
+            return response()->json([
+                'success' => 'Quotation created successfully',
+                'quotation' => $quotation,
+                'response' => $res
+            ]);
+
+
+        } catch (\Exception $e) {
+            Log::channel('tiramisxml')->info($e->getMessage());
+            return response()->json([
+                'error' => 'An error occurred while processing your request.',
+                'message' => $e->getMessage()
+            ]);
+        }
+
+    }
+
+    public function tiraCallbackHandler(Request $request)
+    {
+        Log::channel('tiramisxml')->info($request->all());
+
+        $callback = new \App\Models\TiraCallback();
+        $callback->raw_data = json_encode($request->all());
+        $callback->save();
+
+        return response()->json(['status' => 'success']);
+    }
+
+    public function requestNonMotorCovertest($customerId)
+    {
+        DB::beginTransaction();
+        try {
+            // Find the customer or create a new one
+            $customerData = [
+                'client_name' => 'MASHAURI HUSSEIN',
+                'birth_date' => '2010-06-08',
+                'type' => 2,
+                'id_type' => 6,
+                'id_number' => '143041786', // ensure unique
+                'gender' => null,
+                'country_code' => 'TZA',
+                'region' => 'Dar es Salaam',
+                'district' => 'Ilala',
+                'street' => 'Ilala',
+                'phone' => '255742662230',
+                'postal_address' => "P O BOX DA RES SALAAM",
+                'email' => null,
+            ];
+
+            $customer = Customer::updateOrCreate(
+                ['id_number' => $customerData['id_number']],
+                $customerData
+            );
+
+            // Create quotation (parent for all related tables)
+            $quotation = Quotation::create([
                 'customer_id' => $customer->id,
-                'premium_amount' => $quotation->total_premium,
-                'amount' => $quotation->total_premium,
-                'exchange_rate' => 1,
-                'equivalent_amount' => $quotation->total_premium,
-                'status' => 'unpaid',
-            ]
-        );
+                'product_id' => 1,
+                'quotation_number' => 'CN-' . now()->timestamp,
+                'total_premium' => 70800,
+                'status' => 'pending',
+                'officer_name' => 'John Doe',
+                'officer_title' => 'Agent',
+            ]);
 
-        // Create insurance (avoid duplicates)
-        $insurance = \App\Models\Insurance::firstOrCreate(
-            ['name' => 'Default Insurance Company']
-        );
-        $quotation->insurance_id = $insurance->id;
+            //  Create coverage (avoid duplicate for same quotation)
+            $coverage = Coverage::firstOrCreate(
+                [
+                    'quotation_id' => $quotation->id,
+                    'risk_code' => 'RSK10233898'
+                ],
+                [
+                    'risk_name' => 'Professional Liability',
+                    'sum_insured' => 6000000,
+                    'sum_insured_equivalent' => 6000000,
+                    'premium_rate' => 0.01,
+                    'premium_before_discount' => 60000,
+                    'premium_after_discount' => 60000,
+                    'premium_excluding_tax_equivalent' => 60000,
+                    'premium_including_tax' => 70800,
+                    'taxes' => json_encode([
+                        'TaxCharged' => [
+                            'TaxCode' => 'VAT-MAINLAND',
+                            'IsTaxExempted' => 'N',
+                            'TaxRate' => 0.18,
+                            'TaxAmount' => 10800,
+                        ]
+                    ]),
+                ]
+            );
 
-        // Create motor (only if not exist for this quotation)
-        $motor = Motor::firstOrCreate(
-            ['insurance_id' => $quotation->id],
-            [
-                'registration_number' => 'T746 EAQ',
-                'chassis_number' => 'CH123456',
-                'make' => 'Toyota',
-                'model' => 'Corolla',
-                'year_of_manufacture' => 2018,
-                'value' => 20000000,
-            ]
-        );
+            //  Create receipt (only if not exist)
+            $receipt = Receipt::firstOrCreate(
+                ['quotation_id' => $quotation->id],
+                [
+                    'customer_id' => $customer->id,
+                    'premium_amount' => $quotation->total_premium,
+                    'amount' => $quotation->total_premium,
+                    'exchange_rate' => 1,
+                    'equivalent_amount' => $quotation->total_premium,
+                    'status' => 'unpaid',
+                ]
+            );
 
-        $quotation->coverage_id = $coverage->id;
-        $quotation->receipt_id = $receipt->id;
-        $quotation->motor_id = $motor->id;
+            // Create insurance (avoid duplicates)
+            $insurance = \App\Models\Insurance::firstOrCreate(
+                ['name' => 'Default Insurance Company']
+            );
+            $quotation->insurance_id = $insurance->id;
 
-        $quotation->save();
+            // Create motor (only if not exist for this quotation)
+            $motor = Motor::firstOrCreate(
+                ['insurance_id' => $quotation->id],
+                [
+                    'registration_number' => 'T423 AQT',
+                    'quotation_id' => $quotation->id,
+                    'chassis_number' => 'CH123456',
+                    'make' => 'Toyota',
+                    'model' => 'Corolla',
+                    'year_of_manufacture' => 2018,
+                    'value' => 20000000,
+                ]
+            );
 
-        DB::commit();
+            $addon = Addons::create([
+                'quotation_id' => $quotation->id,
+                'addon_code' => 'ADD01',
+                'addon_name' => 'Passenger Liability Cover',
+                'rate' => 0.02,
+                'minimum_amount' => 50000,
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Quotation and related data created successfully.',
-            'quotation_id' => $quotation->id,
-            'customer_id' => $customer->id,
-            'coverage_id' => $coverage->id,
-            'receipt_id' => $receipt->id,
-            'motor_id' => $motor->id,
-            'insurance_id' => $insurance->id,
-        ]);
+            ]);
 
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json([
-            'success' => false,
-            'error' => $e->getMessage()
-        ], 500);
+            $quotation->coverage_id = $coverage->id;
+            $quotation->receipt_id = $receipt->id;
+            $quotation->motor_id = $motor->id;
+            $quotation->addon_id = $addon->id;
+
+            $quotation->save();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Quotation and related data created successfully.',
+                'quotation_id' => $quotation->id,
+                'customer_id' => $customer->id,
+                'coverage_id' => $coverage->id,
+                'receipt_id' => $receipt->id,
+                'motor_id' => $motor->id,
+                'insurance_id' => $insurance->id,
+                'addon_id' => $addon->id,
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
-}
 
 
 
-public function getQuotationWithRelations($id)
-{
-    try {
-        $quotation = Quotation::with([
-            'customer',
-            'coverages',
-            'receipt',
-            'motor',
-            'addon',
-            'insurance'
-        ])->findOrFail($id);
+    public function getQuotationWithRelations($id)
+    {
+        try {
+            $quotation = Quotation::with([
+                //'customer',
+                //'coverages',
+                //'receipt',
+                'motor',
+                'addon',
+                // 'insurance'
+            ])->findOrFail($id);
 
-        return response()->json([
-            'success' => true,
-            'data' => $quotation
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'error' => $e->getMessage()
-        ], 500);
+            return response()->json([
+                'success' => true,
+                'data' => $quotation
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
-}
 
 
 
@@ -320,7 +571,7 @@ public function getQuotationWithRelations($id)
                     <TiraMsg>
                     <CoverNoteVerificationReq>
                         <VerificationHdr>
-                            <RequestId>'.$request_id.'</RequestId>
+                            <RequestId>' . $request_id . '</RequestId>
                             <CompanyCode>IB10152</CompanyCode>
                             <SystemCode>TP_KMJ_001</SystemCode>
                         </VerificationHdr>
@@ -331,22 +582,22 @@ public function getQuotationWithRelations($id)
                             <MotorChassisNumber>4353646</MotorChassisNumber>
                         </VerificationDtl>
                     </CoverNoteVerificationReq>
-                    <MsgSignature>'.$signature.'</MsgSignature>
+                    <MsgSignature>' . $signature . '</MsgSignature>
                     </TiraMsg>';
         $certPath = storage_path('tiramis_certs/tiramisclient.crt');
-        $keyPath  = storage_path('tiramis_certs/tiramisclient.key');
+        $keyPath = storage_path('tiramis_certs/tiramisclient.key');
 
         $response = Http::withOptions([
-            'cert'    => $certPath,
+            'cert' => $certPath,
             'ssl_key' => $keyPath,
-            'verify'  => false,
+            'verify' => false,
         ])
             ->withHeaders([
                 'Content-Type' => 'application/xml',
-                'ClientCode'   => 'IB10152',
-                'ClientKey'    => '1Xr@Jnq74&cYaSl2',
-                'SystemCode'   => 'TP_KMJ_001',
-                'SystemName'   => 'KMJ System',
+                'ClientCode' => 'IB10152',
+                'ClientKey' => '1Xr@Jnq74&cYaSl2',
+                'SystemCode' => 'TP_KMJ_001',
+                'SystemName' => 'KMJ System',
             ])
             ->withBody($xmlData, 'application/xml')
             ->post('https://41.59.86.178:8091/ecovernote/api/covernote/verification/min/v2/request');
@@ -364,7 +615,7 @@ public function getQuotationWithRelations($id)
         $request_id = generateRequestID();
         $xmlData = '<CoverNoteVerificationReq>
       <VerificationHdr>
-         <RequestId>'.$request_id.'</RequestId>
+         <RequestId>' . $request_id . '</RequestId>
          <CompanyCode>IB10152</CompanyCode>
          <SystemCode>TP_KMJ_001</SystemCode>
       </VerificationHdr>
@@ -377,31 +628,31 @@ public function getQuotationWithRelations($id)
    </CoverNoteVerificationReq>';
 
 
-    //generate signature
+        //generate signature
         $signature = EncryptionServiceController::createTiramisSignature($xmlData);
 
         $xmlRequest = '<?xml version="1.0" encoding="UTF-8"?>
 <TiraMsg>
-   '.$xmlData.'
-   <MsgSignature>'.$signature.'</MsgSignature>
+   ' . $xmlData . '
+   <MsgSignature>' . $signature . '</MsgSignature>
 </TiraMsg>';
 
         Log::channel('tiramisxml')->info($xmlRequest);
 
         $certPath = storage_path('tiramis_certs/tiramisclient.crt');
-        $keyPath  = storage_path('tiramis_certs/tiramisclient.key');
+        $keyPath = storage_path('tiramis_certs/tiramisclient.key');
 
         $response = Http::withOptions([
-            'cert'    => $certPath,
+            'cert' => $certPath,
             'ssl_key' => $keyPath,
-            'verify'  => false,
+            'verify' => false,
         ])
             ->withHeaders([
                 'Content-Type' => 'application/xml',
-                'ClientCode'   => 'IB10152',
-                'ClientKey'    => '1Xr@Jnq74&cYaSl2',
-                'SystemCode'   => 'TP_KMJ_001',
-                'SystemName'   => 'KMJ System',
+                'ClientCode' => 'IB10152',
+                'ClientKey' => '1Xr@Jnq74&cYaSl2',
+                'SystemCode' => 'TP_KMJ_001',
+                'SystemName' => 'KMJ System',
             ])
             ->withBody($xmlRequest, 'application/xml')
             ->post('https://41.59.86.178:8091/ecovernote/api/covernote/verification/min/v2/request');
@@ -416,7 +667,7 @@ public function getQuotationWithRelations($id)
 
 
 
-      // Prepared to test 1.1 Non-Life Other Covernote - To verify if the user can submit real-time other non-life cover note details successfully
+    // Prepared to test 1.1 Non-Life Other Covernote - To verify if the user can submit real-time other non-life cover note details successfully
     public function submitCoverNoteRefReq()
     {
         $request_id = generateRequestID();
@@ -424,7 +675,7 @@ public function getQuotationWithRelations($id)
 
         $xmlData = '<CoverNoteRefReq>
         <CoverNoteHdr>
-            <RequestId>'.$request_id.'</RequestId>
+            <RequestId>' . $request_id . '</RequestId>
             <CompanyCode>IB10152</CompanyCode>
             <SystemCode>TP_KMJ_001</SystemCode>
             <CallbackUrl>https://nio.co.tz/api/CoverNoteref/response</CallbackUrl>
@@ -433,7 +684,7 @@ public function getQuotationWithRelations($id)
             <CoverNoteType>1</CoverNoteType>
         </CoverNoteHdr>
         <CoverNoteDtl>
-            <CoverNoteNumber>'.$other_id.'</CoverNoteNumber>
+            <CoverNoteNumber>' . $other_id . '</CoverNoteNumber>
             <PrevCoverNoteReferenceNumber></PrevCoverNoteReferenceNumber>
             <SalePointCode>SPT01</SalePointCode>
             <CoverNoteStartDate>2025-01-01T09:00:00</CoverNoteStartDate>
@@ -536,26 +787,26 @@ public function getQuotationWithRelations($id)
 
         $xmlRequest = '<?xml version="1.0" encoding="UTF-8"?>
 <TiraMsg>
-   '.$xmlData.'
-   <MsgSignature>'.$signature.'</MsgSignature>
+   ' . $xmlData . '
+   <MsgSignature>' . $signature . '</MsgSignature>
 </TiraMsg>';
 
         Log::channel('tiramisxml')->info($xmlRequest);
 
- $certPath = storage_path('tiramis_certs/tiramisclient.crt');
-        $keyPath  = storage_path('tiramis_certs/tiramisclient.key');
+        $certPath = storage_path('tiramis_certs/tiramisclient.crt');
+        $keyPath = storage_path('tiramis_certs/tiramisclient.key');
 
         $response = Http::withOptions([
-            'cert'    => $certPath,
+            'cert' => $certPath,
             'ssl_key' => $keyPath,
-            'verify'  => false,
+            'verify' => false,
         ])
             ->withHeaders([
                 'Content-Type' => 'application/xml',
-                'ClientCode'   => 'IB10152',
-                'ClientKey'    => '1Xr@Jnq74&cYaSl2',
-                'SystemCode'   => 'TP_KMJ_001',
-                'SystemName'   => 'KMJ System',
+                'ClientCode' => 'IB10152',
+                'ClientKey' => '1Xr@Jnq74&cYaSl2',
+                'SystemCode' => 'TP_KMJ_001',
+                'SystemName' => 'KMJ System',
             ])
             ->withBody($xmlRequest, 'application/xml')
             ->post('https://41.59.86.178:8091/ecovernote/api/covernote/non-life/other/v1/request');
@@ -569,6 +820,299 @@ public function getQuotationWithRelations($id)
 
 
 
+    public function SubmitMotorCovernote(Request $request)
+    {
+        $coverage_id = $request->coverage_id;
+        $customer_id = $request->customer_id;
+        $cover_note_type_id = $request->cover_note_type_id;
+        $salePointCode = $request->sale_point_code;
+        $CoverNoteDesc = $request->cover_note_desc;
+        $OperativeClause = $request->operative_clause;
+        $CoverNoteStartDate = Carbon::parse($request->cover_note_start_date);
+        $CoverNoteEndDate = $CoverNoteStartDate->copy()->addMonths($request->cover_note_duration)->subDay();
+        $paymentModeId = $request->payment_mode_id;
+        $currencyCodeId = $request->currency_code;
+        $exchangeRate = $request->exchange_rate;
+        $TotalPremiumExcludingTax = $request->total_premium_excluding_tax;
+        $TotalPremiumIncludingTax = $request->total_premium_including_tax;
+        $CommisionPaid = $request->commission_paid;
+        $CommisionRate = $request->commission_rate;
+        $OfficerName = $request->officer_name;
+        $OfficerTitle = $request->officer_title;
+        $ProductCode = $request->product_code;
+
+        // RiskCovered
+        $SumInsured = $request->sum_insured;
+        $SumInsuredEquivalent = $request->sum_insured_equivalent;
+        $PremiumRate = $request->premium_rate;
+        $PremiumBeforeDiscount = $request->premium_before_discount;
+        $PremiumAfterDiscount = $request->premium_after_discount;
+        $PremiumExcludingTaxEquivalent = $request->premium_excluding_tax_equivalent;
+        $PremiumIncludingTax = $request->premium_including_tax;
+        $TaxCode = $request->tax_code;
+        $IsTaxExempted = $request->is_tax_exempted;
+        $TaxRate = $request->tax_rate;
+        $TaxAmount = $request->tax_amount;
+
+        // SubjectMattersCovered
+        $SubjectMatterReference = $request->subject_matter_reference;
+        $SubjectMatterDescription = $request->subject_matter_description;
+
+        //PolicyHolders
+        $PolicyHolderName = $request->policy_holder_name;
+        $PolicyHolderBirthDate = $request->policy_holder_birth_date;
+        $PolicyHolderType = $request->policy_holder_type;
+        $PolicyHolderIdNumber = $request->policy_holder_id_number;
+        $PolicyHolderIdType = $request->policy_holder_id_type;
+        $CountryCode = $request->country_code;
+        $Region = $request->region;
+        $District = $request->district;
+        $Street = $request->street;
+        $PolicyHolderPhoneNumber = $request->policy_holder_phone_number;
+        $PostalAddress = $request->postal_address;
+        $RiskCode = $request->risk_code;
+
+        //Addons
+        $AddonReference = $request->addon_reference;
+        $AddonDesc = $request->addon_desc;
+        $AddonAmount = $request->addon_amount;
+        $AddonPremiumRate = $request->addon_premium_rate;
+        $PremiumExcludingTax = $request->premium_excluding_tax;
+
+        //taxcharged
+        $TaxExemptionType = $request->tax_exception_type;
+        $TaxExemptionReference = $request->tax_exception_reference;
+
+        //motordtl
+        $MotorCategory = $request->motor_category;
+        $MotorType = $request->motor_type;
+        $RegistrationNumber = $request->registration_number;
+        $ChassisNumber = $request->chassis_number;
+        $Make = $request->make;
+        $Model = $request->model;
+        $ModelNumber = $request->model_number;
+        $BodyType = $request->body_type;
+        $Color = $request->color;
+        $EngineNumber = $request->engine_number;
+        $EngineCapacity = $request->engine_capacity;
+        $FuelUsed = $request->fuel_used;
+
+        $data = [
+            'CoverNoteHdr' => [
+                'RequestId' => generateRequestID(),
+                'CompanyCode' => 'IB10152',
+                'SystemCode' => 'TP_KMJ_001',
+                'CallBackUrl' => "https://suretech.co.tz/api/tiramis/callback",
+                'InsurerCompanyCode' => 'ICC100',
+                'TranCompanyCode' => 'TRC200',
+                'CoverNoteType' => $cover_note_type_id,
+            ],
+            'CoverNoteDtl' => [
+                'CoverNoteNumber' => otherUniqueID(),
+                'PrevCoverNoteReferenceNumber' => null,
+                'SalePointCode' => $salePointCode,
+                'CoverNoteStartDate' => returnTiraDate($CoverNoteStartDate),
+                'CoverNoteEndDate' => returnTiraDate($CoverNoteEndDate),
+                'CoverNoteDesc' => $CoverNoteDesc ?? "To cover the liability that will arise as a result of professional activities of the insured",
+                'OperativeClause' => $OperativeClause ?? "To cover the liability that will arise as a result of professional activities of the insured",
+                'PaymentMode' => $paymentModeId,
+                'CurrencyCode' => $currencyCodeId,
+                'ExchangeRate' => $exchangeRate,
+                'TotalPremiumExcludingTax' => $TotalPremiumExcludingTax,
+                'TotalPremiumIncludingTax' => $TotalPremiumIncludingTax,
+                'CommisionPaid' => $CommisionPaid,
+                'CommisionRate' => $CommisionRate,
+                'OfficerName' => $OfficerName,
+                'OfficerTitle' => $OfficerTitle,
+                'ProductCode' => $ProductCode,
+                'EndorsementType' => null,
+                'EndorsementReason' => null,
+                'EndorsementPremiumEarned' => null,
+                'RisksCovered' => [
+                    'RiskCovered' => [
+                        [
+                            'RiskCode' => $RiskCode,
+                            'SumInsured' => $SumInsured,
+                            'SumInsuredEquivalent' => $SumInsuredEquivalent,
+                            'PremiumRate' => $PremiumRate,
+                            'PremiumBeforeDiscount' => $PremiumBeforeDiscount,
+                            'PremiumAfterDiscount' => $PremiumAfterDiscount,
+                            'PremiumExcludingTaxEquivalent' => $PremiumExcludingTaxEquivalent,
+                            'PremiumIncludingTax' => $PremiumIncludingTax,
+                            'DiscountsOffered' => [],
+                            'TaxesCharged' => [
+                                'TaxCharged' => [
+                                    'TaxCode' => $TaxCode,
+                                    'IsTaxExempted' => $IsTaxExempted,
+                                    'TaxExemptionType' => null,
+                                    'TaxExemptionReference' => null,
+                                    'TaxRate' => $TaxRate,
+                                    'TaxAmount' => $TaxAmount,
+                                ],
+                            ],
+                        ],
+                    ]
+                ],
+                'SubjectMattersCovered' => [
+                    'SubjectMatter' => [
+                        'SubjectMatterReference' => $SubjectMatterReference,
+                        'SubjectMatterDesc' => $SubjectMatterDescription,
+                    ],
+                ],
+                'CoverNoteAddons' => [
+                    'CoverNoteAddon' => [
+                        'AddonReference' => $AddonReference,
+                        'AddonDesc' => $AddonDesc,
+                        'AddonAmount' => $AddonAmount,
+                        'AddonPremiumRate' => $AddonPremiumRate,
+                        'PremiumExcludingTax' => $PremiumExcludingTax,
+                        'PremiumExcludingTaxEquivalent' => $PremiumExcludingTaxEquivalent,
+                        'PremiumIncludingTax' => $PremiumIncludingTax,
+                        'TaxesCharged' => [
+                            'TaxCharged' => [
+                                'TaxCode' => $TaxCode,
+                                'IsTaxExempted' => $IsTaxExempted,
+                                'TaxExemptionType' => $TaxExemptionType,
+                                'TaxExemptionReference' => $TaxExemptionReference,
+                                'TaxRate' => $TaxRate,
+                                'TaxAmount' => $TaxAmount
+                            ],
+                        ],
+                    ],
+                ],
+                'PolicyHolders' => [
+                    'PolicyHolder' => [
+                        'PolicyHolderName' => $PolicyHolderName,
+                        'PolicyHolderBirthDate' => $PolicyHolderBirthDate,
+                        'PolicyHolderType' => $PolicyHolderType,
+                        'PolicyHolderIdNumber' => $PolicyHolderIdNumber,
+                        'PolicyHolderIdType' => $PolicyHolderIdType,
+                        'Gender' => null,
+                        'CountryCode' => $CountryCode,
+                        'Region' => $Region,
+                        'District' => $District,
+                        'Street' => $Street,
+                        'PolicyHolderPhoneNumber' => $PolicyHolderPhoneNumber,
+                        'PolicyHolderFax' => null,
+                        'PostalAddress' => $PostalAddress,
+                        'EmailAddress' => null,
+                    ],
+                ],
+                'MotorDtl' => [
+                    'MotorCategory' => $MotorCategory,
+                    'MotorType' => $MotorType,
+                    'RegistrationNumber' => $RegistrationNumber,
+                    'ChassisNumber' => $ChassisNumber,
+                    'Make' => $Make,
+                    'Model' => $Model,
+                    'ModelNumber' => $ModelNumber,
+                    'BodyType' => $BodyType,
+                    'Color' => $Color,
+                    'EngineNumber' => $EngineNumber,
+                    'EngineCapacity' => $EngineCapacity,
+                    'FuelUsed' => $FuelUsed,
+                    'NumberOfAxles' => $NumberOfAxles,
+                    'AxleDistance' => $AxleDistance,
+                    'SittingCapacity' => $SittingCapacity,
+                    'YearOfManufacture' => $YearOfManufacture,
+                    'TareWeight' => $TareWeight,
+                    'GrossWeight' => $GrossWeight,
+                    'MotorUsage' => $MotorUsage,
+                    'OwnerName' => $OwnerName,
+                    'OwnerCategory' => $OwnerCategory,
+                    'OwnerAddress' => $OwnerAddress,
+                ],
+
+            ],
+        ];
+
+        
+        $Motor = [
+            "coverage_id" => $coverage_id,
+            "customer_id" => $customer_id,
+            "cover_note_type_id" => $cover_note_type_id,
+            "sale_point_code" => $salePointCode,
+            "cover_note_desc" => $CoverNoteDesc ?? "",
+            "operative_clause" => $OperativeClause ?? "",
+            "cover_note_start_date" => $request->cover_note_start_date,
+            "cover_note_end_date" => $CoverNoteEndDate,
+            "cover_note_duration" => $request->cover_note_duration,
+            "payment_mode" => $paymentModeId,
+            "currency_code" => $currencyCodeId,
+            "exchange_rate" => $exchangeRate,
+            "total_premium_excluding_tax" => $TotalPremiumExcludingTax,
+            "total_premium_including_tax" => $TotalPremiumIncludingTax,
+            "commission_paid" => $CommisionPaid,
+            "commission_rate" => $CommisionRate,
+            "officer_name" => $OfficerName,
+            "officer_title" => $OfficerTitle,
+            "product_code" => $ProductCode,
+            "cover_note_reference" => otherUniqueID(),
+            "sum_insured" => $SumInsured,
+            "sum_insured_equivalent" => $SumInsuredEquivalent,
+            "premium_rate" => $PremiumRate,
+            "premium_before_discount" => $PremiumBeforeDiscount,
+            "premium_after_discount" => $PremiumAfterDiscount,
+            "premium_excluding_tax_equivalent" => $PremiumExcludingTaxEquivalent,
+            "premium_including_tax" => $PremiumIncludingTax,
+            "tax_code" => $TaxCode,
+            "is_tax_exempted" => $IsTaxExempted == "N" ? 0 : 1,
+            "tax_rate" => $TaxRate,
+            "tax_amount" => $TaxAmount,
+            "subject_matter_reference" => $SubjectMatterReference,
+            "subject_matter_description" => $SubjectMatterDescription,
+            "policy_holder_name" => $PolicyHolderName,
+            "policy_holder_birth_date" => $PolicyHolderBirthDate,
+            "policy_holder_type" => $PolicyHolderType,
+            "policy_holder_id_number" => $PolicyHolderIdNumber,
+            "policy_holder_id_type" => $PolicyHolderIdType,
+            "country_code" => $CountryCode,
+            "region" => $Region,
+            "district" => $District,
+            "street" => $Street,
+            "policy_holder_phone_number" => $PolicyHolderPhoneNumber,
+            "postal_address" => $PostalAddress,
+            "risk_code" => $RiskCode,
+            "motor_category" => $MotorCategory,
+            "motor_type" => $MotorType,
+            "registration_number" => $RegistrationNumber,
+            "chassis_number" => $ChassisNumber,
+            "make" => $Make,
+            "model" => $Model,
+            "model_number" => $ModelNumber,
+            "body_type" => $BodyType,
+            "color" => $Color,
+            "engine_number" => $EngineNumber,
+            "engine_capacity" => $EngineCapacity,
+            "fuel_used" => $fuel_used,
+        ];
+                try {
+
+            $quotation = Quotation::create($Motor);
+
+
+            $gen_data = generateXML('MotorCoverNoteRefReq', $data);
+
+            Log::channel('tiramisxml')->info($gen_data);
+            $res = TiraRequest('http://41.59.86.178:8091/ecovernote/api/covernote/non-life/motor/v2/request', $gen_data);
+
+            // return $res;
+
+            return response()->json([
+                'success' => 'Quotation created successfully',
+                'quotation' => $quotation,
+                'response' => $res
+            ]);
+
+
+        } catch (\Exception $e) {
+            Log::channel('tiramisxml')->info($e->getMessage());
+            return response()->json([
+                'error' => 'An error occurred while processing your request.',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
 
 
 
@@ -579,7 +1123,7 @@ public function getQuotationWithRelations($id)
         $other_id = otherUniqueID();
         $xmlData = '<MotorCoverNoteRefReq>
         <CoverNoteHdr>
-            <RequestId>'.$request_id.'</RequestId>
+            <RequestId>' . $request_id . '</RequestId>
             <CompanyCode>IB10152</CompanyCode>
             <SystemCode>TP_KMJ_001</SystemCode>
             <CallBackUrl>http://nio.co.tz/api/CoverNoteref/response</CallBackUrl>
@@ -588,7 +1132,7 @@ public function getQuotationWithRelations($id)
             <CoverNoteType>1</CoverNoteType>
         </CoverNoteHdr>
         <CoverNoteDtl>
-            <CoverNoteNumber>'.$other_id.'</CoverNoteNumber>
+            <CoverNoteNumber>' . $other_id . '</CoverNoteNumber>
             <PrevCoverNoteReferenceNumber></PrevCoverNoteReferenceNumber>
             <SalePointCode>SP001</SalePointCode>
             <CoverNoteStartDate>2020-09-15T13:55:22</CoverNoteStartDate>
@@ -715,27 +1259,27 @@ public function getQuotationWithRelations($id)
 
         $xmlRequest = '<?xml version="1.0" encoding="UTF-8"?>
 <TiraMsg>
-   '.$xmlData.'
-   <MsgSignature>'.$signature.'</MsgSignature>
+   ' . $xmlData . '
+   <MsgSignature>' . $signature . '</MsgSignature>
 </TiraMsg>';
 
         Log::channel('tiramisxml')->info($xmlRequest);
 
 
-$certPath = storage_path('tiramis_certs/tiramisclient.crt');
-        $keyPath  = storage_path('tiramis_certs/tiramisclient.key');
+        $certPath = storage_path('tiramis_certs/tiramisclient.crt');
+        $keyPath = storage_path('tiramis_certs/tiramisclient.key');
 
         $response = Http::withOptions([
-            'cert'    => $certPath,
+            'cert' => $certPath,
             'ssl_key' => $keyPath,
-            'verify'  => false,
+            'verify' => false,
         ])
             ->withHeaders([
                 'Content-Type' => 'application/xml',
-                'ClientCode'   => 'IB10152',
-                'ClientKey'    => '1Xr@Jnq74&cYaSl2',
-                'SystemCode'   => 'TP_KMJ_001',
-                'SystemName'   => 'KMJ System',
+                'ClientCode' => 'IB10152',
+                'ClientKey' => '1Xr@Jnq74&cYaSl2',
+                'SystemCode' => 'TP_KMJ_001',
+                'SystemName' => 'KMJ System',
             ])
             ->withBody($xmlRequest, 'application/xml')
             ->post('http://41.59.86.178:8091/ecovernote/api/covernote/non-life/motor/v2/request');
@@ -912,9 +1456,9 @@ $certPath = storage_path('tiramis_certs/tiramisclient.crt');
             'ssl_key' => $this->keyPath,
             'verify' => false,
         ])
-        ->withHeaders($this->headers)
-        ->withBody($xmlData, 'application/xml')
-        ->post('https://41.59.86.178:8091/ecovernote/api/covernote/non-life/motor-fleet/v2/request');
+            ->withHeaders($this->headers)
+            ->withBody($xmlData, 'application/xml')
+            ->post('https://41.59.86.178:8091/ecovernote/api/covernote/non-life/motor-fleet/v2/request');
 
         Log::info('TIRA MotorCoverNoteRefReq With Fleet Response: ' . $response->body());
 
@@ -966,9 +1510,9 @@ $certPath = storage_path('tiramis_certs/tiramisclient.crt');
             'ssl_key' => $this->keyPath,
             'verify' => false,
         ])
-        ->withHeaders($this->headers)
-        ->withBody($xmlData, 'application/xml')
-        ->post('https://41.59.86.178:8091/ecovernote/api/reinsurance/v1/request');
+            ->withHeaders($this->headers)
+            ->withBody($xmlData, 'application/xml')
+            ->post('https://41.59.86.178:8091/ecovernote/api/reinsurance/v1/request');
 
         Log::info('TIRA ReinsuranceReq Response: ' . $response->body());
 
@@ -1013,9 +1557,9 @@ $certPath = storage_path('tiramis_certs/tiramisclient.crt');
             'ssl_key' => $this->keyPath,
             'verify' => false,
         ])
-        ->withHeaders($this->headers)
-        ->withBody($xmlData, 'application/xml')
-        ->post('https://41.59.86.178:8091/ecovernote/api/policy/v1/request');
+            ->withHeaders($this->headers)
+            ->withBody($xmlData, 'application/xml')
+            ->post('https://41.59.86.178:8091/ecovernote/api/policy/v1/request');
 
         Log::info('TIRA PolicyReq Response: ' . $response->body());
 
@@ -1063,9 +1607,9 @@ $certPath = storage_path('tiramis_certs/tiramisclient.crt');
             'ssl_key' => $this->keyPath,
             'verify' => false,
         ])
-        ->withHeaders($this->headers)
-        ->withBody($xmlData, 'application/xml')
-        ->post('https://41.59.86.178:8091/eclaim/api/claim/claim-notification/v1/request');
+            ->withHeaders($this->headers)
+            ->withBody($xmlData, 'application/xml')
+            ->post('https://41.59.86.178:8091/eclaim/api/claim/claim-notification/v1/request');
 
         Log::info('TIRA ClaimNotificationRefReq Response: ' . $response->body());
 
@@ -1133,9 +1677,9 @@ $certPath = storage_path('tiramis_certs/tiramisclient.crt');
             'ssl_key' => $this->keyPath,
             'verify' => false,
         ])
-        ->withHeaders($this->headers)
-        ->withBody($xmlData, 'application/xml')
-        ->post('https://41.59.86.178:8091/eclaim/api/claim/claim-intimation/v1/request');
+            ->withHeaders($this->headers)
+            ->withBody($xmlData, 'application/xml')
+            ->post('https://41.59.86.178:8091/eclaim/api/claim/claim-intimation/v1/request');
 
         Log::info('TIRA ClaimIntimationReq Response: ' . $response->body());
 
@@ -1193,9 +1737,9 @@ $certPath = storage_path('tiramis_certs/tiramisclient.crt');
             'ssl_key' => $this->keyPath,
             'verify' => false,
         ])
-        ->withHeaders($this->headers)
-        ->withBody($xmlData, 'application/xml')
-        ->post('https://41.59.86.178:8091/eclaim/api/claim/claim-assessment/v1/request');
+            ->withHeaders($this->headers)
+            ->withBody($xmlData, 'application/xml')
+            ->post('https://41.59.86.178:8091/eclaim/api/claim/claim-assessment/v1/request');
 
         Log::info('TIRA ClaimAssessmentReq Response: ' . $response->body());
 
@@ -1256,9 +1800,9 @@ $certPath = storage_path('tiramis_certs/tiramisclient.crt');
             'ssl_key' => $this->keyPath,
             'verify' => false,
         ])
-        ->withHeaders($this->headers)
-        ->withBody($xmlData, 'application/xml')
-        ->post('https://41.59.86.178:8091/eclaim/api/claim/claim-dischargevoucher/v1/request');
+            ->withHeaders($this->headers)
+            ->withBody($xmlData, 'application/xml')
+            ->post('https://41.59.86.178:8091/eclaim/api/claim/claim-dischargevoucher/v1/request');
 
         Log::info('TIRA DischargeVoucherReq Response: ' . $response->body());
 
@@ -1315,9 +1859,9 @@ $certPath = storage_path('tiramis_certs/tiramisclient.crt');
             'ssl_key' => $this->keyPath,
             'verify' => false,
         ])
-        ->withHeaders($this->headers)
-        ->withBody($xmlData, 'application/xml')
-        ->post('https://41.59.86.178:8091/eclaim/api/claim/claim-payment/v1/request');
+            ->withHeaders($this->headers)
+            ->withBody($xmlData, 'application/xml')
+            ->post('https://41.59.86.178:8091/eclaim/api/claim/claim-payment/v1/request');
 
         Log::info('TIRA ClaimPaymentReq Response: ' . $response->body());
 
@@ -1371,9 +1915,9 @@ $certPath = storage_path('tiramis_certs/tiramisclient.crt');
             'ssl_key' => $this->keyPath,
             'verify' => false,
         ])
-        ->withHeaders($this->headers)
-        ->withBody($xmlData, 'application/xml')
-        ->post('https://41.59.86.178:8091/eclaim/api/claim/claim-rejection/v1/request');
+            ->withHeaders($this->headers)
+            ->withBody($xmlData, 'application/xml')
+            ->post('https://41.59.86.178:8091/eclaim/api/claim/claim-rejection/v1/request');
 
         Log::info('TIRA ClaimRejectionReq Response: ' . $response->body());
 
