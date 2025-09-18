@@ -304,9 +304,9 @@ class ApiTiraController extends Controller
         $PremiumExcludingTaxEquivalent = (float)$request->premium_excluding_tax_equivalent;
         $PremiumIncludingTax = (float)$request->premium_including_tax;
         $TaxCode = $request->tax_code;
-        $IsTaxExempted = $request->is_tax_exempted; // 'Y' or 'N'
-        $TaxExemptionType = $request->tax_exemption_type; // optional
-        $TaxExemptionReference = $request->tax_exemption_reference; // optional
+        $IsTaxExempted = $request->is_tax_exempted;
+        $TaxExemptionType = $request->tax_exemption_type;
+        $TaxExemptionReference = $request->tax_exemption_reference;
         $TaxRate = (float)$request->tax_rate;
         $TaxAmount = (float)$request->tax_amount;
 
@@ -339,6 +339,8 @@ class ApiTiraController extends Controller
 
         $PremiumDiscount = (float)$request->premium_discount;
         $DiscountType = $request->discount_type;
+        $DiscountRate = (float)$request->discount_rate;
+        $DiscountAmount = (float)$request->discount_amount;
 
         // Addon details
         $AddonReference = $request->addon_reference;
@@ -430,6 +432,9 @@ class ApiTiraController extends Controller
                     'PrevCoverNoteReferenceNumber' => $PrevCoverNoteReferenceNumber,
                     'CoverNoteDesc' => $CoverNoteDesc ?? "Motor cover note - test",
                     'OperativeClause' => $OperativeClause ?? "Fire and Allied Perils",
+                    'EndorsementType' => $request->endorsement_type,
+                    'EndorsementReason' => $request->endorsement_reason,
+                    'EndorsementPremiumEarned' => $request->endorsement_premium_earned,
                     'RisksCovered' => [
                         'RiskCovered' => [
                             [
@@ -438,10 +443,16 @@ class ApiTiraController extends Controller
                                 'SumInsuredEquivalent' => $SumInsuredEquivalent,
                                 'PremiumRate' => $PremiumRate,
                                 'PremiumBeforeDiscount' => $PremiumBeforeDiscount,
-                                // DiscountsOffered is optional; include only provided basics
                                 'PremiumAfterDiscount' => $PremiumAfterDiscount,
                                 'PremiumExcludingTaxEquivalent' => $PremiumExcludingTaxEquivalent,
                                 'PremiumIncludingTax' => $PremiumIncludingTax,
+                                'DiscountsOffered' => [
+                                    'DiscountOffered' => [
+                                        'DiscountType' => $DiscountType,
+                                        'DiscountRate' => $DiscountRate,
+                                        'DiscountAmount' => $DiscountAmount ?? $PremiumDiscount,
+                                    ]
+                                ],
                                 'TaxesCharged' => [
                                     'TaxCharged' => [
                                         [
