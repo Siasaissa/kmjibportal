@@ -274,6 +274,8 @@ class ApiTiraController extends Controller
 
     public function fleetCoverNotes(Request $request)
     {
+
+        return $request->all();
         // Extract all variables as before...
         $coverage_id = $request->coverage_id;
         $customer_id = $request->customer_id;
