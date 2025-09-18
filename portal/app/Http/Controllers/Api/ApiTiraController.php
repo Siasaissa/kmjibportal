@@ -40,8 +40,14 @@ class ApiTiraController extends Controller
         $PremiumIncludingTax = $request->premium_including_tax;
         $TaxCode = $request->tax_code;
         $IsTaxExempted = $request->is_tax_exempted;
+        $TaxExemptionType = $request->tax_exemption_type;
+        $TaxExemptionReference = $request->tax_exemption_reference;
         $TaxRate = $request->tax_rate;
         $TaxAmount = $request->tax_amount;
+        // Discounts (optional but tag must be present even if empty)
+        $DiscountType = $request->discount_type;
+        $DiscountRate = $request->discount_rate;
+        $DiscountAmount = $request->discount_amount;
 
         // SubjectMattersCovered
         $SubjectMatterReference = $request->subject_matter_reference;
@@ -98,7 +104,7 @@ class ApiTiraController extends Controller
             ],
             'CoverNoteDtl' => [
                 'CoverNoteNumber' => otherUniqueID(),
-                'PrevCoverNoteReferenceNumber' => null,
+                'PrevCoverNoteReferenceNumber' => $request->prev_cover_note_reference_number ?? '',
                 'SalePointCode' => $salePointCode,
                 'CoverNoteStartDate' => returnTiraDate($CoverNoteStartDate),
                 'CoverNoteEndDate' => returnTiraDate($CoverNoteEndDate),
@@ -109,14 +115,15 @@ class ApiTiraController extends Controller
                 'ExchangeRate' => $exchangeRate,
                 'TotalPremiumExcludingTax' => $TotalPremiumExcludingTax,
                 'TotalPremiumIncludingTax' => $TotalPremiumIncludingTax,
+                // Keep tag names exactly as in sample (CommisionPaid/CommisionRate)
                 'CommisionPaid' => $CommisionPaid,
                 'CommisionRate' => $CommisionRate,
                 'OfficerName' => $OfficerName,
                 'OfficerTitle' => $OfficerTitle,
                 'ProductCode' => $ProductCode,
-                'EndorsementType' => null,
-                'EndorsementReason' => null,
-                'EndorsementPremiumEarned' => null,
+                'EndorsementType' => $request->endorsement_type ?? '',
+                'EndorsementReason' => $request->endorsement_reason ?? '',
+                'EndorsementPremiumEarned' => $request->endorsement_premium_earned ?? '',
                 'RisksCovered' => [
                     'RiskCovered' => [
                         [
@@ -128,13 +135,22 @@ class ApiTiraController extends Controller
                             'PremiumAfterDiscount' => $PremiumAfterDiscount,
                             'PremiumExcludingTaxEquivalent' => $PremiumExcludingTaxEquivalent,
                             'PremiumIncludingTax' => $PremiumIncludingTax,
-                            'DiscountsOffered' => [],
+                            // DiscountsOffered tag must be present; populate if provided else keep empty
+                            'DiscountsOffered' => ($DiscountType !== null && $DiscountRate !== null && $DiscountAmount !== null)
+                                ? [
+                                    'DiscountOffered' => [
+                                        'DiscountType' => $DiscountType,
+                                        'DiscountRate' => $DiscountRate,
+                                        'DiscountAmount' => $DiscountAmount,
+                                    ]
+                                ]
+                                : '',
                             'TaxesCharged' => [
                                 'TaxCharged' => [
                                     'TaxCode' => $TaxCode,
                                     'IsTaxExempted' => $IsTaxExempted,
-                                    'TaxExemptionType' => null,
-                                    'TaxExemptionReference' => null,
+                                    'TaxExemptionType' => $TaxExemptionType ?? '',
+                                    'TaxExemptionReference' => $TaxExemptionReference ?? '',
                                     'TaxRate' => $TaxRate,
                                     'TaxAmount' => $TaxAmount,
                                 ],
@@ -156,19 +172,20 @@ class ApiTiraController extends Controller
                         'PolicyHolderType' => $PolicyHolderType,
                         'PolicyHolderIdNumber' => $PolicyHolderIdNumber,
                         'PolicyHolderIdType' => $PolicyHolderIdType,
-                        'Gender' => null,
+                        'Gender' => $request->gender ?? '',
                         'CountryCode' => $CountryCode,
                         'Region' => $Region,
                         'District' => $District,
-                        'Street' => $Street,
+                        'Street' => $Street ?? '',
                         'PolicyHolderPhoneNumber' => $PolicyHolderPhoneNumber,
-                        'PolicyHolderFax' => null,
+                        'PolicyHolderFax' => $request->policy_holder_fax ?? '',
                         'PostalAddress' => $PostalAddress,
-                        'EmailAddress' => null,
+                        'EmailAddress' => $request->email_address ?? '',
                     ],
                 ],
                  'MotorDtl' => [
                     'MotorCategory' => $MotorCategory,
+                    'MotorType' => $MotorType,
                     'RegistrationNumber' => $RegistrationNumber,
                     'ChassisNumber' => $ChassisNumber,
                     'Make' => $Make,
@@ -180,21 +197,22 @@ class ApiTiraController extends Controller
                     'EngineCapacity' => $EngineCapacity,
                     'FuelUsed' => $FuelUsed,
                     'NumberOfAxles' => $NumberOfAxles,
-                    'AxleDistance' => $AxleDistance,
-                    'SittingCapacity' => $SittingCapacity,
+                    'AxleDistance' => $AxleDistance ?? '',
+                    'SittingCapacity' => $SittingCapacity ?? '',
                     'YearOfManufacture' => $YearOfManufacture,
                     'TareWeight' => $TareWeight,
                     'GrossWeight' => $GrossWeight,
                     'MotorUsage' => $MotorUsage,
                     'OwnerName' => $OwnerName,
                     'OwnerCategory' => $OwnerCategory,
-                    'OwnerAddress' => $OwnerAddress,
+                    'OwnerAddress' => $OwnerAddress ?? '',
                 ],
             ],
         ];
 
 
         try {
+            // Keep empty elements as per sample spec (no cleanup)
             $gen_data = generateXML('MotorCoverNoteRefReq', $data);
 
             // return $gen_data;
