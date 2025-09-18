@@ -40,6 +40,9 @@ class ApiTiraController extends Controller
         $PremiumExcludingTaxEquivalent = (float)$request->premium_excluding_tax_equivalent;
         $PremiumIncludingTax = (float)$request->premium_including_tax;
         $TaxCode = $request->tax_code;
+        $IsTaxExempted = $request->is_tax_exempted; // 'Y' or 'N'
+        $TaxExemptionType = $request->tax_exemption_type; // optional
+        $TaxExemptionReference = $request->tax_exemption_reference; // optional
         $TaxRate = (float)$request->tax_rate;
         $TaxAmount = (float)$request->tax_amount;
 
@@ -86,6 +89,7 @@ class ApiTiraController extends Controller
 
         // Motor details
         $MotorCategory = $request->motor_category;
+        $MotorType = $request->motor_type; // 1 Registered, 2 In transit
         $RegistrationNumber = $request->registration_number;
         $ChassisNumber = $request->chassis_number;
         $Make = $request->make;
@@ -437,6 +441,9 @@ class ApiTiraController extends Controller
                                     'TaxCharged' => [
                                         [
                                             'TaxCode' => $TaxCode,
+                                            'IsTaxExempted' => $IsTaxExempted,
+                                            'TaxExemptionType' => $TaxExemptionType,
+                                            'TaxExemptionReference' => $TaxExemptionReference,
                                             'TaxRate' => $TaxRate,
                                             'TaxAmount' => $TaxAmount,
                                         ]
@@ -465,6 +472,9 @@ class ApiTiraController extends Controller
                                     'TaxCharged' => [
                                         [
                                             'TaxCode' => $TaxCode,
+                                            'IsTaxExempted' => $IsTaxExempted,
+                                            'TaxExemptionType' => $TaxExemptionType,
+                                            'TaxExemptionReference' => $TaxExemptionReference,
                                             'TaxRate' => $TaxRate,
                                             'TaxAmount' => $TaxAmount,
                                         ]
@@ -474,7 +484,8 @@ class ApiTiraController extends Controller
                         ],
                     ],
                     'MotorDtl' => [
-                        'MotorCategory' => $MotorCategory,
+                    'MotorCategory' => $MotorCategory,
+                    'MotorType' => $MotorType,
                         'RegistrationNumber' => $RegistrationNumber,
                         'ChassisNumber' => $ChassisNumber,
                         'Make' => $Make,
