@@ -19,5 +19,4 @@ public function down(): void
         $table->json('raw_data')->change();
     });
 }
-
 };
