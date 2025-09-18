@@ -182,28 +182,28 @@ class ApiTiraController extends Controller
                     ],
                 ],
 
-                'CoverNoteAddons' => [
-                    'CoverNoteAddon' => [
-                        [
-                            'AddonReference' => $AddonReference,
-                            'AddonDesc' => $AddonDesc,
-                            'AddonAmount' => $AddonAmount,
-                            'AddonPremiumRate' => $AddonPremiumRate,
-                            'PremiumExcludingTax' => $PremiumExcludingTax,
-                            'PremiumExcludingTaxEquivalent' => $PremiumExcludingTaxEquivalent,
-                            'PremiumIncludingTax' => $PremiumIncludingTax,
-                            'TaxesCharged' => [
-                                'TaxCharged' => [
-                                    [
-                                        'TaxCode' => $TaxCode,
-                                        'TaxRate' => $TaxRate,
-                                        'TaxAmount' => $TaxAmount,
-                                    ]
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
+                'CoverNoteAddons' => [],
+                //     'CoverNoteAddon' => [
+                //         [
+                //             'AddonReference' => $AddonReference,
+                //             'AddonDesc' => $AddonDesc,
+                //             'AddonAmount' => $AddonAmount,
+                //             'AddonPremiumRate' => $AddonPremiumRate,
+                //             'PremiumExcludingTax' => $PremiumExcludingTax,
+                //             'PremiumExcludingTaxEquivalent' => $PremiumExcludingTaxEquivalent,
+                //             'PremiumIncludingTax' => $PremiumIncludingTax,
+                //             'TaxesCharged' => [
+                //                 'TaxCharged' => [
+                //                     [
+                //                         'TaxCode' => $TaxCode,
+                //                         'TaxRate' => $TaxRate,
+                //                         'TaxAmount' => $TaxAmount,
+                //                     ]
+                //                 ],
+                //             ],
+                //         ],
+                //     ],
+                // ],
 
                 'PolicyHolders' => [
                     'PolicyHolder' => [
