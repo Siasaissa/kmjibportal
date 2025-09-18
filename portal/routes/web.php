@@ -68,7 +68,7 @@ Route::middleware('auth')->group(function () {
         Route::view('/Products', 'dash.Products')->name('products');
         Route::view('/Profoma', 'dash.Profoma')->name('profoma');
         Route::get('/Quotation', [InsuranceQuotationController::class, 'index'])->name('Quotation');
-        Route::view('/Quotation1', 'dash.Quotation1')->name('quotation1');
+
         Route::view('/Quotation2', 'dash.Quotation2')->name('quotation2');
         Route::view('/renewals', 'dash.renewals')->name('renewals');
         Route::view('/Report', 'dash.Report')->name('report');
@@ -78,6 +78,7 @@ Route::middleware('auth')->group(function () {
         Route::view('/testpage', 'dash.testpage')->name('testpage');
         Route::view('/textDownload', 'dash.textDownload')->name('textDownload');
         Route::view('/Transaction', 'dash.Transaction')->name('transaction');
+        Route::get('/Quotation1', [CustomerController::class, 'getAllClients'])->name('quotation1');
     });
 
     /*
@@ -111,7 +112,7 @@ Route::post('/receipts/store', [ReceiptController::class, 'store'])->name('recei
     });
 
 
-     Route::post('quotations/store', [InsuranceQuotationController::class, 'store'])->name('quotations.store');
+     Route::post('quotations/store', [TiraController::class, 'requestNonMotorCovertes'])->name('quotations.store');
 
     /*
     |--------------------------------------------------------------------------
@@ -171,3 +172,11 @@ Route::get('/tiramis/submit/claim-rejection', [TiraController::class, 'submitCla
 
 Route::get('/tiramis/post', [TiraController::class, 'requestNonMotorCovertes']);
 Route::get('/save',[TiraController::class, 'save']);
+
+////// Get products by insurance
+Route::get('/insurance/{id}/products', [InsuranceQuotationController::class, 'getProducts']);
+    
+// Get coverages by product
+Route::get('/product/{id}/coverages', [InsuranceQuotationController::class, 'getCoverages']);
+
+Route::get('/clients/autocomplete', [CustomerController::class, 'autocomplete'])->name('clients.autocomplete');

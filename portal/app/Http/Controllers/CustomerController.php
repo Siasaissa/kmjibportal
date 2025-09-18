@@ -83,7 +83,7 @@ class CustomerController extends Controller
         return view('customers.show', compact('customer'));
     }
 
-public function autocomplete(Request $request)
+public function autocompletes(Request $request)
 {
     $query = $request->input('query');
 
@@ -95,8 +95,21 @@ public function autocomplete(Request $request)
     return response()->json($matches);
 }
 
+public function getAllClients()
+{
+    $clients = Customer::select('id', 'client_name')->get();
+    return view('dash.quotation1', compact('clients'));
+}
 
 
-
+public function autocomplete(Request $request)
+{
+    $query = $request->get('query', '');
+    $clients = Customer::where('client_name', 'like', "%{$query}%")
+                        ->select('id', 'client_name')
+                        ->limit(10)
+                        ->get();
+    return response()->json($clients);
+}
 
 }

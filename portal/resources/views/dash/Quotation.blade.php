@@ -284,21 +284,38 @@
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                                 aria-label="Close"></button>
                         </div>
-                        <form action="{{ route('Quotation1.create') }}" method="GET">
+<form action="{{ route('Quotation1.create') }}" method="GET">
     <div class="modal-body row g-3">
         <div class="col-md-12">
             <label class="form-label">Insurance Type:</label>
-            <select class="form-select" name="insurance_type" required>
-                @foreach($insurance as $insurances)
-                    <option value="{{ $insurances->id }}">{{ $insurances->name }}</option>
+            <select class="form-select" id="insuranceSelect" name="insurance_id" required>
+                <option value="">-- Select Insurance --</option>
+                @foreach($insurance as $ins)
+                    <option value="{{ $ins->id }}">{{ $ins->name }}</option>
                 @endforeach
             </select>
         </div>
+
+        <div class="col-md-12 mt-3">
+            <label class="form-label">Product:</label>
+            <select class="form-select" id="productSelect" name="product_id" required>
+                <option value="">-- Select Product --</option>
+            </select>
+        </div>
+
+        <div class="col-md-12 mt-3">
+            <label class="form-label">Coverage:</label>
+            <select class="form-select" id="coverageSelect" name="coverage_id" required>
+                <option value="">-- Select Coverage --</option>
+            </select>
+        </div>
+
         <div class="modal-footer">
             <button type="submit" class="btn btn-primary text-white">Proceed</button>
         </div>
     </div>
 </form>
+
 
                     </div>
                 </div>
@@ -719,7 +736,51 @@
     }
 
 
+
+
 </script>
+<script>
+let lastCoverageId = null;
+
+document.getElementById('insuranceSelect').addEventListener('change', function () {
+    let insuranceId = this.value;
+    let productSelect = document.getElementById('productSelect');
+    let coverageSelect = document.getElementById('coverageSelect');
+
+    productSelect.innerHTML = '<option value="">-- Select Product --</option>';
+    coverageSelect.innerHTML = '<option value="">-- Select Coverage --</option>';
+
+    if (insuranceId) {
+        fetch(`/insurance/${insuranceId}/products`)
+            .then(res => res.json())
+            .then(data => {
+                data.forEach(product => {
+                    productSelect.innerHTML += `<option value="${product.id}">${product.product_name}</option>`;
+                });
+            });
+    }
+});
+
+document.getElementById('productSelect').addEventListener('change', function () {
+    let productId = this.value;
+    let coverageSelect = document.getElementById('coverageSelect');
+    coverageSelect.innerHTML = '<option value="">-- Select Coverage --</option>';
+
+    if (productId) {
+        fetch(`/product/${productId}/coverages`)
+            .then(res => res.json())
+            .then(data => {
+                data.forEach((coverage, index) => {
+                    coverageSelect.innerHTML += `<option value="${coverage.id}">${coverage.risk_name}</option>`;
+                    if (index === data.length - 1) lastCoverageId = coverage.id; // capture last coverage ID
+                });
+            });
+    }
+});
+
+</script>
+
+
 
 
 </html>

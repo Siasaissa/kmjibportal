@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Coverage;
 use App\Models\InsuranceQuotation;
+use App\Models\products;
 use App\Models\QuotationDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -11,17 +13,38 @@ use App\Models\Insurance;
 
 class InsuranceQuotationController extends Controller
 {
-    public function create(Request $request)
-    {
-        // Validate insurance type
-        $validated = $request->validate([
-            'insurance_type' => 'required'
-        ]);
+public function create(Request $request)
+{
+    // Capture the submitted IDs
+    $coverageId  = $request->input('coverage_id');
+    $insuranceId = $request->input('insurance_id');
+    $productId   = $request->input('product_id');
 
-        return view('dash.Quotation1', [
-            'selectedInsuranceType' => $validated['insurance_type']
-        ]);
+    // Fetch product_code from products table
+    $productCode = null;
+    if ($productId) {
+        $product = products::find($productId);
+        $productCode = $product?->product_code; // safe navigation
     }
+
+    // Fetch risk_code from coverages table
+    $riskCode = null;
+    if ($coverageId) {
+        $coverage = Coverage::find($coverageId);
+        $riskCode = $coverage?->risk_code;
+    }
+
+    // Pass everything to the next view
+    return view('dash.Quotation1', [
+        'coverageId'  => $coverageId,
+        'insuranceId' => $insuranceId,
+        'productId'   => $productId,
+        'riskCode'    => $riskCode,
+        'productCode' => $productCode,
+    ]);
+}
+
+
 
     public function store(Request $request)
     {
@@ -258,6 +281,23 @@ class InsuranceQuotationController extends Controller
     // Pass to the view
     return view('dash.Quotation', compact('quotations','insurance'));
 }
+
+public function getProducts($insuranceId)
+{
+    // Return both id and product_name
+    return Products::where('insurance_id', $insuranceId)
+        ->get(['id', 'product_name']);
+}
+
+public function getCoverages($productId)
+{
+    // Return both id and risk_name
+    return Coverage::where('product_id', $productId)
+        ->get(['id', 'risk_name']);
+}
+
+
+
 
 public function qr()
 {

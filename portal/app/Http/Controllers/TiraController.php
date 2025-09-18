@@ -157,9 +157,6 @@ class TiraController extends Controller
 
     public function requestNonMotorCovertes(Request $request)
     {
-
-
-
         // $coverNote = CoverNoteType::where('id', $request->cover_note_id)->first();
         // $quotation = Quotation::where('id', $id)->first();
         //$customer = Customer::where('id', $request->customer_id)->first();
