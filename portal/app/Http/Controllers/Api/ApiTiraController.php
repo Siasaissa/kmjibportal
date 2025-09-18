@@ -498,6 +498,7 @@ class ApiTiraController extends Controller
 
             return response()->json([
                 'success' => 'TRA Response',
+                'covernote_ref_number' => otherUniqueID(),
                 'response' => $res
             ]);
         } catch (\Exception $e) {
