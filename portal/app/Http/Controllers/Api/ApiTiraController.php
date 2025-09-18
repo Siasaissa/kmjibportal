@@ -135,11 +135,11 @@ class ApiTiraController extends Controller
                 'CommisionRate' => $CommisionRate,
 
                 // FIX: Use actual fleet values from input
-                'IsFleet' => $IsFleet ?? "N", // Default to "N" if not provided
-                'FleetId' => $FleetId, // Will be null/empty for non-fleet
-                'FleetSize' => $FleetSize, // Will be null/empty for non-fleet
-                'ComprehensiveInsured' => $ComprehensiveInsured, // Will be null/empty for non-fleet
-                'FleetEntry' => $FleetEntry, // Will be null/empty for non-fleet
+                'IsFleet' => $IsFleet ?? "N",
+                'FleetId' => $FleetId,
+                'FleetSize' => $FleetSize,
+                'ComprehensiveInsured' => $ComprehensiveInsured,
+                'FleetEntry' => $FleetEntry,
 
                 'OfficerName' => $OfficerName,
                 'OfficerTitle' => $OfficerTitle,
@@ -205,7 +205,7 @@ class ApiTiraController extends Controller
                     'PolicyHolder' => [
                         'PolicyHolderName' => $PolicyHolderName,
                         'PolicyHolderBirthDate' => $PolicyHolderBirthDate,
-                        'PolicyHolderBirtAge' => $PolicyHolderBirtAge, // FIX: Include this field
+                        'PolicyHolderBirtAge' => $PolicyHolderBirtAge,
                         'PolicyHolderType' => $PolicyHolderType,
                         'PolicyHolderIdNumber' => $PolicyHolderIdNumber,
                         'PolicyHolderIdType' => $PolicyHolderIdType,
