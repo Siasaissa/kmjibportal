@@ -160,7 +160,7 @@ class ApiTiraController extends Controller
                             'PremiumDiscount' => $PremiumDiscount,
                             'DiscountType' => $DiscountType,
                             'PremiumAfterDiscount' => $PremiumAfterDiscount,
-                            'PremiumExcludingTax' => $PremiumExcludingTax, 
+                            // 'PremiumExcludingTax' => $PremiumExcludingTax, 
                             'PremiumExcludingTaxEquivalent' => $PremiumExcludingTaxEquivalent,
                             'PremiumIncludingTax' => $PremiumIncludingTax,
                             'TaxesCharged' => [
@@ -204,7 +204,7 @@ class ApiTiraController extends Controller
                     'PolicyHolder' => [
                         'PolicyHolderName' => $PolicyHolderName,
                         'PolicyHolderBirthDate' => $PolicyHolderBirthDate,
-                        'PolicyHolderBirtAge' => $PolicyHolderBirtAge,
+                        // 'PolicyHolderBirtAge' => $PolicyHolderBirtAge,
                         'PolicyHolderType' => $PolicyHolderType,
                         'PolicyHolderIdNumber' => $PolicyHolderIdNumber,
                         'PolicyHolderIdType' => $PolicyHolderIdType,
