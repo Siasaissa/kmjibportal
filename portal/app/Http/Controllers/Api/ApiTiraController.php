@@ -138,16 +138,17 @@ class ApiTiraController extends Controller
                 'ExchangeRate' => $exchangeRate,
                 'TotalPremiumExcludingTax' => $TotalPremiumExcludingTax,
                 'TotalPremiumIncludingTax' => $TotalPremiumIncludingTax,
-                'CommisionPaid' => $CommisionPaid,
-                'CommisionRate' => $CommisionRate,
+                'CommissionPaid' => $CommisionPaid,
+                'CommissionRate' => $CommisionRate,
                 'OfficerName' => $OfficerName,
                 'OfficerTitle' => $OfficerTitle,
                 'ProductCode' => $ProductCode,
-                'IsFleet' => $IsFleet,
-                'FleetId' => $FleetId,
-                'FleetSize' => $FleetSize,
-                'ComprehensiveInsured' => $ComprehensiveInsured,
-                'FleetEntry' => $FleetEntry,
+                'IsFleet' => ($IsFleet === 'Y' || $IsFleet === 'N') ? $IsFleet : ((bool)$IsFleet ? 'Y' : 'N'),
+                // Fleet fields will only be considered by TIRA when IsFleet = 'Y'
+                'FleetId' => $IsFleet ? $FleetId : null,
+                'FleetSize' => $IsFleet ? $FleetSize : null,
+                'ComprehensiveInsured' => $IsFleet ? $ComprehensiveInsured : null,
+                'FleetEntry' => $IsFleet ? $FleetEntry : null,
                 'RisksCovered' => [
                     'RiskCovered' => [
                         [
@@ -178,17 +179,17 @@ class ApiTiraController extends Controller
                     ],
                 ],
                 'CoverNoteAddons' => [
-                    [
-                        'AddonReference' => $AddonReference,
-                        'AddonDesc' => $AddonDesc,
-                        'AddonAmount' => $AddonAmount,
-                        'AddonPremiumRate' => $AddonPremiumRate,
-                        'PremiumExcludingTax' => $PremiumExcludingTax,
-                        'PremiumExcludingTaxEquivalent' => $PremiumExcludingTaxEquivalent,
-                        'PremiumIncludingTax' => $PremiumIncludingTax,
-                        'TaxesCharged' => [
-                            'TaxCharged' => [
-                                [
+                    'CoverNoteAddon' => [
+                        [
+                            'AddonReference' => $AddonReference,
+                            'AddonDesc' => $AddonDesc,
+                            'AddonAmount' => $AddonAmount,
+                            'AddonPremiumRate' => $AddonPremiumRate,
+                            'PremiumExcludingTax' => $PremiumExcludingTax,
+                            'PremiumExcludingTaxEquivalent' => $PremiumExcludingTaxEquivalent,
+                            'PremiumIncludingTax' => $PremiumIncludingTax,
+                            'TaxesCharged' => [
+                                'TaxCharged' => [
                                     'TaxCode' => $TaxCode,
                                     'TaxRate' => $TaxRate,
                                     'TaxAmount' => $TaxAmount,
@@ -298,7 +299,7 @@ class ApiTiraController extends Controller
             // $quotation = Quotation::create($quotationData);
 
 
-            $gen_data = generateXML('CoverNoteRefReq', $data);
+            $gen_data = generateXML('MotorCoverNoteRefReq', $data);
 
             Log::channel('tiramisxml')->info($gen_data);
             $res = TiraRequest('https://41.59.86.178:8091/ecovernote/api/covernote/non-life/motor/v2/request', $gen_data);
