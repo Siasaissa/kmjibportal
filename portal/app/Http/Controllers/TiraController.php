@@ -1026,7 +1026,7 @@ class TiraController extends Controller
             ],
         ];
 
-        
+
         $Motor = [
             "coverage_id" => $coverage_id,
             "customer_id" => $customer_id,

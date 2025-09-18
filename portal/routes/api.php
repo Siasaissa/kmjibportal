@@ -1,4 +1,6 @@
 <?php
+
+use App\Http\Controllers\Api\ApiTiraController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TiraController;
 
@@ -45,5 +47,16 @@ Route::post('/tiramis/submit/claim-payment', [TiraController::class, 'submitClai
 // Claim Rejection (POST)
 Route::post('/tiramis/submit/claim-rejection', [TiraController::class, 'submitClaimRejectionReq']);
 
-Route::post('/tiramis/post', [TiraController::class, 'requestNonMotorCovertes']);
-Route::post('/tiramis/callback', [TiraController::class, 'tiraCallbackHandler']);
+
+
+Route::prefix('tiramis')->controller(TiraController::class)->group(function () {
+    // 1. Covernote Submission
+
+    // Other Covernotes
+    Route::post('/post', [TiraController::class, 'requestNonMotorCovertes']);
+    // 2. Callback Handler
+    Route::post('/callback', [TiraController::class, 'tiraCallbackHandler']);
+
+     // Motor Covernotes
+    Route::post('/motor-cover-notes', [ApiTiraController::class, 'motorCoverNotes']);
+});
