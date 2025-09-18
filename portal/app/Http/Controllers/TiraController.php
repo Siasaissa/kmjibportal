@@ -394,6 +394,7 @@ class TiraController extends Controller
         } catch (\Exception $e) {
             Log::error("Error occurred: " . $e->getMessage());
             Log::error("Stack trace:\n" . $e->getTraceAsString());
+
             return response()->json(['status' => 'error', 'message' => 'Callback failed'], 500);
         }
     }
