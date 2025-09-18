@@ -18,7 +18,9 @@ use App\Models\Receipt;
 use App\Models\Motor;
 use App\Models\Region;
 use App\Models\CoverNoteType;
+use App\Models\TiraCallback;
 use Illuminate\Support\Facades\DB;
+
 class TiraController extends Controller
 {
 
@@ -46,7 +48,6 @@ class TiraController extends Controller
 
             $data = "<TIRAMIS>Test</TIRAMIS>";
             return ["requestId" => generateRequestID(), "signature" => EncryptionServiceController::createTiramisSignature($data)];
-
         } catch (\Exception $e) {
             return $e;
         }
@@ -147,7 +148,6 @@ class TiraController extends Controller
         $res = TiraRequest('https://41.59.86.178:8091/ecovernote/api/covernote/non-life/other/v2/request', $gen_data);
 
         return $res;
-
     }
 
 
@@ -366,8 +366,6 @@ class TiraController extends Controller
                 'quotation' => $quotation,
                 'response' => $res
             ]);
-
-
         } catch (\Exception $e) {
             Log::channel('tiramisxml')->info($e->getMessage());
             return response()->json([
@@ -375,18 +373,29 @@ class TiraController extends Controller
                 'message' => $e->getMessage()
             ]);
         }
-
     }
 
     public function tiraCallbackHandler(Request $request)
     {
-        Log::channel('tiramisxml')->info($request->all());
+        Log::channel('tiramisxml')->info("=== TIRA Callback Received ===");
 
-        $callback = new \App\Models\TiraCallback();
-        $callback->raw_data = json_encode($request->all());
-        $callback->save();
+        try {
+            $xmlString = $request->getContent();
+            Log::channel('tiramisxml')->info("Raw XML Content:\n" . $xmlString);
 
-        return response()->json(['status' => 'success']);
+            $callback = new TiraCallback();
+            $callback->raw_data = $xmlString;
+            $callback->save();
+            Log::channel('tiramisxml')->info("Callback saved successfully with ID: " . $callback->id);
+
+            Log::channel('tiramisxml')->info("Response sent: success");
+            return response()->json(['status' => 'success']);
+        } catch (\Exception $e) {
+            Log::channel('tiramisxml')->error("Error occurred: " . $e->getMessage());
+            Log::channel('tiramisxml')->error("Stack trace:\n" . $e->getTraceAsString());
+
+            return response()->json(['status' => 'error', 'message' => 'Callback failed'], 500);
+        }
     }
 
     public function requestNonMotorCovertest($customerId)
@@ -514,7 +523,6 @@ class TiraController extends Controller
                 'insurance_id' => $insurance->id,
                 'addon_id' => $addon->id,
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -1086,7 +1094,7 @@ class TiraController extends Controller
             "engine_capacity" => $EngineCapacity,
             "fuel_used" => $fuel_used,
         ];
-                try {
+        try {
 
             $quotation = Quotation::create($Motor);
 
@@ -1103,8 +1111,6 @@ class TiraController extends Controller
                 'quotation' => $quotation,
                 'response' => $res
             ]);
-
-
         } catch (\Exception $e) {
             Log::channel('tiramisxml')->info($e->getMessage());
             return response()->json([
@@ -1924,7 +1930,4 @@ class TiraController extends Controller
         return response($response->body(), 200)
             ->header('Content-Type', 'application/xml');
     }
-
-
-
 }

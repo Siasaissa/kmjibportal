@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('tira_callbacks', function (Blueprint $table) {
             $table->id();
-            $table->json('raw_data');
+            $table->text('raw_data');
             $table->timestamps();
         });
     }
