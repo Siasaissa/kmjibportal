@@ -482,6 +482,8 @@ class ApiTiraController extends Controller
             $cleanData = removeNullsRecursive($data);
             $gen_data = generateXML('MotorCoverNoteRefReq', $cleanData);
 
+            return $gen_data;
+
             Log::channel('tiramisxml')->info($gen_data);
             $res = TiraRequest('https://41.59.86.178:8091/ecovernote/api/covernote/non-life/motor/v2/request', $gen_data);
 
