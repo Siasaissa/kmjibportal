@@ -209,7 +209,7 @@ class ApiTiraController extends Controller
                     'PolicyHolder' => [
                         'PolicyHolderName' => $PolicyHolderName,
                         'PolicyHolderBirthDate' => $PolicyHolderBirthDate,
-                        'PolicyHolderBirtAge' => $PolicyHolderBirtAge,
+                        // 'PolicyHolderBirtAge' => $PolicyHolderBirtAge,
                         'PolicyHolderType' => $PolicyHolderType,
                         'PolicyHolderIdNumber' => $PolicyHolderIdNumber,
                         'PolicyHolderIdType' => $PolicyHolderIdType,
