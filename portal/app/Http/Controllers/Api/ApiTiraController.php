@@ -514,6 +514,7 @@ class ApiTiraController extends Controller
     // 2.Reinsurance Submission
     public function reinsuranceSubmission(Request $request)
     {
+        Log::info("=== Reinsurance Submission Request Received ===");
         Log::info("Received Reinsurance Submission Request: " . $request->all());
         // Build ReinsuranceReq per TIRA spec 7.1
         $reinsuranceHdr = [
