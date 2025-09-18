@@ -32,6 +32,29 @@ function generateXML($tiraTag, $data): string
     }
 }
 
+/**
+ * Recursively remove null, empty string, and empty array values from an array.
+ * Helps prevent emitting empty XML tags that TIRA may reject as incomplete.
+ */
+function removeNullsRecursive($value)
+{
+    if (is_array($value)) {
+        $filtered = [];
+        foreach ($value as $key => $child) {
+            $cleanChild = removeNullsRecursive($child);
+            $isEmptyArray = is_array($cleanChild) && count($cleanChild) === 0;
+            $isEmptyString = $cleanChild === '';
+            if ($cleanChild === null || $isEmptyString || $isEmptyArray) {
+                continue;
+            }
+            $filtered[$key] = $cleanChild;
+        }
+        return $filtered;
+    }
+
+    return $value;
+}
+
 function generateTiraXml($data, $signature): string
 {
     try {

@@ -299,7 +299,8 @@ class ApiTiraController extends Controller
             // $quotation = Quotation::create($quotationData);
 
 
-            $gen_data = generateXML('MotorCoverNoteRefReq', $data);
+            $cleanData = removeNullsRecursive($data);
+            $gen_data = generateXML('MotorCoverNoteRefReq', $cleanData);
 
             Log::channel('tiramisxml')->info($gen_data);
             $res = TiraRequest('https://41.59.86.178:8091/ecovernote/api/covernote/non-life/motor/v2/request', $gen_data);
