@@ -377,22 +377,22 @@ class TiraController extends Controller
 
     public function tiraCallbackHandler(Request $request)
     {
-        Log::channel('tiramisxml')->info("=== TIRA Callback Received ===");
+        Log::info("=== TIRA Callback Received ===");
 
         try {
             $xmlString = $request->getContent();
-            Log::channel('tiramisxml')->info("Raw XML Content:\n" . $xmlString);
+            Log::info("Raw XML Content:\n" . $xmlString);
 
             $callback = new TiraCallback();
             $callback->raw_data = $xmlString;
             $callback->save();
-            Log::channel('tiramisxml')->info("Callback saved successfully with ID: " . $callback->id);
+            Log::info("Callback saved successfully with ID: " . $callback->id);
 
-            Log::channel('tiramisxml')->info("Response sent: success");
+            Log::info("Response sent: success");
             return response()->json(['status' => 'success']);
         } catch (\Exception $e) {
-            Log::channel('tiramisxml')->error("Error occurred: " . $e->getMessage());
-            Log::channel('tiramisxml')->error("Stack trace:\n" . $e->getTraceAsString());
+            Log::error("Error occurred: " . $e->getMessage());
+            Log::error("Stack trace:\n" . $e->getTraceAsString());
 
             return response()->json(['status' => 'error', 'message' => 'Callback failed'], 500);
         }
