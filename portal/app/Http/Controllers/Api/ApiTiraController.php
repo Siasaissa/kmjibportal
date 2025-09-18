@@ -9,18 +9,9 @@ use Illuminate\Support\Facades\Log;
 
 class ApiTiraController extends Controller
 {
-
-    // Motor Covernotes
     public function motorCoverNotes(Request $request)
     {
-
-
-
-        // $coverNote = CoverNoteType::where('id', $request->cover_note_id)->first();
-        // $quotation = Quotation::where('id', $id)->first();
-        //$customer = Customer::where('id', $request->customer_id)->first();
-
-        // CoverNoteDtl
+        // Extract all variables as before...
         $coverage_id = $request->coverage_id;
         $customer_id = $request->customer_id;
         $cover_note_type_id = $request->cover_note_type_id;
@@ -31,36 +22,35 @@ class ApiTiraController extends Controller
         $CoverNoteEndDate = $CoverNoteStartDate->copy()->addMonths($request->cover_note_duration)->subDay();
         $paymentModeId = $request->payment_mode_id;
         $currencyCodeId = $request->currency_code;
-        $exchangeRate = $request->exchange_rate;
-        $TotalPremiumExcludingTax = $request->total_premium_excluding_tax;
-        $TotalPremiumIncludingTax = $request->total_premium_including_tax;
-        $CommisionPaid = $request->commission_paid;
-        $CommisionRate = $request->commission_rate;
+        $exchangeRate = (float)$request->exchange_rate;
+        $TotalPremiumExcludingTax = (float)$request->total_premium_excluding_tax;
+        $TotalPremiumIncludingTax = (float)$request->total_premium_including_tax;
+        $CommisionPaid = (float)$request->commission_paid;
+        $CommisionRate = (float)$request->commission_rate;
         $OfficerName = $request->officer_name;
         $OfficerTitle = $request->officer_title;
         $ProductCode = $request->product_code;
 
-        // RiskCovered
-        $SumInsured = $request->sum_insured;
-        $SumInsuredEquivalent = $request->sum_insured_equivalent;
-        $PremiumRate = $request->premium_rate;
-        $PremiumBeforeDiscount = $request->premium_before_discount;
-        $PremiumAfterDiscount = $request->premium_after_discount;
-        $PremiumExcludingTaxEquivalent = $request->premium_excluding_tax_equivalent;
-        $PremiumIncludingTax = $request->premium_including_tax;
+        // Risk details
+        $SumInsured = (float)$request->sum_insured;
+        $SumInsuredEquivalent = (float)$request->sum_insured_equivalent;
+        $PremiumRate = (float)$request->premium_rate;
+        $PremiumBeforeDiscount = (float)$request->premium_before_discount;
+        $PremiumAfterDiscount = (float)$request->premium_after_discount;
+        $PremiumExcludingTaxEquivalent = (float)$request->premium_excluding_tax_equivalent;
+        $PremiumIncludingTax = (float)$request->premium_including_tax;
         $TaxCode = $request->tax_code;
-        $IsTaxExempted = $request->is_tax_exempted;
-        $TaxRate = $request->tax_rate;
-        $TaxAmount = $request->tax_amount;
+        $TaxRate = (float)$request->tax_rate;
+        $TaxAmount = (float)$request->tax_amount;
 
-        // SubjectMattersCovered
+        // Subject matter
         $SubjectMatterReference = $request->subject_matter_reference;
         $SubjectMatterDescription = $request->subject_matter_description;
 
-        //PolicyHolders
+        // Policy holder details
         $PolicyHolderName = $request->policy_holder_name;
         $PolicyHolderBirthDate = $request->policy_holder_birth_date;
-        $PolicyHolderBirtAge = $request->policy_holder_birt_age;
+        $PolicyHolderBirtAge = $request->policy_holder_birt_age; // Fix: use this field
         $PolicyHolderType = $request->policy_holder_type;
         $PolicyHolderIdNumber = $request->policy_holder_id_number;
         $PolicyHolderIdType = $request->policy_holder_id_type;
@@ -73,49 +63,51 @@ class ApiTiraController extends Controller
         $RiskCode = $request->risk_code;
         $PrevCoverNoteReferenceNumber = $request->prev_cover_note_reference_number;
 
-        $IsFleet = $request->is_fleet;
+        // Fleet details - FIX: Use actual input values
+        $IsFleet = $request->is_fleet; // Should be "N" from your data
         $FleetId = $request->fleet_id;
         $FleetSize = $request->fleet_size;
         $ComprehensiveInsured = $request->comprehensive_insured;
         $FleetEntry = $request->fleet_entry;
 
-        $PremiumDiscount = $request->premium_discount;
+        $PremiumDiscount = (float)$request->premium_discount;
         $DiscountType = $request->discount_type;
 
+        // Addon details
         $AddonReference = $request->addon_reference;
         $AddonDesc = $request->addon_desc;
-        $AddonAmount = $request->addon_amount;
-        $AddonPremiumRate = $request->addon_premium_rate;
-        $PremiumExcludingTax = $request->premium_excluding_tax;
+        $AddonAmount = (float)$request->addon_amount;
+        $AddonPremiumRate = (float)$request->addon_premium_rate;
+        $PremiumExcludingTax = (float)$request->premium_excluding_tax;
 
         $Gender = $request->gender;
         $PolicyHolderFax = $request->policy_holder_fax;
-        $PostalAddress = $request->postal_address;
         $EmailAddress = $request->email_address;
 
-        // MotorDtl
-        $MotorCategory = $request->motor_category;          // mfano: 1
-        $RegistrationNumber = $request->registration_number; // mfano: 'T241QWA'
-        $ChassisNumber = $request->chassis_number;         // mfano: 'NCP314345436334'
-        $Make = $request->make;                            // mfano: 'Toyota'
-        $Model = $request->model;                          // mfano: 'IST'
-        $ModelNumber = $request->model_number;            // mfano: 'TA232353455'
-        $BodyType = $request->body_type;                  // mfano: 'Station Wagon'
-        $Color = $request->color;                         // mfano: 'Blue'
-        $EngineNumber = $request->engine_number;          // mfano: '2423253535'
-        $EngineCapacity = $request->engine_capacity;      // mfano: 2300
-        $FuelUsed = $request->fuel_used;                  // mfano: 'Petrol'
-        $NumberOfAxles = $request->number_of_axles;       // mfano: 3
-        $AxleDistance = $request->axle_distance;    // inaweza kuwa empty string
-        $SittingCapacity = $request->sitting_capacity; // inaweza kuwa empty string
-        $YearOfManufacture = $request->year_of_manufacture; // mfano: 2001
-        $TareWeight = $request->tare_weight;              // mfano: 2000
-        $GrossWeight = $request->gross_weight;            // mfano: 2000
-        $MotorUsage = $request->motor_usage;              // mfano: 1
-        $OwnerName = $request->owner_name;                // mfano: 'Juma Wamugamba'
-        $OwnerCategory = $request->owner_category;        // mfano: 1
-        $OwnerAddress = $request->owner_address;    // inaweza kuwa empty string
+        // Motor details
+        $MotorCategory = $request->motor_category;
+        $RegistrationNumber = $request->registration_number;
+        $ChassisNumber = $request->chassis_number;
+        $Make = $request->make;
+        $Model = $request->model;
+        $ModelNumber = $request->model_number;
+        $BodyType = $request->body_type;
+        $Color = $request->color;
+        $EngineNumber = $request->engine_number;
+        $EngineCapacity = $request->engine_capacity;
+        $FuelUsed = $request->fuel_used;
+        $NumberOfAxles = $request->number_of_axles;
+        $AxleDistance = $request->axle_distance;
+        $SittingCapacity = $request->sitting_capacity;
+        $YearOfManufacture = $request->year_of_manufacture;
+        $TareWeight = $request->tare_weight;
+        $GrossWeight = $request->gross_weight;
+        $MotorUsage = $request->motor_usage;
+        $OwnerName = $request->owner_name;
+        $OwnerCategory = $request->owner_category;
+        $OwnerAddress = $request->owner_address;
 
+        // Build the corrected data structure
         $data = [
             'CoverNoteHdr' => [
                 'RequestId' => generateRequestID(),
@@ -132,8 +124,8 @@ class ApiTiraController extends Controller
                 'SalePointCode' => $salePointCode,
                 'CoverNoteStartDate' => returnTiraDate($CoverNoteStartDate),
                 'CoverNoteEndDate' => returnTiraDate($CoverNoteEndDate),
-                'CoverNoteDesc' => $CoverNoteDesc ?? "To cover the liability that will arise as a result of professional activities of the insured",
-                'OperativeClause' => $OperativeClause ?? "To cover the liability that will arise as a result of professional activities of the insured",
+                'CoverNoteDesc' => $CoverNoteDesc ?? "Motor cover note - test",
+                'OperativeClause' => $OperativeClause ?? "Fire and Allied Perils",
                 'PaymentMode' => $paymentModeId,
                 'CurrencyCode' => $currencyCodeId,
                 'ExchangeRate' => $exchangeRate,
@@ -141,14 +133,18 @@ class ApiTiraController extends Controller
                 'TotalPremiumIncludingTax' => $TotalPremiumIncludingTax,
                 'CommisionPaid' => $CommisionPaid,
                 'CommisionRate' => $CommisionRate,
-                'IsFleet' => "Y",
-                'FleetId' => "FL122340",
-                'FleetSize' => 23,
-                'ComprehensiveInsured' => 20,
-                'FleetEntry' => 1,
+
+                // FIX: Use actual fleet values from input
+                'IsFleet' => $IsFleet ?? "N", // Default to "N" if not provided
+                'FleetId' => $FleetId, // Will be null/empty for non-fleet
+                'FleetSize' => $FleetSize, // Will be null/empty for non-fleet
+                'ComprehensiveInsured' => $ComprehensiveInsured, // Will be null/empty for non-fleet
+                'FleetEntry' => $FleetEntry, // Will be null/empty for non-fleet
+
                 'OfficerName' => $OfficerName,
                 'OfficerTitle' => $OfficerTitle,
                 'ProductCode' => $ProductCode,
+
                 'RisksCovered' => [
                     'RiskCovered' => [
                         [
@@ -160,25 +156,28 @@ class ApiTiraController extends Controller
                             'PremiumDiscount' => $PremiumDiscount,
                             'DiscountType' => $DiscountType,
                             'PremiumAfterDiscount' => $PremiumAfterDiscount,
-                            // 'PremiumExcludingTax' => $PremiumExcludingTax,
                             'PremiumExcludingTaxEquivalent' => $PremiumExcludingTaxEquivalent,
                             'PremiumIncludingTax' => $PremiumIncludingTax,
                             'TaxesCharged' => [
                                 'TaxCharged' => [
-                                    'TaxCode' => $TaxCode,
-                                    'TaxRate' => $TaxRate,
-                                    'TaxAmount' => $TaxAmount,
+                                    [
+                                        'TaxCode' => $TaxCode,
+                                        'TaxRate' => $TaxRate,
+                                        'TaxAmount' => $TaxAmount,
+                                    ]
                                 ],
                             ],
                         ],
                     ]
                 ],
+
                 'SubjectMattersCovered' => [
                     'SubjectMatter' => [
                         'SubjectMatterReference' => $SubjectMatterReference,
                         'SubjectMatterDesc' => $SubjectMatterDescription,
                     ],
                 ],
+
                 'CoverNoteAddons' => [
                     'CoverNoteAddon' => [
                         [
@@ -191,9 +190,11 @@ class ApiTiraController extends Controller
                             'PremiumIncludingTax' => $PremiumIncludingTax,
                             'TaxesCharged' => [
                                 'TaxCharged' => [
-                                    'TaxCode' => $TaxCode,
-                                    'TaxRate' => $TaxRate,
-                                    'TaxAmount' => $TaxAmount,
+                                    [
+                                        'TaxCode' => $TaxCode,
+                                        'TaxRate' => $TaxRate,
+                                        'TaxAmount' => $TaxAmount,
+                                    ]
                                 ],
                             ],
                         ],
@@ -204,7 +205,7 @@ class ApiTiraController extends Controller
                     'PolicyHolder' => [
                         'PolicyHolderName' => $PolicyHolderName,
                         'PolicyHolderBirthDate' => $PolicyHolderBirthDate,
-                        // 'PolicyHolderBirtAge' => $PolicyHolderBirtAge,
+                        'PolicyHolderBirtAge' => $PolicyHolderBirtAge, // FIX: Include this field
                         'PolicyHolderType' => $PolicyHolderType,
                         'PolicyHolderIdNumber' => $PolicyHolderIdNumber,
                         'PolicyHolderIdType' => $PolicyHolderIdType,
@@ -243,75 +244,17 @@ class ApiTiraController extends Controller
                     'OwnerCategory' => $OwnerCategory,
                     'OwnerAddress' => $OwnerAddress,
                 ],
-
             ],
         ];
 
-        //covernote type 1 and 2
-        // $quotationData = [
-        //     "coverage_id" => $coverage_id,
-        //     "customer_id" => $customer_id,
-        //     "cover_note_type_id" => $cover_note_type_id,
-        //     "sale_point_code" => $salePointCode,
-        //     "cover_note_desc" => $CoverNoteDesc ?? "",
-        //     "operative_clause" => $OperativeClause ?? "",
-        //     "cover_note_start_date" => $request->cover_note_start_date,
-        //     "cover_note_end_date" => $CoverNoteEndDate,
-        //     "cover_note_duration" => $request->cover_note_duration,
-        //     "payment_mode" => $paymentModeId,
-        //     "currency_code" => $currencyCodeId,
-        //     "exchange_rate" => $exchangeRate,
-        //     "total_premium_excluding_tax" => $TotalPremiumExcludingTax,
-        //     "total_premium_including_tax" => $TotalPremiumIncludingTax,
-        //     "commission_paid" => $CommisionPaid,
-        //     "commission_rate" => $CommisionRate,
-        //     "officer_name" => $OfficerName,
-        //     "officer_title" => $OfficerTitle,
-        //     "product_code" => $ProductCode,
-        //     "cover_note_reference" => otherUniqueID(),
-        //     "sum_insured" => $SumInsured,
-        //     "sum_insured_equivalent" => $SumInsuredEquivalent,
-        //     "premium_rate" => $PremiumRate,
-        //     "premium_before_discount" => $PremiumBeforeDiscount,
-        //     "premium_after_discount" => $PremiumAfterDiscount,
-        //     "premium_excluding_tax_equivalent" => $PremiumExcludingTaxEquivalent,
-        //     "premium_including_tax" => $PremiumIncludingTax,
-        //     "tax_code" => $TaxCode,
-        //     "is_tax_exempted" => $IsTaxExempted == "N" ? 0 : 1,
-        //     "tax_rate" => $TaxRate,
-        //     "tax_amount" => $TaxAmount,
-        //     "subject_matter_reference" => $SubjectMatterReference,
-        //     "subject_matter_description" => $SubjectMatterDescription,
-        //     "policy_holder_name" => $PolicyHolderName,
-        //     "policy_holder_birth_date" => $PolicyHolderBirthDate,
-        //     "policy_holder_type" => $PolicyHolderType,
-        //     "policy_holder_id_number" => $PolicyHolderIdNumber,
-        //     "policy_holder_id_type" => $PolicyHolderIdType,
-        //     "country_code" => $CountryCode,
-        //     "region" => $Region,
-        //     "district" => $District,
-        //     "street" => $Street,
-        //     "policy_holder_phone_number" => $PolicyHolderPhoneNumber,
-        //     "postal_address" => $PostalAddress,
-        //     "risk_code" => $RiskCode,
-        // ];
-
         try {
-
-
-
             $gen_data = generateXML('MotorCoverNoteRefReq', $data);
-
-            // return $gen_data;
 
             Log::channel('tiramisxml')->info($gen_data);
             $res = TiraRequest('https://41.59.86.178:8091/ecovernote/api/covernote/non-life/motor/v2/request', $gen_data);
 
-            // return $res;
-
             return response()->json([
                 'success' => 'TRA Response',
-                // 'quotation' => $quotation,
                 'response' => $res
             ]);
         } catch (\Exception $e) {
