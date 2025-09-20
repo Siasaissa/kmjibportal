@@ -368,7 +368,7 @@ class TiraController extends Controller
             return response()->json([
                 'error' => 'An error occurred while processing your request.',
                 'message' => $e->getMessage(),
-                'response' => $res
+                'response' => $res ?? null,
             ]);
         }
     }
@@ -578,85 +578,24 @@ public function RequestnonMotor(Request $request)
             'https://41.59.86.178:8091/ecovernote/api/covernote/non-life/other/v2/request',
             $gen_data
         );
+
         
-        Log::channel('tiramisxml')->info('TiraRequest response: ' . print_r($res, true));
-
-        Log::channel('tiramisxml')->info('Raw API Response: ' . json_encode($res));
-
-        $xmlstring = null;
-
-        if (is_array($res) && isset($res['body'])) {
-            $xmlstring = $res['body'];
-        } elseif (is_object($res) && method_exists($res, 'getBody')) {
-            $xmlstring = (string) $res->getBody();
-        }
-
-        if (!$xmlstring) {
-            throw new \Exception('No response body received from API');
-        }
-
-        $xml = simplexml_load_string($res['body'], "SimpleXMLElement", LIBXML_NOCDATA);
-        // Look for acknowledgment response (could be CoverNoteRefReqAck or MotorCoverNoteRefReqAck)
-        $ack = $xml->CoverNoteRefReqAck ?? $xml->MotorCoverNoteRefReqAck ?? null;
-
-        if ($ack) {
-            // Extract acknowledgment data
-            $acknowledgementId = (string) $ack->AcknowledgementId;
-            $requestId = (string) $ack->RequestId;
-            $statusCode = (string) $ack->AcknowledgementStatusCode;
-            $statusDesc = (string) $ack->AcknowledgementStatusDesc;
-            $msgSignature = (string) $xml->MsgSignature;
-
-            // Update quotation with acknowledgment data
-            $quotation->update([
-                'acknowledgement_id' => $acknowledgementId,
-                'request_id' => $requestId,
-                'ack_status_code' => $statusCode,
-                'ack_status_desc' => $statusDesc, // Fixed: was 'ack_status_description' in your comment
-                'msg_signature' => $msgSignature,
-            ]);
-
-            Log::channel('tiramisxml')->info('Acknowledgment data saved: ' . json_encode([
-                'acknowledgement_id' => $acknowledgementId,
-                'request_id' => $requestId,
-                'ack_status_code' => $statusCode,
-                'ack_status_desc' => $statusDesc,
-            ]));
-
-            return response()->json([
-                'success' => 'Quotation created and acknowledgment received successfully',
-                'quotation' => $quotation->fresh(), // Get updated quotation data
-                'acknowledgment' => [
-                    'acknowledgement_id' => $acknowledgementId,
-                    'request_id' => $requestId,
-                    'status_code' => $statusCode,
-                    'status_description' => $statusDesc,
-                    'msg_signature' => $msgSignature,
-                ]
-            ]);
-        } else {
-            // No acknowledgment found in response
-            Log::channel('tiramisxml')->warning('No acknowledgment found in XML response: ' . $xmlstring);
-            
-            return response()->json([
-                'warning' => 'Quotation created but no acknowledgment received',
-                'quotation' => $quotation,
-                'raw_response' => $xmlstring,
-            ]);
-        }
-
+        return response()->json([
+            'success' => 'Quotation created successfully',
+            'quotation' => $quotation,
+            'response' => $res,
+        ]);
     } catch (\Exception $e) {
-        Log::channel('tiramisxml')->error('Error in RequestnonMotor: ' . $e->getMessage());
-        Log::channel('tiramisxml')->error('Stack trace: ' . $e->getTraceAsString());
+        Log::channel('tiramisxml')->error('Error: ' . $e->getMessage());
+        Log::channel('tiramisxml')->error('Stack trace: ' . $e->getTraceAsString());   
 
         return response()->json([
             'error' => 'An error occurred while processing your request.',
             'message' => $e->getMessage(),
             'response' => $res ?? null,
         ], 500);
-    }
 }
-
+}
 
 
 
@@ -1307,16 +1246,16 @@ public function RequestnonMotor(Request $request)
                     'EngineNumber' => $EngineNumber,
                     'EngineCapacity' => $EngineCapacity,
                     'FuelUsed' => $FuelUsed,
-                    'NumberOfAxles' => $NumberOfAxles,
-                    'AxleDistance' => $AxleDistance,
-                    'SittingCapacity' => $SittingCapacity,
-                    'YearOfManufacture' => $YearOfManufacture,
-                    'TareWeight' => $TareWeight,
-                    'GrossWeight' => $GrossWeight,
-                    'MotorUsage' => $MotorUsage,
-                    'OwnerName' => $OwnerName,
-                    'OwnerCategory' => $OwnerCategory,
-                    'OwnerAddress' => $OwnerAddress,
+                    //'NumberOfAxles' => $NumberOfAxles,
+                    //'AxleDistance' => $AxleDistance,
+                    //'SittingCapacity' => $SittingCapacity,
+                    //'YearOfManufacture' => $YearOfManufacture,
+                    //'TareWeight' => $TareWeight,
+                    //'GrossWeight' => $GrossWeight,
+                    //'MotorUsage' => $MotorUsage,
+                    //'OwnerName' => $OwnerName,
+                    //'OwnerCategory' => $OwnerCategory,
+                    //'OwnerAddress' => $OwnerAddress,
                 ],
 
             ],
@@ -1380,7 +1319,7 @@ public function RequestnonMotor(Request $request)
             "color" => $Color,
             "engine_number" => $EngineNumber,
             "engine_capacity" => $EngineCapacity,
-            "fuel_used" => $fuel_used,
+            //"fuel_used" => $fuel_used,
         ];
         try {
 
