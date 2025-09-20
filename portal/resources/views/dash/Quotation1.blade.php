@@ -193,7 +193,7 @@
             @endif
             
             <!-- Form -->
-            <form id="quotationForm" method="post" action="{{ route('quotations.store') }}" enctype="multipart/form-data"> 
+            <form method="post" action="{{ route('quotation.store') }}" enctype="multipart/form-data"> 
               @csrf
               <!-- Hidden fields for product information -->
               <input type="hidden" name="coverage_id" value="{{ $coverageId }}">
@@ -332,9 +332,9 @@
                     <label class="form-label">Payment Mode</label>
                     <select class="form-select" name="payment_mode_id">
                       <option value="">Select Payment Mode</option>
-                      <option value="Cash">CASH</option>
-                      <option value="Cheque">CHEQUE</option>
-                      <option value="EFT"></option>
+                      <option value="1">CASH</option>
+                      <option value="2">CHEQUE</option>
+                      <option value="3"></option>
                     </select>
                   </div>
 
@@ -378,7 +378,7 @@
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Premium Before Discount</label>
-                    <input class="form-control" name="premium_before_discount" type="number" step="0.01" readonly>
+                    <input class="form-control" name="premium_before_discount" type="number" step="0.01" >
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Discount Amount</label>
@@ -386,23 +386,27 @@
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Premium After Discount</label>
-                    <input class="form-control" name="premium_after_discount" type="number" step="0.01" readonly>
+                    <input class="form-control" name="premium_after_discount" type="number" step="0.01" >
                   </div>
                   <div class="col-md-6">
-                    <label class="form-label">Tax Rate (%)</label>
-                    <input class="form-control" name="tax_rate" type="number" step="0.01" value="18" onchange="calculatePremium()">
+                    <label class="form-label">Tax Rate </label>
+                    <input class="form-control" name="tax_rate" type="number" step="0.01" value="0.18" onchange="calculatePremium()">
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Tax Amount</label>
-                    <input class="form-control" name="tax_amount" type="number" step="0.01" readonly>
+                    <input class="form-control" name="tax_amount" type="number" step="0.01" >
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Total Premium Including Tax</label>
-                    <input class="form-control" name="total_premium_including_tax" type="number" step="0.01" readonly>
+                    <input class="form-control" name="total_premium_including_tax" type="number" step="0.01" >
+                  </div>
+                   <div class="col-md-6">
+                    <label class="form-label">Premium Including Tax</label>
+                    <input class="form-control" name="premium_including_tax" type="number" step="0.01" value="78000">
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Total Premium Excluding Tax</label>
-                    <input class="form-control" name="total_premium_excluding_tax" type="number" step="0.01" readonly>
+                    <input class="form-control" name="total_premium_excluding_tax" type="number" step="0.01" >
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Commission Rate (%)</label>
@@ -410,7 +414,7 @@
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Commission Paid</label>
-                    <input class="form-control" name="commission_paid" type="number" step="0.01" readonly>
+                    <input class="form-control" name="commission_paid" type="number" step="0.01" >
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Sum Insured Equivalent</label>
@@ -422,7 +426,7 @@
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Tax Code</label>
-                    <input class="form-control" name="tax_code" value="VAT">
+                    <input class="form-control" name="tax_code" value="VAT-MAINLAND">
                   </div>
                   <div class="col-md-6 form-check mt-4 pt-3">
                     <input type="hidden" name="is_tax_exempted" value="N">
@@ -480,7 +484,8 @@
                   <div class="col-12 mb-4">
                     <label for="fileUpload" class="form-label fw-semibold mb-2">Supporting Documents</label>
                     <div class="file-upload-card border rounded-3 p-4 position-relative" id="dropZone">
-                      <input type="file" class="file-upload-input d-none" id="fileUpload" multiple accept=".pdf,.jpg,.jpeg,.png">
+                      <input type="file" class="file-upload-input d-none" id="fileUpload" 
+                              accept=".pdf,.jpg,.jpeg,.png" name="uploads">
                       <label for="fileUpload" class="file-upload-label d-flex flex-column align-items-center justify-content-center text-center cursor-pointer py-4">
                         <div class="file-upload-icon bg-light rounded-circle p-3 mb-3">
                           <i class="bi bi-cloud-arrow-up fs-4 text-primary" id="uploadIcon"></i>
@@ -495,7 +500,7 @@
 
                   <div class="col-12">
                     <label class="form-label">Additional Notes</label>
-                    <textarea class="form-control" name="additional_notes" rows="3" placeholder="Any special instructions or comments..."></textarea>
+                    <textarea class="form-control"  rows="3" placeholder="Any special instructions or comments..." name="description"></textarea>
                   </div>
                   <div class="col-12">
                     <div class="form-check">
@@ -673,7 +678,7 @@
       if (startDate && duration) {
         const start = new Date(startDate);
         const endDate = new Date(start);
-        endDate.setMonth(start.getMonth() + parseInt(duration));
+        endDate.setMonth(start.getMonth() + parseInt(duration) - 1);
         
         // Format date as YYYY-MM-DD
         const formattedDate = endDate.toISOString().split('T')[0];
@@ -722,7 +727,7 @@
       if (isTaxExempted) {
         document.querySelector('input[name="tax_rate"]').value = 0;
       } else {
-        document.querySelector('input[name="tax_rate"]').value = 18;
+        document.querySelector('input[name="tax_rate"]').value = 0.18;
       }
       
       calculatePremium();

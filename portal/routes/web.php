@@ -114,6 +114,9 @@ Route::post('/receipts/store', [ReceiptController::class, 'store'])->name('recei
 
      Route::post('quotations/store', [TiraController::class, 'requestNonMotorCovertes'])->name('quotations.store');
 
+     //my testing to install
+     Route::post('/quotation/store', [TiraController::class, 'RequestnonMotor'])->name('quotation.store');
+
     /*
     |--------------------------------------------------------------------------
     | Autocomplete
@@ -123,10 +126,9 @@ Route::get('/clients/autocomplete', [CustomerController::class, 'autocomplete'])
     ->name('clients.autocomplete');
 
 
-
 });
 
-
+Route::get('dash/covernote/{id}.pdf', [CustomerController::class, 'covernote'])->name('covernote.pdf');
 
 
 

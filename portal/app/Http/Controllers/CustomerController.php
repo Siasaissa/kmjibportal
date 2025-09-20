@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use App\Models\Quotation;
+use PDF;
+
 class CustomerController extends Controller
 {
     public function create()
@@ -111,5 +114,20 @@ public function autocomplete(Request $request)
                         ->get();
     return response()->json($clients);
 }
+
+
+
+
+public function covernote($id)
+{
+    $covernote = Quotation::findOrFail($id);
+
+    $pdf = PDF::loadView('dash.covernote', compact('covernote'));
+
+    return $pdf->stream("motor-cover-note-{$covernote->cover_note_reference}.pdf");
+}
+
+
+
 
 }

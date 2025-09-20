@@ -81,30 +81,87 @@
                     </div>
                     <div class="card-body pt-6">
                         <!--begin::Table container-->
-                        <!--<div class="table-responsive">
-                            <!--begin::Table
+                        <div class="table-responsive">
+                            <!--begin::Table-->
                             <table class="table table align-items-center border-danger"
                                 style=".border-light-danger {border-color: #f8d7da !important; } font-family: Geneva !important; "
                                 id="datatable1">
-                                <!--begin::Table head
-                                <thead>
+                                <!--begin::Table head-->
+                            <thead>
                                     <tr class="fs-5 fw-bold text-dark border-bottom-2  text-center">
                                         <th>S/No</th>
-                                        <th>Branch</th>
-                                        <th>Date</th>
-                                        <th>Client Name</th>
-                                        <th>Cover Period</th>
-                                        <th>Insurer Name</th>
-                                        <th>Payable</th>
-                                        <th>Received</th>
-                                        <th>Status</th>
+                                        <th>Sale Point Code</th>
+                                        <th>Cover note Description</th>
+                                        <th>Cover note start dat</th>
+                                        <th>Cover note end date</th>
+                                        <th>Payment Mode</th>
+                                        <th>Currency Code</th>
+                                        <th>Officer Name</th>
                                         <th>Actions</th>
+                                        
                                     </tr>
                                 </thead>
                                 <!--end::Table head-->
 
-                                <!--begin::Table body
-                                <tbody>
+                            <!--begin::Table body-->
+                            <tbody>
+                                  
+                                        @foreach($quotations as $quotation)
+                                            <tr class=" fs-6  text-center min-w-900px text-wrap">
+                                                <td>{{ $loop->iteration  }}</td>
+                                                <td>{{ $quotation->sale_point_code }}</td>
+                                                <td>{{ $quotation->cover_note_desc }}</td>
+                                                <td>{{ $quotation->cover_note_start_date }}</td>
+                                                <td>{{ $quotation->cover_note_end_date }} </td>
+                                                <td>{{ $quotation->payment_mode }}</td>
+                                                <td>{{ $quotation->currency_code }}</td>
+                                                <td>{{ $quotation->officer_name }}</td>
+
+                                                <!--<td class="fs-6 text-center">
+                                                    @if($quotation->status == 0)
+
+                                                        <span
+                                                            class="badge border border-warning text-success d-inline-block text-center"
+                                                            style="width: auto; color: orange !important;">
+                                                            Awaiting receipt
+                                                        </span>
+                                                    @elseif($quotation->status == 1)
+                                                        <span
+                                                            class="badge border border-success text-success d-inline-block text-center"
+                                                            style="width: auto; color: green !important;">
+                                                            Risknote Issued
+                                                        </span>
+                                                    @endif
+                                                </td>-->
+                           <td class="text-center gap-3 d-inline-block">        
+                                                    <a href="{{ route('covernote.pdf', $quotation->id) }}">
+                                                        <i class="bi bi-eye fs-6 me-2 cursor-pointer text-success"></i>
+                                                    </a>
+
+
+
+                                                    <i class="bi bi-pencil-square fs-6 me-2 ms-2 cursor-pointer"
+                                                        style="color: orange !important;" data-bs-toggle="modal"
+                                                        data-bs-target="#editModal"></i>
+                                                    <i class="bi bi-trash fs-6 text-danger ms-2 cursor-pointer"
+                                                        style="color: #dc3545 !important;" data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal"></i>
+                                                   <!-- @if($quotation->status == 0)
+                                                        <i class="bi bi-receipt fs-6 text-success ms-2 cursor-pointer"
+                                                            style="color: green !important;" data-bs-toggle="modal"
+                                                            data-bs-target="#captureReceiptModal{{ $quotation->id }}"></i>
+
+                                                    @endif-->
+                                                </td>
+                             </tr>
+                                        @endforeach
+                                    @if(!$quotations || $quotations->isEmpty())
+                                        <tr>
+                                            <td colspan="10" class="text-center">No risknote found.</td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                                <!--<tbody>
                                     @if($quotations && $quotations->count())
                                         @foreach($quotations as $quotation)
                                             <tr class=" fs-6  text-center min-w-900px text-wrap">
@@ -164,12 +221,12 @@
                                 <!--end::Table body
                             </table>
                         </div>-->
+                        </div>
                     </div>
-                </div>
 
-            </div>
-            <!-- Modal Start -->
-            <!--@if($quotations)
+                </div>
+                <!-- Modal Start -->
+                <!--@if($quotations)
                 @foreach($quotations as $quotation)
                     <div class="modal fade" id="viewModal{{ $quotation->id }}" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered modal-md-custom">
@@ -231,480 +288,88 @@
             @endif
 
             <!-- EDIT MODAL -->
-            <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header bg-danger text-white">
-                            <h5 class="modal-title" id="editModalLabel">Edit Quotation Details</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
-                        </div>
-                        <form id="editForm">
-                            <div class="modal-body row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label">Branch Name</label>
-                                    <input type="text" class="form-control" value="Main Branch">
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label">Client Name</label>
-                                    <input type="text" class="form-control" value="Ahmed Siasa">
-                                </div>
-
-                                <div class="col-md-3">
-                                    <label class="form-label">Cover Period</label>
-                                    <input type="Date" class="form-control" value="27-jul-2025">
-                                    <input type="Date" class="form-control" value="26-jul-2026">
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label">Insurer Name</label>
-                                    <input type="text" class="form-control"
-                                        placeholder="Strategic Insurance (T) Limited">
-                                </div>
-
-                            </div>
-                            <div class="modal-footer">
-                                <button type="submit" class="btn btn-primary text-white ">Save Changes</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <!--end of edit modal-->
-            <!--insurance modal-->
-            <!-- Replace the existing modal form -->
-            <div class="modal fade" id="InsuranceType" tabindex="-1" aria-labelledby="InsuranceTypeLabel"
-                aria-hidden="true">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header bg-danger text-white">
-                            <h5 class="modal-title">SELECT INSURANCE TYPE</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
-                        </div>
-<form action="{{ route('Quotation1.create') }}" method="GET">
-    <div class="modal-body row g-3">
-        <div class="col-md-12">
-            <label class="form-label">Insurance Type:</label>
-            <select class="form-select" id="insuranceSelect" name="insurance_id" required>
-                <option value="">-- Select Insurance --</option>
-                @foreach($insurance as $ins)
-                    <option value="{{ $ins->id }}">{{ $ins->name }}</option>
-                @endforeach
-            </select>
-        </div>
-
-        <div class="col-md-12 mt-3">
-            <label class="form-label">Product:</label>
-            <select class="form-select" id="productSelect" name="product_id" required>
-                <option value="">-- Select Product --</option>
-            </select>
-        </div>
-
-        <div class="col-md-12 mt-3">
-            <label class="form-label">Coverage:</label>
-            <select class="form-select" id="coverageSelect" name="coverage_id" required>
-                <option value="">-- Select Coverage --</option>
-            </select>
-        </div>
-
-        <div class="modal-footer">
-            <button type="submit" class="btn btn-primary text-white">Proceed</button>
-        </div>
-    </div>
-</form>
-
-
-                    </div>
-                </div>
-            </div>
-
-            <script src="{{ asset('assets/js/scripts.bundle.js') }}"></script>
-            <!--end::Global Javascript Bundle-->
-
-            <!--begin::Vendors Javascript(used for this page only)-->
-            <script src="../assets/plugins/custom/datatables/datatables.bundle.js"></script>
-            <script src="../assets/plugins/custom/vis-timeline/vis-timeline.bundle.js"></script>
-            <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
-            <script src="https://cdn.amcharts.com/lib/5/xy.js"></script>
-            <script src="https://cdn.amcharts.com/lib/5/percent.js"></script>
-            <script src="https://cdn.amcharts.com/lib/5/radar.js"></script>
-            <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
-            <!--end::Vendors Javascript-->
-
-            <!--begin::Custom Javascript(used for this page only)-->
-            <script src="../assets/js/widgets.bundle.js"></script>
-            <script src="../assets/js/custom/apps/chat/chat.js"></script>
-            <script src="../assets/js/custom/utilities/modals/create-campaign.js"></script>
-            <script src="../assets/js/custom/utilities/modals/users-search.js"></script>
-            <!--begin::Global Javascript Bundle(mandatory for all pages)-->
-            <script src="../assets/plugins/global/plugins.bundle.js"></script>
-            <!--end::Global Javascript Bundle-->
-
-            <!--begin::Vendors Javascript(used for this page only)-->
-            <script src="../assets/plugins/custom/vis-timeline/vis-timeline.bundle.js"></script>
-            <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
-            <script src="https://cdn.amcharts.com/lib/5/xy.js"></script>
-            <script src="https://cdn.amcharts.com/lib/5/percent.js"></script>
-            <script src="https://cdn.amcharts.com/lib/5/radar.js"></script>
-            <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
-            <!--end::Vendors Javascript-->
-
-            <!--begin::Custom Javascript(used for this page only)-->
-            <script src="../assets/js/widgets.bundle.js"></script>
-            <script src="../assets/js/custom/apps/chat/chat.js"></script>
-            <script src="../assets/js/custom/utilities/modals/create-campaign.js"></script>
-            <script src="../assets/js/custom/utilities/modals/users-search.js"></script>
-
-
-            <!-- Add before closing </body> -->
-            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-            <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-            <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-
-
-            <script>
-                $(document).ready(function () {
-
-                    // Form submission handlers
-                    $('#editForm').on('submit', function (e) {
-                        e.preventDefault();
-                        $('#editModal').modal('hide');
-                        showNotification('Quotation has been updated successfully', 'success');
-                    });
-
-                    $('#confirmDelete').on('click', function () {
-                        $('#deleteModal').modal('hide');
-                        showNotification('Quotation has been deleted successfully', 'danger');
-                    });
-
-                    $('#addBranchForm').on('submit', function (e) {
-                        e.preventDefault();
-                        $('#addBranchModal').modal('hide');
-                        showNotification('Product has been added successfully', 'success');
-                        // Reset form after submission
-                        this.reset();
-                    });
-
-                    // Toast notification function
-                    function showNotification(message, type) {
-                        const toastContainer = document.getElementById('toast-container');
-
-                        const toast = document.createElement('div');
-                        toast.className = `toast show align-items-center custom-toast toast-${type} bg-light border-0`;
-                        toast.setAttribute('role', 'alert');
-                        toast.setAttribute('aria-live', 'assertive');
-                        toast.setAttribute('aria-atomic', 'true');
-
-                        // Set icon based on type
-                        let icon = 'bi-info-circle';
-                        if (type === 'success') icon = 'bi-check-circle';
-                        if (type === 'danger') icon = 'bi-trash';
-                        if (type === 'warning') icon = 'bi-exclamation-triangle';
-
-                        toast.innerHTML = `
-                    <div class="d-flex align-items-center px-3 py-2">
-                        <i class="bi ${icon} toast-icon text-${type}"></i>
-                        <div class="toast-body">${message}</div>
-                        <button type="button" class="btn-close ms-auto me-2" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                `;
-
-                        toastContainer.appendChild(toast);
-
-                        // Initialize Bootstrap Toast
-                        const bsToast = new bootstrap.Toast(toast, {
-                            autohide: true,
-                            delay: 3000
-                        });
-                        bsToast.show();
-
-                        // Remove toast after it's hidden
-                        toast.addEventListener('hidden.bs.toast', () => {
-                            toast.remove();
-                        });
-
-                        // Allow clicking to dismiss
-                        toast.addEventListener('click', () => {
-                            bsToast.hide();
-                        });
-                    }
-                });
-            </script>
-            @if(session('success'))
-                <script>
-                    document.addEventListener('DOMContentLoaded', function () {
-                        showNotification(@json(session('success')), 'success');
-                    });
-
-                    function showNotification(message, type) {
-                        const toastContainer = document.getElementById('toast-container');
-
-                        const toast = document.createElement('div');
-                        toast.className = `toast show align-items-center custom-toast toast-${type} bg-light border-0`;
-                        toast.setAttribute('role', 'alert');
-                        toast.setAttribute('aria-live', 'assertive');
-                        toast.setAttribute('aria-atomic', 'true');
-
-                        // Set icon based on type
-                        let icon = 'bi-info-circle';
-                        if (type === 'success') icon = 'bi-check-circle';
-                        if (type === 'danger') icon = 'bi-trash';
-                        if (type === 'warning') icon = 'bi-exclamation-triangle';
-
-                        toast.innerHTML = `
-                                <div class="d-flex align-items-center px-3 py-2">
-                                    <i class="bi ${icon} toast-icon text-${type}"></i>
-                                    <div class="toast-body">${message}</div>
-                                    <button type="button" class="btn-close ms-auto me-2" data-bs-dismiss="toast" aria-label="Close"></button>
-                                </div>
-                            `;
-
-                        toastContainer.appendChild(toast);
-
-                        // Initialize Bootstrap Toast
-                        const bsToast = new bootstrap.Toast(toast, {
-                            autohide: true,
-                            delay: 3000
-                        });
-                        bsToast.show();
-
-                        // Remove toast after it's hidden
-                        toast.addEventListener('hidden.bs.toast', () => {
-                            toast.remove();
-                        });
-
-                        // Allow clicking to dismiss
-                        toast.addEventListener('click', () => {
-                            bsToast.hide();
-                        });
-                    }
-                </script>
-            @endif
-
-
-
-        </div>
-
-        <div class="modal fade" id="actions1Modal" tabindex="-1" aria-labelledby="actions1ModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header bg-danger text-white">
-                        <h5 class="modal-title" id="actions1ModalLabel">Actions</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row g-4">
-
-                            <div class="col-md-3">
-                                <a href="#" class="text-decoration-none">
-                                    <div
-                                        class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
-                                        Print Quotation
-                                    </div>
-                                </a>
-                            </div>
-
-                            <div class="col-md-3">
-                                <a href="#" class="text-decoration-none">
-                                    <div
-                                        class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
-                                        Digital Payment
-                                    </div>
-                                </a>
-                            </div>
-
-                            <div class="col-md-3">
-                                <a href="#" class="text-decoration-none">
-                                    <div
-                                        class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
-                                        Print Profoma
-                                    </div>
-                                </a>
-                            </div>
-
-                            <div class="col-md-3">
-                                <a href="#" class="text-decoration-none">
-                                    <div
-                                        class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
-                                        Attach Document
-                                    </div>
-                                </a>
-                            </div>
-
-                            <div class="col-md-3">
-                                <a href="{{asset('assets/dash/board_files/T903DSF.pdf')}}" class="text-decoration-none">
-                                    <div class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center"
-                                        id="downloadBtn">
-                                        Print Risknote
-                                    </div>
-                                </a>
-                            </div>
-
-                            <div class="col-md-3">
-                                <a href="#" class="text-decoration-none">
-                                    <div
-                                        class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
-                                        Print Proposal
-                                    </div>
-                                </a>
-                            </div>
-
-                            <div class="col-md-3">
-                                <a href="#" class="text-decoration-none">
-                                    <div
-                                        class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
-                                        Print Receipt
-                                    </div>
-                                </a>
-                            </div>
-
-                            <div class="col-md-3">
-                                <a href="#" class="text-decoration-none">
-                                    <div
-                                        class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
-                                        Email Quote
-                                    </div>
-                                </a>
-                            </div>
-
-                        </div>
-                    </div>
-
-
-
-                    <div class="modal-footer">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header bg-danger text-white">
-                        <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        Are you sure you want to delete <strong>Ahmed Siasa Issa</strong>'s Quotation? This action
-                        cannot be
-                        undone.
-                    </div>
-                    <div class="modal-footer">
-
-                        <button type="button" class="btn btn-primary text-white" id="confirmDelete">Delete</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        @if($quotations)
-            @foreach($quotations as $quotation)
-                <div class="modal fade" id="captureReceiptModal{{ $quotation->id }}" tabindex="-1"
-                    aria-labelledby="addAgentModalLabel" aria-hidden="true">
+                <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel"
+                    aria-hidden="true">
                     <div class="modal-dialog modal-lg">
                         <div class="modal-content">
-
                             <div class="modal-header bg-danger text-white">
-                                <h5 class="modal-title" id="addBranchModalLabel">Capture Receipt</h5>
-                                <h6 class="modal-title ms-5" id="addBranchModalLabel">ControlNb: SPXZ1864000</h6>
+                                <h5 class="modal-title" id="editModalLabel">Edit Quotation Details</h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                                     aria-label="Close"></button>
                             </div>
-
-                            <form action="{{ route('receipts.store') }}" method="POST">
-                                @csrf
-                                <div class="modal-body row g-3 px-4">
-                                    <div class="col-md-12">
-                                        <input type="hidden" name="quotation_id" value="{{ $quotation->id }}">
+                            <form id="editForm">
+                                <div class="modal-body row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Branch Name</label>
+                                        <input type="text" class="form-control" value="Main Branch">
                                     </div>
 
                                     <div class="col-md-6">
-                                        <label class="form-label">Premium</label>
-                                        <input type="number" step="0.01" name="premium_amount" class="form-control"
-                                            placeholder="e.g. 1,000,000.00" value="{{ old('premium_amount') }}">
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <label class="form-label">Premium Currency</label>
-                                        <input type="text" name="premium_currency" class="form-control" placeholder="e.g. TZS"
-                                            value="{{ old('premium_currency') }}">
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <label class="form-label">Mode</label>
-                                        <select name="payment_mode" class="form-select">
-                                            <option value="" disabled selected>Please Select</option>
-                                            <option value="Mode1" {{ old('payment_mode') == 'Mode1' ? 'selected' : '' }}>Mode1
-                                            </option>
-                                            <option value="Mode2" {{ old('payment_mode') == 'Mode2' ? 'selected' : '' }}>Mode2
-                                            </option>
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <label class="form-label">Reference No</label>
-                                        <input type="text" name="reference_no" class="form-control"
-                                            placeholder="e.g. 1111111121212" value="{{ old('reference_no') }}">
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <label class="form-label">Issuer Bank</label>
-                                        <select name="issuer_bank" class="form-select">
-                                            <option value="" disabled selected>Please Select</option>
-                                            <option value="Bank1" {{ old('issuer_bank') == 'Bank1' ? 'selected' : '' }}>Bank1
-                                            </option>
-                                            <option value="Bank2" {{ old('issuer_bank') == 'Bank2' ? 'selected' : '' }}>Bank2
-                                            </option>
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <label class="form-label">Collecting Bank</label>
-                                        <select name="collecting_bank" class="form-select">
-                                            <option value="" disabled selected>Please Select</option>
-                                            <option value="Bank1" {{ old('collecting_bank') == 'Bank1' ? 'selected' : '' }}>Bank1
-                                            </option>
-                                            <option value="Bank2" {{ old('collecting_bank') == 'Bank2' ? 'selected' : '' }}>Bank2
-                                            </option>
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-4">
-                                        <label class="form-label">Amount</label>
-                                        <input type="number" step="0.01" name="amount" class="form-control"
-                                            placeholder="e.g. 1,000,000.00" value="{{ old('amount') }}">
-                                    </div>
-
-                                    <div class="col-md-2">
-                                        <label class="form-label">Currency</label>
-                                        <select name="currency" class="form-select">
-                                            <option value="TZS" {{ old('currency') == 'TZS' ? 'selected' : '' }}>TZS</option>
-                                            <option value="USD" {{ old('currency') == 'USD' ? 'selected' : '' }}>USD</option>
-                                            <option value="EUR" {{ old('currency') == 'EUR' ? 'selected' : '' }}>EUR</option>
-                                        </select>
+                                        <label class="form-label">Client Name</label>
+                                        <input type="text" class="form-control" value="Ahmed Siasa">
                                     </div>
 
                                     <div class="col-md-3">
-                                        <label class="form-label">Exchange Rate</label>
-                                        <input type="number" step="0.0001" name="exchange_rate" class="form-control"
-                                            placeholder="e.g. 1.00" value="{{ old('exchange_rate', 1) }}">
+                                        <label class="form-label">Cover Period</label>
+                                        <input type="Date" class="form-control" value="27-jul-2025">
+                                        <input type="Date" class="form-control" value="26-jul-2026">
                                     </div>
 
-                                    <div class="col-md-3">
-                                        <label class="form-label">Equivalent Amount</label>
-                                        <input type="number" step="0.01" name="equivalent_amount" class="form-control"
-                                            placeholder="e.g. 1.00" value="{{ old('equivalent_amount') }}">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Insurer Name</label>
+                                        <input type="text" class="form-control"
+                                            placeholder="Strategic Insurance (T) Limited">
                                     </div>
+
                                 </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary text-white ">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
 
-                                <div class="modal-footer px-4">
-                                    <button type="submit" class="btn btn-primary text-white">Capture</button>
+                <!--end of edit modal-->
+                <div class="modal fade" id="InsuranceType" tabindex="-1" aria-labelledby="InsuranceTypeLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title">SELECT INSURANCE TYPE</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <form action="{{ route('Quotation1.create') }}" method="GET">
+                                <div class="modal-body row g-3">
+                                    <div class="col-md-12">
+                                        <label class="form-label">Insurance Type:</label>
+                                        <select class="form-select" id="insuranceSelect" name="insurance_id" required>
+                                            <option value="">-- Select Insurance --</option>
+                                            @foreach($insurance as $ins)
+                                                <option value="{{ $ins->id }}">{{ $ins->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-12 mt-3">
+                                        <label class="form-label">Product:</label>
+                                        <select class="form-select" id="productSelect" name="product_id" required>
+                                            <option value="">-- Select Product --</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-12 mt-3">
+                                        <label class="form-label">Coverage:</label>
+                                        <select class="form-select" id="coverageSelect" name="coverage_id" required>
+                                            <option value="">-- Select Coverage --</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-primary text-white">Proceed</button>
+                                    </div>
                                 </div>
                             </form>
 
@@ -712,8 +377,404 @@
                         </div>
                     </div>
                 </div>
-            @endforeach
-        @endif
+
+                <script src="{{ asset('assets/js/scripts.bundle.js') }}"></script>
+                <!--end::Global Javascript Bundle-->
+
+                <!--begin::Vendors Javascript(used for this page only)-->
+                <script src="../assets/plugins/custom/datatables/datatables.bundle.js"></script>
+                <script src="../assets/plugins/custom/vis-timeline/vis-timeline.bundle.js"></script>
+                <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+                <script src="https://cdn.amcharts.com/lib/5/xy.js"></script>
+                <script src="https://cdn.amcharts.com/lib/5/percent.js"></script>
+                <script src="https://cdn.amcharts.com/lib/5/radar.js"></script>
+                <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+                <!--end::Vendors Javascript-->
+
+                <!--begin::Custom Javascript(used for this page only)-->
+                <script src="../assets/js/widgets.bundle.js"></script>
+                <script src="../assets/js/custom/apps/chat/chat.js"></script>
+                <script src="../assets/js/custom/utilities/modals/create-campaign.js"></script>
+                <script src="../assets/js/custom/utilities/modals/users-search.js"></script>
+                <!--begin::Global Javascript Bundle(mandatory for all pages)-->
+                <script src="../assets/plugins/global/plugins.bundle.js"></script>
+                <!--end::Global Javascript Bundle-->
+
+                <!--begin::Vendors Javascript(used for this page only)-->
+                <script src="../assets/plugins/custom/vis-timeline/vis-timeline.bundle.js"></script>
+                <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+                <script src="https://cdn.amcharts.com/lib/5/xy.js"></script>
+                <script src="https://cdn.amcharts.com/lib/5/percent.js"></script>
+                <script src="https://cdn.amcharts.com/lib/5/radar.js"></script>
+                <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+                <!--end::Vendors Javascript-->
+
+                <!--begin::Custom Javascript(used for this page only)-->
+                <script src="../assets/js/widgets.bundle.js"></script>
+                <script src="../assets/js/custom/apps/chat/chat.js"></script>
+                <script src="../assets/js/custom/utilities/modals/create-campaign.js"></script>
+                <script src="../assets/js/custom/utilities/modals/users-search.js"></script>
+
+
+                <!-- Add before closing </body> -->
+                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+                <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+
+                <script>
+                    $(document).ready(function () {
+
+                        // Form submission handlers
+                        $('#editForm').on('submit', function (e) {
+                            e.preventDefault();
+                            $('#editModal').modal('hide');
+                            showNotification('Quotation has been updated successfully', 'success');
+                        });
+
+                        $('#confirmDelete').on('click', function () {
+                            $('#deleteModal').modal('hide');
+                            showNotification('Quotation has been deleted successfully', 'danger');
+                        });
+
+                        $('#addBranchForm').on('submit', function (e) {
+                            e.preventDefault();
+                            $('#addBranchModal').modal('hide');
+                            showNotification('Product has been added successfully', 'success');
+                            // Reset form after submission
+                            this.reset();
+                        });
+
+                        // Toast notification function
+                        function showNotification(message, type) {
+                            const toastContainer = document.getElementById('toast-container');
+
+                            const toast = document.createElement('div');
+                            toast.className = `toast show align-items-center custom-toast toast-${type} bg-light border-0`;
+                            toast.setAttribute('role', 'alert');
+                            toast.setAttribute('aria-live', 'assertive');
+                            toast.setAttribute('aria-atomic', 'true');
+
+                            // Set icon based on type
+                            let icon = 'bi-info-circle';
+                            if (type === 'success') icon = 'bi-check-circle';
+                            if (type === 'danger') icon = 'bi-trash';
+                            if (type === 'warning') icon = 'bi-exclamation-triangle';
+
+                            toast.innerHTML = `
+                    <div class="d-flex align-items-center px-3 py-2">
+                        <i class="bi ${icon} toast-icon text-${type}"></i>
+                        <div class="toast-body">${message}</div>
+                        <button type="button" class="btn-close ms-auto me-2" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                `;
+
+                            toastContainer.appendChild(toast);
+
+                            // Initialize Bootstrap Toast
+                            const bsToast = new bootstrap.Toast(toast, {
+                                autohide: true,
+                                delay: 3000
+                            });
+                            bsToast.show();
+
+                            // Remove toast after it's hidden
+                            toast.addEventListener('hidden.bs.toast', () => {
+                                toast.remove();
+                            });
+
+                            // Allow clicking to dismiss
+                            toast.addEventListener('click', () => {
+                                bsToast.hide();
+                            });
+                        }
+                    });
+                </script>
+                @if(session('success'))
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            showNotification(@json(session('success')), 'success');
+                        });
+
+                        function showNotification(message, type) {
+                            const toastContainer = document.getElementById('toast-container');
+
+                            const toast = document.createElement('div');
+                            toast.className = `toast show align-items-center custom-toast toast-${type} bg-light border-0`;
+                            toast.setAttribute('role', 'alert');
+                            toast.setAttribute('aria-live', 'assertive');
+                            toast.setAttribute('aria-atomic', 'true');
+
+                            // Set icon based on type
+                            let icon = 'bi-info-circle';
+                            if (type === 'success') icon = 'bi-check-circle';
+                            if (type === 'danger') icon = 'bi-trash';
+                            if (type === 'warning') icon = 'bi-exclamation-triangle';
+
+                            toast.innerHTML = `
+                                    <div class="d-flex align-items-center px-3 py-2">
+                                        <i class="bi ${icon} toast-icon text-${type}"></i>
+                                        <div class="toast-body">${message}</div>
+                                        <button type="button" class="btn-close ms-auto me-2" data-bs-dismiss="toast" aria-label="Close"></button>
+                                    </div>
+                                `;
+
+                            toastContainer.appendChild(toast);
+
+                            // Initialize Bootstrap Toast
+                            const bsToast = new bootstrap.Toast(toast, {
+                                autohide: true,
+                                delay: 3000
+                            });
+                            bsToast.show();
+
+                            // Remove toast after it's hidden
+                            toast.addEventListener('hidden.bs.toast', () => {
+                                toast.remove();
+                            });
+
+                            // Allow clicking to dismiss
+                            toast.addEventListener('click', () => {
+                                bsToast.hide();
+                            });
+                        }
+                    </script>
+                @endif
+
+
+
+            </div>
+
+            <div class="modal fade" id="actions1Modal" tabindex="-1" aria-labelledby="actions1ModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header bg-danger text-white">
+                            <h5 class="modal-title" id="actions1ModalLabel">Actions</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row g-4">
+
+                                <div class="col-md-3">
+                                    <a href="#" class="text-decoration-none">
+                                        <div
+                                            class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
+                                            Print Quotation
+                                        </div>
+                                    </a>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <a href="#" class="text-decoration-none">
+                                        <div
+                                            class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
+                                            Digital Payment
+                                        </div>
+                                    </a>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <a href="#" class="text-decoration-none">
+                                        <div
+                                            class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
+                                            Print Profoma
+                                        </div>
+                                    </a>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <a href="#" class="text-decoration-none">
+                                        <div
+                                            class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
+                                            Attach Document
+                                        </div>
+                                    </a>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <a href="{{asset('assets/dash/board_files/T903DSF.pdf')}}"
+                                        class="text-decoration-none">
+                                        <div class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center"
+                                            id="downloadBtn">
+                                            Print Risknote
+                                        </div>
+                                    </a>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <a href="#" class="text-decoration-none">
+                                        <div
+                                            class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
+                                            Print Proposal
+                                        </div>
+                                    </a>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <a href="#" class="text-decoration-none">
+                                        <div
+                                            class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
+                                            Print Receipt
+                                        </div>
+                                    </a>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <a href="#" class="text-decoration-none">
+                                        <div
+                                            class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
+                                            Email Quote
+                                        </div>
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+
+
+
+                        <div class="modal-footer">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header bg-danger text-white">
+                            <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to delete <strong>Ahmed Siasa Issa</strong>'s Quotation? This action
+                            cannot be
+                            undone.
+                        </div>
+                        <div class="modal-footer">
+
+                            <button type="button" class="btn btn-primary text-white" id="confirmDelete">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @if($quotations)
+                @foreach($quotations as $quotation)
+                    <div class="modal fade" id="captureReceiptModal{{ $quotation->id }}" tabindex="-1"
+                        aria-labelledby="addAgentModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+
+                                <div class="modal-header bg-danger text-white">
+                                    <h5 class="modal-title" id="addBranchModalLabel">Capture Receipt</h5>
+                                    <h6 class="modal-title ms-5" id="addBranchModalLabel">ControlNb: SPXZ1864000</h6>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+
+                                <form action="{{ route('receipts.store') }}" method="POST">
+                                    @csrf
+                                    <div class="modal-body row g-3 px-4">
+                                        <div class="col-md-12">
+                                            <input type="hidden" name="quotation_id" value="{{ $quotation->id }}">
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label class="form-label">Premium</label>
+                                            <input type="number" step="0.01" name="premium_amount" class="form-control"
+                                                placeholder="e.g. 1,000,000.00" value="{{ old('premium_amount') }}">
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label class="form-label">Premium Currency</label>
+                                            <input type="text" name="premium_currency" class="form-control"
+                                                placeholder="e.g. TZS" value="{{ old('premium_currency') }}">
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label class="form-label">Mode</label>
+                                            <select name="payment_mode" class="form-select">
+                                                <option value="" disabled selected>Please Select</option>
+                                                <option value="Mode1" {{ old('payment_mode') == 'Mode1' ? 'selected' : '' }}>Mode1
+                                                </option>
+                                                <option value="Mode2" {{ old('payment_mode') == 'Mode2' ? 'selected' : '' }}>Mode2
+                                                </option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label class="form-label">Reference No</label>
+                                            <input type="text" name="reference_no" class="form-control"
+                                                placeholder="e.g. 1111111121212" value="{{ old('reference_no') }}">
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label class="form-label">Issuer Bank</label>
+                                            <select name="issuer_bank" class="form-select">
+                                                <option value="" disabled selected>Please Select</option>
+                                                <option value="Bank1" {{ old('issuer_bank') == 'Bank1' ? 'selected' : '' }}>Bank1
+                                                </option>
+                                                <option value="Bank2" {{ old('issuer_bank') == 'Bank2' ? 'selected' : '' }}>Bank2
+                                                </option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label class="form-label">Collecting Bank</label>
+                                            <select name="collecting_bank" class="form-select">
+                                                <option value="" disabled selected>Please Select</option>
+                                                <option value="Bank1" {{ old('collecting_bank') == 'Bank1' ? 'selected' : '' }}>
+                                                    Bank1
+                                                </option>
+                                                <option value="Bank2" {{ old('collecting_bank') == 'Bank2' ? 'selected' : '' }}>
+                                                    Bank2
+                                                </option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label class="form-label">Amount</label>
+                                            <input type="number" step="0.01" name="amount" class="form-control"
+                                                placeholder="e.g. 1,000,000.00" value="{{ old('amount') }}">
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <label class="form-label">Currency</label>
+                                            <select name="currency" class="form-select">
+                                                <option value="TZS" {{ old('currency') == 'TZS' ? 'selected' : '' }}>TZS</option>
+                                                <option value="USD" {{ old('currency') == 'USD' ? 'selected' : '' }}>USD</option>
+                                                <option value="EUR" {{ old('currency') == 'EUR' ? 'selected' : '' }}>EUR</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label class="form-label">Exchange Rate</label>
+                                            <input type="number" step="0.0001" name="exchange_rate" class="form-control"
+                                                placeholder="e.g. 1.00" value="{{ old('exchange_rate', 1) }}">
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label class="form-label">Equivalent Amount</label>
+                                            <input type="number" step="0.01" name="equivalent_amount" class="form-control"
+                                                placeholder="e.g. 1.00" value="{{ old('equivalent_amount') }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="modal-footer px-4">
+                                        <button type="submit" class="btn btn-primary text-white">Capture</button>
+                                    </div>
+                                </form>
+
+
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            @endif
 </body>
 <script>
     document.getElementById('downloadBtn').addEventListener('click', function () {
@@ -740,43 +801,43 @@
 
 </script>
 <script>
-let lastCoverageId = null;
+    let lastCoverageId = null;
 
-document.getElementById('insuranceSelect').addEventListener('change', function () {
-    let insuranceId = this.value;
-    let productSelect = document.getElementById('productSelect');
-    let coverageSelect = document.getElementById('coverageSelect');
+    document.getElementById('insuranceSelect').addEventListener('change', function () {
+        let insuranceId = this.value;
+        let productSelect = document.getElementById('productSelect');
+        let coverageSelect = document.getElementById('coverageSelect');
 
-    productSelect.innerHTML = '<option value="">-- Select Product --</option>';
-    coverageSelect.innerHTML = '<option value="">-- Select Coverage --</option>';
+        productSelect.innerHTML = '<option value="">-- Select Product --</option>';
+        coverageSelect.innerHTML = '<option value="">-- Select Coverage --</option>';
 
-    if (insuranceId) {
-        fetch(`/insurance/${insuranceId}/products`)
-            .then(res => res.json())
-            .then(data => {
-                data.forEach(product => {
-                    productSelect.innerHTML += `<option value="${product.id}">${product.product_name}</option>`;
+        if (insuranceId) {
+            fetch(`/insurance/${insuranceId}/products`)
+                .then(res => res.json())
+                .then(data => {
+                    data.forEach(product => {
+                        productSelect.innerHTML += `<option value="${product.id}">${product.product_name}</option>`;
+                    });
                 });
-            });
-    }
-});
+        }
+    });
 
-document.getElementById('productSelect').addEventListener('change', function () {
-    let productId = this.value;
-    let coverageSelect = document.getElementById('coverageSelect');
-    coverageSelect.innerHTML = '<option value="">-- Select Coverage --</option>';
+    document.getElementById('productSelect').addEventListener('change', function () {
+        let productId = this.value;
+        let coverageSelect = document.getElementById('coverageSelect');
+        coverageSelect.innerHTML = '<option value="">-- Select Coverage --</option>';
 
-    if (productId) {
-        fetch(`/product/${productId}/coverages`)
-            .then(res => res.json())
-            .then(data => {
-                data.forEach((coverage, index) => {
-                    coverageSelect.innerHTML += `<option value="${coverage.id}">${coverage.risk_name}</option>`;
-                    if (index === data.length - 1) lastCoverageId = coverage.id; // capture last coverage ID
+        if (productId) {
+            fetch(`/product/${productId}/coverages`)
+                .then(res => res.json())
+                .then(data => {
+                    data.forEach((coverage, index) => {
+                        coverageSelect.innerHTML += `<option value="${coverage.id}">${coverage.risk_name}</option>`;
+                        if (index === data.length - 1) lastCoverageId = coverage.id; // capture last coverage ID
+                    });
                 });
-            });
-    }
-});
+        }
+    });
 
 </script>
 

@@ -57,6 +57,13 @@ class Quotation extends Model
         'street',
         'policy_holder_phone_number',
         'postal_address',
+        'description',
+        'uploads',
+        'acknowledgement_id',
+        'acknowledgement_status_code',
+        'acknowledgement_status_description',
+        'request_id',
+        'msg_signature'
     ];
 
     // Relationships

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Coverage;
 use App\Models\InsuranceQuotation;
 use App\Models\products;
+use App\Models\Quotation;
 use App\Models\QuotationDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -274,13 +275,14 @@ public function create(Request $request)
 
     public function index()
 {
-    // Fetch all insurance quotations (you can paginate if needed)
-    $quotations = InsuranceQuotation::all();
+    // Fetch all quotations (you can paginate if needed)
+    $quotations = Quotation::all();
     $insurance = Insurance::all();
 
     // Pass to the view
     return view('dash.Quotation', compact('quotations','insurance'));
 }
+
 
 public function getProducts($insuranceId)
 {
