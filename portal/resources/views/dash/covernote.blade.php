@@ -243,13 +243,13 @@
     <div class="document-content">
         <div class="header">
             <div class="logo">
-                <img src="{{ asset('assets/dash/logo.png') }}" alt="Company Logo" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.style.display='none'; this.parentNode.innerHTML='LOGO';">
+                <img src="file://{{ public_path('assets/dash/board_files/logo.png') }}" alt="Company Logo" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.style.display='none'; this.parentNode.innerHTML='LOGO';">
             </div>
             <div class="title">
-                <h1>MOTOR COVER NOTE</h1>
+                <h1>COVER NOTE</h1>
             </div>
-            <div class="qr-section">
-                <div class="qr-placeholder">QR CODE</div>
+            <div class="qr-section" style="text-align: center; margin-top: 10px;">
+                <img src="{{ $qrCodeBase64 }}" alt="QR CODE" style="width: 100px; height: 100px; object-fit: contain;">
                 <div style="font-size: 8px;">Scan QR code to Validate</div>
             </div>
         </div>
@@ -270,6 +270,10 @@
             <div class="ref-item">
                 <span class="ref-label">Currency:</span>
                 <span>{{ $covernote->currency_code }} (Rate: {{ $covernote->exchange_rate }})</span>
+            </div>
+            <div class="ref-item">
+                <span class="ref-label">Account Name:</span>
+                <span>{{ $covernote->customer->client_name }} </span>
             </div>
         </div>
         

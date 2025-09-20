@@ -11,6 +11,50 @@
 </head>
 
 <body class="body">
+    <div class="modal fade" id="InsuranceType" tabindex="-1" aria-labelledby="InsuranceTypeLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title">SELECT INSURANCE TYPE</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <form action="{{ route('Quotation1.create') }}" method="GET">
+                                <div class="modal-body row g-3">
+                                    <div class="col-md-12">
+                                        <label class="form-label">Insurance Type:</label>
+                                        <select class="form-select" id="insuranceSelect" name="insurance_id" required>
+                                            <option value="">-- Select Insurance --</option>
+                                            @foreach($insurance as $ins)
+                                                <option value="{{ $ins->id }}">{{ $ins->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-12 mt-3">
+                                        <label class="form-label">Product:</label>
+                                        <select class="form-select" id="productSelect" name="product_id" required>
+                                            <option value="">-- Select Product --</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-12 mt-3">
+                                        <label class="form-label">Coverage:</label>
+                                        <select class="form-select" id="coverageSelect" name="coverage_id" required>
+                                            <option value="">-- Select Coverage --</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-primary text-white">Proceed</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
     <div id="toast-container"></div>
     <div class="app-container container-xxl mt-4">
         <div class="row justify-content-center">
@@ -133,7 +177,7 @@
                                                         </span>
                                                     @endif
                                                 </td>-->
-                           <td class="text-center gap-3 d-inline-block">        
+                                                    <td class="text-center gap-3 d-inline-block">        
                                                     <a href="{{ route('covernote.pdf', $quotation->id) }}">
                                                         <i class="bi bi-eye fs-6 me-2 cursor-pointer text-success"></i>
                                                     </a>
@@ -332,52 +376,7 @@
                 
 
                 <!--end of edit modal-->
-                <div class="modal fade" id="InsuranceType" tabindex="-1" aria-labelledby="InsuranceTypeLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header bg-danger text-white">
-                                <h5 class="modal-title">SELECT INSURANCE TYPE</h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <form action="{{ route('Quotation1.create') }}" method="GET">
-                                <div class="modal-body row g-3">
-                                    <div class="col-md-12">
-                                        <label class="form-label">Insurance Type:</label>
-                                        <select class="form-select" id="insuranceSelect" name="insurance_id" required>
-                                            <option value="">-- Select Insurance --</option>
-                                            @foreach($insurance as $ins)
-                                                <option value="{{ $ins->id }}">{{ $ins->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-12 mt-3">
-                                        <label class="form-label">Product:</label>
-                                        <select class="form-select" id="productSelect" name="product_id" required>
-                                            <option value="">-- Select Product --</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-12 mt-3">
-                                        <label class="form-label">Coverage:</label>
-                                        <select class="form-select" id="coverageSelect" name="coverage_id" required>
-                                            <option value="">-- Select Coverage --</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="modal-footer">
-                                        <button type="submit" class="btn btn-primary text-white">Proceed</button>
-                                    </div>
-                                </div>
-                            </form>
-
-
-                        </div>
-                    </div>
-                </div>
-
+                
                 <script src="{{ asset('assets/js/scripts.bundle.js') }}"></script>
                 <!--end::Global Javascript Bundle-->
 

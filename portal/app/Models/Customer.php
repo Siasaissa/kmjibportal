@@ -32,4 +32,9 @@ class Customer extends Model
         'notify_sms' => 'boolean',
         'notify_email' => 'boolean',
     ];
+
+        public function quotations()
+    {
+        return $this->hasMany(Quotation::class, 'customer_id');
+    }
 }

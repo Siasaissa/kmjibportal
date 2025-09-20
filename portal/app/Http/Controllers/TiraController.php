@@ -578,23 +578,24 @@ public function RequestnonMotor(Request $request)
             'https://41.59.86.178:8091/ecovernote/api/covernote/non-life/other/v2/request',
             $gen_data
         );
+        
+        Log::channel('tiramisxml')->info('TiraRequest response: ' . print_r($res, true));
 
-        // Log the raw response for debugging
         Log::channel('tiramisxml')->info('Raw API Response: ' . json_encode($res));
 
-        $xmlstring = $res['body'] ?? null;
+        $xmlstring = null;
+
+        if (is_array($res) && isset($res['body'])) {
+            $xmlstring = $res['body'];
+        } elseif (is_object($res) && method_exists($res, 'getBody')) {
+            $xmlstring = (string) $res->getBody();
+        }
 
         if (!$xmlstring) {
             throw new \Exception('No response body received from API');
         }
 
-        // Parse XML response
-        $xml = simplexml_load_string($xmlstring, "SimpleXMLElement", LIBXML_NOCDATA);
-        
-        if ($xml === false) {
-            throw new \Exception('Failed to parse XML response: ' . $xmlstring);
-        }
-
+        $xml = simplexml_load_string($res['body'], "SimpleXMLElement", LIBXML_NOCDATA);
         // Look for acknowledgment response (could be CoverNoteRefReqAck or MotorCoverNoteRefReqAck)
         $ack = $xml->CoverNoteRefReqAck ?? $xml->MotorCoverNoteRefReqAck ?? null;
 
@@ -655,6 +656,11 @@ public function RequestnonMotor(Request $request)
         ], 500);
     }
 }
+
+
+
+
+
 
     public function tiraCallbackHandler(Request $request)
     {

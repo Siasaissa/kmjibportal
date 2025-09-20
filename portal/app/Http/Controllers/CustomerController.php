@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Quotation;
 use PDF;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class CustomerController extends Controller
 {
@@ -120,9 +121,23 @@ public function autocomplete(Request $request)
 
 public function covernote($id)
 {
-    $covernote = Quotation::findOrFail($id);
+    $covernote = Quotation::with('customer')->findOrFail($id);
+    $logoPath = public_path('assets/dash/board_files/logo.png');
+    $clientName = $covernote->customer->client_name;
+    // Generate QR code as a base64 string
+    $qrCode = QrCode::format('png')
+        ->merge($logoPath, 0.2, true)  
+        ->size(150)
+        ->generate(json_encode([
+            'cover_note' => $covernote->cover_note_reference,
+            'total_premium' => $covernote->total_premium,
+            'start_date' => $covernote->cover_note_start_date,
+            'end_date' => $covernote->cover_note_end_date
+        ]));
 
-    $pdf = PDF::loadView('dash.covernote', compact('covernote'));
+    $qrCodeBase64 = 'data:image/png;base64,' . base64_encode($qrCode);
+
+    $pdf = PDF::loadView('dash.covernote', compact('covernote', 'qrCodeBase64'));
 
     return $pdf->stream("motor-cover-note-{$covernote->cover_note_reference}.pdf");
 }
