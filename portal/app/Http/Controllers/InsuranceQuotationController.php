@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Models\Insurance;
+use Illuminate\Support\Facades\Log;
+
 
 class InsuranceQuotationController extends Controller
 {
@@ -240,7 +242,7 @@ public function create(Request $request)
                         'size' => $file->getSize(),
                     ]);
                 } catch (\Exception $e) {
-                    \Log::error('Document upload failed: ' . $e->getMessage());
+                    Log::error('Document upload failed: ' . $e->getMessage());
                     // Continue with other files even if one fails
                     continue;
                 }
@@ -276,7 +278,7 @@ public function create(Request $request)
     public function index()
 {
     // Fetch all quotations (you can paginate if needed)
-    $quotations = Quotation::all();
+    $quotations = Quotation::with('customer')->get();
     $insurance = Insurance::all();
 
     // Pass to the view

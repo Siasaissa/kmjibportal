@@ -54,7 +54,190 @@
                         </div>
                     </div>
                 </div>
+                @if($quotations)
+                @foreach($quotations as $quotation)
+                    <div class="modal fade" id="viewModal{{ $quotation->id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-md-custom">
+                            <!-- Optional: modal-lg for larger width -->
+                            <div class="modal-content">
+                                <div class="card card-flush">
+                                    <!--begin::Header-->
+                                    <div class="card-header pt-7">
+                                        <div class="card-toolbar ms-4 d-flex align-items-center gap-1">
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="w-100 text-center mb-2 text-success">
+                                            <h2>Details</h2>
+                                        </div>
+                                    </div>
 
+                                    <div class="card-body pt-6">
+                                        <div class="row align-items-start ms-4">
+                                            <!-- Details Column -->
+                                            <div class="col-md-8 wrap">
+                                                <p><strong>Name:</strong> {{ $quotation->client_name }}</p>
+                                                <p><strong>Expired Date:</strong> {{ $quotation->end_date }}</p>
+                                                <p><strong>Insurance Type:</strong> {{ $quotation->insurance_type }}</p>
+                                                <p><strong>Quote:</strong> {{ $quotation->previous_quote }}</p>
+                                                <p><strong>Address:</strong> {{ $quotation->address }}</p>
+                                                <p><strong>Payment:</strong> {{ $quotation->payment_method }}</p>
+                                                <p><strong>Premium:</strong> {{ $quotation->total_premium }}</p>
+                                                <p><strong>Start Date:</strong> {{ $quotation->start_date }}
+                                                </p>
+                                                <p><strong>Created At:</strong> {{ $quotation->created_date }}</p>
+                                            </div>
+
+                                            <!-- QR and Button Column--> 
+                                            <!-- QR and Button Column -->
+                                            <div class="col-md-4 d-flex flex-column align-items-center"
+                                                style="margin-top: -10;">
+                                                <!-- Use the generated QR code -->
+                                                <img src="{{ $quotation->qrCode }}" alt="QR Code" class="img-fluid mb-3"
+                                                    style="max-width: 200px; height: auto;">
+
+                                                <div class="d-flex gap-3">
+                                                    <img src="{{ asset('assets/dash/board_files/TIRAlogo.png') }}"
+                                                        alt="TIRA Logo" style="width: 40px; height: auto;">
+                                                    <button class="btn btn-primary btn-sm px-2" style="color: white;"
+                                                        data-bs-toggle="modal" data-bs-target="#actions1Modal{{ $quotation->id }}">
+                                                        Actions
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div> 
+                            </div> <!-- end modal-content -->
+                        </div> <!-- end modal-dialog-->
+                    </div> <!-- end modal -->
+                @endforeach
+            @endif
+
+
+            @if($quotations)
+            @foreach($quotations as $quotation)
+            <div class="modal fade" id="actions1Modal{{ $quotation->id }}" tabindex="-1" aria-labelledby="actions1ModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header bg-danger text-white">
+                            <h5 class="modal-title" id="actions1ModalLabel">Actions</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row g-4">
+
+                                <div class="col-md-3">
+                                    <a href="#" class="text-decoration-none">
+                                        <div
+                                            class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
+                                            Print Quotation
+                                        </div>
+                                    </a>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <a href="#" class="text-decoration-none">
+                                        <div
+                                            class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
+                                            Digital Payment
+                                        </div>
+                                    </a>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <a href="#" class="text-decoration-none">
+                                        <div
+                                            class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
+                                            Print Profoma
+                                        </div>
+                                    </a>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <a href="#" class="text-decoration-none">
+                                        <div
+                                            class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
+                                            Attach Document
+                                        </div>
+                                    </a>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <a href="{{ route('covernote.pdf', $quotation->id) }}"
+                                        class="text-decoration-none">
+                                        <div class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center"
+                                            id="downloadBtn">
+                                            Print Risknote
+                                        </div>
+                                    </a>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <a href="#" class="text-decoration-none">
+                                        <div
+                                            class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
+                                            Print Proposal
+                                        </div>
+                                    </a>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <a href="#" class="text-decoration-none">
+                                        <div
+                                            class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
+                                            Print Receipt
+                                        </div>
+                                    </a>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <a href="#" class="text-decoration-none">
+                                        <div
+                                            class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
+                                            Email Quote
+                                        </div>
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+
+
+
+                        <div class="modal-footer">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+            @endif
+            <!-- DELETE MODAL -->
+             @foreach ($quotations as $quotation)
+                <div class="modal fade" id="deleteModal{{ $quotation->id }}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header bg-danger text-white">
+                            <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to delete <strong>{{ $quotation->id}}</strong>'s Quotation? This action
+                            cannot be
+                            undone.
+                        </div>
+                        <div class="modal-footer">
+
+                            <button type="button" class="btn btn-primary text-white" id="confirmDelete">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>          
+             @endforeach
     <div id="toast-container"></div>
     <div class="app-container container-xxl mt-4">
         <div class="row justify-content-center">
@@ -135,9 +318,9 @@
                                     <tr class="fs-5 fw-bold text-dark border-bottom-2  text-center">
                                         <th>S/No</th>
                                         <th>Sale Point Code</th>
-                                        <th>Cover note Description</th>
-                                        <th>Cover note start dat</th>
-                                        <th>Cover note end date</th>
+                                       
+                                        <th> start date</th>
+                                        <th> end date</th>
                                         <th>Payment Mode</th>
                                         <th>Currency Code</th>
                                         <th>Officer Name</th>
@@ -149,15 +332,22 @@
 
                             <!--begin::Table body-->
                             <tbody>
-                                  
                                         @foreach($quotations as $quotation)
                                             <tr class=" fs-6  text-center min-w-900px text-wrap">
                                                 <td>{{ $loop->iteration  }}</td>
                                                 <td>{{ $quotation->sale_point_code }}</td>
-                                                <td>{{ $quotation->cover_note_desc }}</td>
+                                                
                                                 <td>{{ $quotation->cover_note_start_date }}</td>
                                                 <td>{{ $quotation->cover_note_end_date }} </td>
-                                                <td>{{ $quotation->payment_mode }}</td>
+                                                <td>@if ($quotation->payment_mode == '1')
+                                                    CASH
+                                                    @elseif ($quotation->payment_mode == '2')
+                                                    CHEQUE
+                                                @elseif ($quotation->payment_mode == '3')
+                                                    MOBILE MONEY
+                                                
+                                                @endif
+                                                </td>
                                                 <td>{{ $quotation->currency_code }}</td>
                                                 <td>{{ $quotation->officer_name }}</td>
 
@@ -178,18 +368,18 @@
                                                     @endif
                                                 </td>-->
                                                     <td class="text-center gap-3 d-inline-block">        
-                                                    <a href="{{ route('covernote.pdf', $quotation->id) }}">
-                                                        <i class="bi bi-eye fs-6 me-2 cursor-pointer text-success"></i>
-                                                    </a>
-
-
+                                                    
+                                                    <i class="bi bi-eye fs-6 me-2 cursor-pointer text-success"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#viewModal{{ $quotation->id }}"></i>
 
                                                     <i class="bi bi-pencil-square fs-6 me-2 ms-2 cursor-pointer"
                                                         style="color: orange !important;" data-bs-toggle="modal"
                                                         data-bs-target="#editModal"></i>
+
                                                     <i class="bi bi-trash fs-6 text-danger ms-2 cursor-pointer"
                                                         style="color: #dc3545 !important;" data-bs-toggle="modal"
-                                                        data-bs-target="#deleteModal"></i>
+                                                        data-bs-target="#deleteModal{{ $quotation->id }}"></i>
                                                    <!-- @if($quotation->status == 0)
                                                         <i class="bi bi-receipt fs-6 text-success ms-2 cursor-pointer"
                                                             style="color: green !important;" data-bs-toggle="modal"
@@ -269,67 +459,8 @@
                     </div>
 
                 </div>
-                <!-- Modal Start -->
-                <!--@if($quotations)
-                @foreach($quotations as $quotation)
-                    <div class="modal fade" id="viewModal{{ $quotation->id }}" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-md-custom">
-                            Optional: modal-lg for larger width 
-                            <div class="modal-content">
-                                <div class="card card-flush">
-                                    <!--begin::Header
-                                    <div class="card-header pt-7">
-                                        <div class="card-toolbar ms-4 d-flex align-items-center gap-1">
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                aria-label="Close"></button>
-                                        </div>
-                                        <div class="w-100 text-center mb-2 text-success">
-                                            <h2>Details</h2>
-                                        </div>
-                                    </div>
-
-                                    <div class="card-body pt-6">
-                                        <div class="row align-items-start ms-4">
-                                            <!-- Details Column 
-                                            <div class="col-md-8 wrap">
-                                                <p><strong>Name:</strong> {{ $quotation->client_name }}</p>
-                                                <p><strong>Expired Date:</strong> {{ $quotation->end_date }}</p>
-                                                <p><strong>Insurance Type:</strong> {{ $quotation->insurance_type }}</p>
-                                                <p><strong>Quote:</strong> {{ $quotation->previous_quote }}</p>
-                                                <p><strong>Address:</strong> {{ $quotation->address }}</p>
-                                                <p><strong>Payment:</strong> {{ $quotation->payment_method }}</p>
-                                                <p><strong>Premium:</strong> {{ $quotation->total_premium }}</p>
-                                                <p><strong>Start Date:</strong> {{ $quotation->start_date }}
-                                                </p>
-                                                <p><strong>Created At:</strong> {{ $quotation->created_date }}</p>
-                                            </div>
-
-                                            <!-- QR and Button Column 
-                                            <!-- QR and Button Column 
-                                            <div class="col-md-4 d-flex flex-column align-items-center"
-                                                style="margin-top: -10;">
-                                                <!-- Use the generated QR code 
-                                                <img src="{{ $quotation->qrCode }}" alt="QR Code" class="img-fluid mb-3"
-                                                    style="max-width: 200px; height: auto;">
-
-                                                <div class="d-flex gap-3">
-                                                    <img src="{{ asset('assets/dash/board_files/TIRAlogo.png') }}"
-                                                        alt="TIRA Logo" style="width: 40px; height: auto;">
-                                                    <button class="btn btn-primary btn-sm px-2" style="color: white;"
-                                                        data-bs-toggle="modal" data-bs-target="#actions1Modal">
-                                                        Actions
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div> end card
-                            </div> <!-- end modal-content 
-                        </div> <!-- end modal-dialog
-                    </div> <!-- end modal 
-                @endforeach
-            @endif
+                
+                
 
             <!-- EDIT MODAL -->
                 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel"
@@ -491,10 +622,7 @@
                 </script>
                 @if(session('success'))
                     <script>
-                        document.addEventListener('DOMContentLoaded', function () {
-                            showNotification(@json(session('success')), 'success');
-                        });
-
+                       
                         function showNotification(message, type) {
                             const toastContainer = document.getElementById('toast-container');
 
@@ -544,123 +672,8 @@
 
             </div>
 
-            <div class="modal fade" id="actions1Modal" tabindex="-1" aria-labelledby="actions1ModalLabel"
-                aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header bg-danger text-white">
-                            <h5 class="modal-title" id="actions1ModalLabel">Actions</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row g-4">
-
-                                <div class="col-md-3">
-                                    <a href="#" class="text-decoration-none">
-                                        <div
-                                            class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
-                                            Print Quotation
-                                        </div>
-                                    </a>
-                                </div>
-
-                                <div class="col-md-3">
-                                    <a href="#" class="text-decoration-none">
-                                        <div
-                                            class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
-                                            Digital Payment
-                                        </div>
-                                    </a>
-                                </div>
-
-                                <div class="col-md-3">
-                                    <a href="#" class="text-decoration-none">
-                                        <div
-                                            class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
-                                            Print Profoma
-                                        </div>
-                                    </a>
-                                </div>
-
-                                <div class="col-md-3">
-                                    <a href="#" class="text-decoration-none">
-                                        <div
-                                            class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
-                                            Attach Document
-                                        </div>
-                                    </a>
-                                </div>
-
-                                <div class="col-md-3">
-                                    <a href="{{asset('assets/dash/board_files/T903DSF.pdf')}}"
-                                        class="text-decoration-none">
-                                        <div class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center"
-                                            id="downloadBtn">
-                                            Print Risknote
-                                        </div>
-                                    </a>
-                                </div>
-
-                                <div class="col-md-3">
-                                    <a href="#" class="text-decoration-none">
-                                        <div
-                                            class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
-                                            Print Proposal
-                                        </div>
-                                    </a>
-                                </div>
-
-                                <div class="col-md-3">
-                                    <a href="#" class="text-decoration-none">
-                                        <div
-                                            class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
-                                            Print Receipt
-                                        </div>
-                                    </a>
-                                </div>
-
-                                <div class="col-md-3">
-                                    <a href="#" class="text-decoration-none">
-                                        <div
-                                            class="card bg-danger p-3 text-center text-white cursor-pointer h-100 d-flex flex-column justify-content-center">
-                                            Email Quote
-                                        </div>
-                                    </a>
-                                </div>
-
-                            </div>
-                        </div>
-
-
-
-                        <div class="modal-footer">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel"
-                aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header bg-danger text-white">
-                            <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            Are you sure you want to delete <strong>Ahmed Siasa Issa</strong>'s Quotation? This action
-                            cannot be
-                            undone.
-                        </div>
-                        <div class="modal-footer">
-
-                            <button type="button" class="btn btn-primary text-white" id="confirmDelete">Delete</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
+            
             @if($quotations)
                 @foreach($quotations as $quotation)
                     <div class="modal fade" id="captureReceiptModal{{ $quotation->id }}" tabindex="-1"
